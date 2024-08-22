@@ -1,0 +1,101 @@
+<script setup>
+import { ref, computed } from 'vue';
+import { Head, usePage, router } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DataList from '@/Components/DataList.vue';
+import UserForm from '@/Components/forms/UserForm.vue';
+
+const { props } = usePage();
+const users = ref(props.users || []);
+const isEditModalOpen = ref(false);
+const isEditing = ref(false);
+const editUser = ref({
+  id: null,
+  name: '',
+  email: '',
+});
+const search = ref('');
+
+const headers = [
+  { text: 'ID', value: 'id' , sortable: true,title:'ID',key:'id'},
+  { text: 'Nome', value: 'name', sortable: true,title:'Nome',key:'name' },
+  { text: 'Email', value: 'email' , sortable: true,title:'Email',key:'email'},
+  { text: 'Ações', value: 'actions', sortable: false },
+];
+
+const deleteUser = async (id) => {
+  if (confirm('Tem certeza que deseja deletar este usuário?')) {
+    try {
+      await router.delete(route('users.destroy', id));
+      users.value = users.value.filter(user => user.id !== id);
+    } catch (error) {
+      console.error('Erro ao deletar usuário:', error);
+    }
+  }
+};
+
+const handleViewItem = (item) => {
+  console.log('Visualizar item:', item);
+};
+
+const handleCreateItem = () => {
+  isEditing.value = false;
+  editUser.value = {
+    id: null,
+    name: '',
+    email: '',
+    password: ''
+  };
+  isEditModalOpen.value = true;
+};
+
+const handleEditItem = (item) => {
+  isEditing.value = true;
+  editUser.value = { ...item };
+  isEditModalOpen.value = true;
+};
+
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+};
+
+const handleDeleteItem = (item) => {
+  deleteUser(item.id);
+};
+</script>
+
+<template>
+  <Head title="Lista de Usuários" />
+
+  <AuthenticatedLayout>
+    <v-container fluid fill-height>
+      <DataList
+        :headers="headers"
+        :items="users"
+        :columnTitles="['ID', 'Nome', 'Email']"
+        searchPlaceholder="Pesquisar Usuários"
+        createButtonLabel="Adicionar Usuário"
+        @create="handleCreateItem"
+        @edit="handleEditItem"
+        @delete="handleDeleteItem"
+        :item-key="'id'"
+      />
+      <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
+        <UserForm
+  :formData="editUser"
+  :fields="{
+    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
+    email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true },
+    password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: !isEditing, type: 'password' },
+    password_confirmation: { label: 'Confirmar Senha', rules: [(v) => v === form.password || 'As senhas não coincidem'], required: !isEditing, type: 'password' }
+  }"
+  :isEditing="isEditing"
+  title="Usuário"
+  createRoute="users.store"
+  updateRoute="users.update"
+  @cancel="closeEditModal"
+/>
+      </v-dialog>
+    </v-container>
+  </AuthenticatedLayout>
+</template>

@@ -1,0 +1,82 @@
+/* Estilos gerais para layout */
+#app {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.company-name {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.logo {
+    margin: 0;
+    height: 130px;
+    text-align: center;
+}
+
+.navbar-custom {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar {
+    width: 15%;
+    background-color: #343a40;
+    padding: 1rem;
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .nav-item a {
+    color: white;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.sidebar .nav-link {
+    cursor: pointer;
+}
+
+.submenu-item {
+    margin-left: 20px;
+}
+
+.content {
+    margin-left: 20%;
+    padding: 2rem;
+    width: 80%;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .sidebar.sidebar-hidden {
+        display: block;
+        width: 100%;
+        position: fixed;
+        z-index: 1000;
+        background-color: #343a40;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 1rem;
+        width: 100%;
+    }
+}
