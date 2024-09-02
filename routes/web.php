@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RadioController;
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/count', [UserController::class, 'count'])->name('users.count');
         Route::get('/new', [UserController::class, 'new'])->name('users.create');
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
         Route::post('/', [UserController::class, 'store'])->name('users.store');
@@ -88,6 +90,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('cards', CardController::class);
+    Route::resource('notes', NoteController::class);
+
 });
 
 require __DIR__.'/auth.php';

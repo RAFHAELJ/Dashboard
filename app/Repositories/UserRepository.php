@@ -11,6 +11,9 @@ class UserRepository{
     public function all() {
         return User::all();
     }
+    public function count() {
+        return User::all()->count();
+    }
 
     public function find($id) {
         return User::find($id);

@@ -19,7 +19,7 @@ class CreateCardsTable extends Migration
             $table->string('page');
             $table->string('url')->nullable();
             $table->enum('type', ['Gráfico', 'Texto']);
-            $table->text('content')->nullable();
+            $table->string('content')->nullable();
             $table->json('chart_options')->nullable(); // Para dados específicos de gráficos
             $table->json('annotations')->nullable(); // Para armazenar anotações
             $table->integer('position_x')->default(0); // Posição X na tela

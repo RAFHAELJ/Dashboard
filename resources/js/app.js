@@ -28,9 +28,9 @@ const vuetify = createVuetify({
     icons: {
         defaultSet: 'mdi', // This is already the default value - only for display purposes
       },
-      /*theme: {
-        defaultTheme: 'dark'
-      },*/
+      theme: {
+        defaultTheme: 'light'
+      },
       display: {
         mobileBreakpoint: 'sm',
         thresholds: {

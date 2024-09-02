@@ -28,12 +28,12 @@
 
       <!-- Diálogo para adicionar card -->
       <v-dialog v-model="cardDialog" max-width="500px">
-        <CardForm @close="closeCardDialog" @add="addCard" :page="home"/>
+        <CardForm @close="closeDialog" @add="saveCard" :page="'home'"/>
       </v-dialog>
 
       <v-row>
         <Draggable
-          v-model="notes"
+          v-model="notes"y
           tag="v-row"
           class="d-flex align-items-stretch"
           :itemKey="getItemKey"
@@ -49,81 +49,71 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head,router } from '@inertiajs/vue3';
 import { ref, reactive, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import axios from 'axios'; // Importando o axios para fazer a consulta ao backend
+import axios from 'axios';
 import Draggable from 'vuedraggable';
 import CardComponent from '@/Components/CardComponent.vue';
 import NoteComponent from '@/Components/NoteComponent.vue';
 import CardForm from '@/Components/forms/CardForm.vue';
 
 const { props } = usePage();
-const cards1 = ref(props.cards || []);
-console.log('/*************************************************//**********************');
-console.log(cards1);
-const totals = reactive({
-  users: 0,
-  campaigns: 0,
-  radios: 0,
-});
-
-onMounted(() => {
-  totals.users = props.usersCount;
-  totals.campaigns = props.campaignsCount;
-  totals.radios = props.radiosCount;
-});
-
-const cards = ref([
-  { id: 1, title: 'Total de Usuários', content: totals.users, icon: 'mdi-account', type: 'Texto' },
-  { id: 2, title: 'Total de Campanhas', content: totals.campaigns, icon: 'mdi-bullhorn', type: 'Texto' },
-  { id: 3, title: 'Total de Rádios', content: totals.radios, icon: 'mdi-radio-tower', type: 'Texto' },
-]);
-
+const cards = ref(props.cards || []);
 const notes = ref([]);
 const cardDialog = ref(false);
-const newCard = ref({
-  url: '',
-  title: '',
-  type: '',
-  content: '',
-  chartOptions: {},
+
+
+const fetchCardContent = async (card) => {
+  const iconMap = {
+    users: 'mdi-account',
+    campanhas: 'mdi-bullhorn',
+    radio: 'mdi-radio-tower',
+    radius: 'mdi-server',
+    log: 'mdi-archive',
+    default: 'mdi-information', // Ícone padrão
+  };
+
+  try {
+    const response = await axios.get(card.url);
+    const urlParam = card.url.split('/')[0]; // Obtém o primeiro parâmetro da URL
+
+    // Mapeia o ícone com base no primeiro parâmetro da URL
+    card.icon = iconMap[urlParam] || iconMap.default;
+
+    if (card.type === 'Texto') {
+      card.content = response.data; // Supondo que o dado relevante esteja na propriedade 'total'
+    } else if (card.type === 'Gráfico') {
+      card.chartOptions = response.data.chartOptions;
+    }
+  } catch (error) {
+    console.error('Erro ao buscar dados:', error);
+    card.content = 'Erro ao carregar';
+    card.icon = iconMap.default; // Define o ícone padrão em caso de erro
+  }
+};
+
+
+const initializeCards = async () => {
+  for (const card of cards.value) {
+    await fetchCardContent(card);
+  }
+};
+
+onMounted(() => {
+  initializeCards();
 });
 
 const openCardDialog = () => {
   cardDialog.value = true;
 };
-
-const fetchData = async (url) => {
-  try {
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao buscar dados:', error);
-    return null;
-  }
-};
-
-const saveCard = async () => {
-  const data = await fetchData(newCard.value.url);
-
-  if (newCard.value.type === 'Texto') {
-    newCard.value.content = data;
-  } else if (newCard.value.type === 'Gráfico') {
-    newCard.value.chartOptions = data;
-  }
-
-  cards.value.push({
-    id: Date.now(),
-    title: newCard.value.title,
-    content: newCard.value.content,
-    icon: 'mdi-information',
-    type: newCard.value.type,
-    chartOptions: newCard.value.chartOptions,
-  });
-
-  newCard.value = { url: '', title: '', type: '', content: '', chartOptions: {} };
+const closeDialog = () => {
   cardDialog.value = false;
+};
+const saveCard = async () => {
+  
+  cardDialog.value = false;
+  window.location.reload();
 };
 
 const addNote = () => {
@@ -131,7 +121,16 @@ const addNote = () => {
 };
 
 const removeCard = (cardId) => {
-  cards.value = cards.value.filter((card) => card.id !== cardId);
+  
+    if (confirm('Tem certeza que deseja deletar este Painel?')) {
+      try {
+         router.delete(route('cards.destroy', cardId));
+        cards.value = cards.value.filter((card) => card.id !== cardId);
+      } catch (error) {
+        console.error('Erro ao deletar Painel:', error);
+      }
+   
+    }
 };
 
 const removeNote = (noteId) => {

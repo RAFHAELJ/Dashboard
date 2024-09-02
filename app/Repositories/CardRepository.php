@@ -3,30 +3,42 @@
 namespace App\Repositories;
 
 use App\Models\Card;
+use Illuminate\Http\Request;
 
 class CardRepository implements CardRepositoryInterface
 {
-    protected $model;
+    protected $card;
 
-    public function __construct(Card $model)
+    public function __construct(Card $card)
     {
-        $this->model = $model;
+        $this->card = $card;
     }
 
     public function all()
     {
-        return $this->model->all();
+        return $this->card->all();
     }
 
     public function find($id)
     {
-        return $this->model->find($id);
+        return $this->card->find($id);
     }
 
-    public function create(array $data)
+    public function create(Request $request)
     {
-        return $this->model->create($data);
+        // Extrai os dados do request e cria o modelo
+        $data = $request->only([
+            'title',
+            'content',
+            'url',
+            'type',
+            'chart_options',
+            'page',
+        ]);
+
+        return $this->card->create($data);
     }
+
 
     public function update($id, array $data)
     {

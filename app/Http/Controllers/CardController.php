@@ -41,16 +41,17 @@ class CardController extends Controller
 
     public function store(Request $request)
     {
+       // dd($request->all());
         $request->validate([
             'title' => 'required|string',
-            'content' => 'nullable|string',
+            'content' => 'nullable',
             'url' => 'nullable|string',
             'type' => 'required|string',
-            'chartOptions' => 'nullable|array',
-            'page' => 'required|string',
+            'chart_options' => 'nullable|array',
+            'page' => 'nullable|string',
         ]);
 
-        $this->cardRepo->create($request->all());
+        $this->cardRepo->create($request);
 
         return redirect()->route('cards.index')->with('success', 'Card created successfully');
     }

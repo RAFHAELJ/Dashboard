@@ -3,7 +3,7 @@
   import { Head, usePage, router } from '@inertiajs/vue3';
   import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
   import DataList from '@/Components/DataList.vue';
-  import CampanhasForm from '@/Components/forms/UserForm.vue';
+  import UserForm from '@/Components/forms/UserForm.vue';
   
   const { props } = usePage();
   const campanhas = ref(props.campanhas || []);
@@ -107,14 +107,24 @@
           :item-key="'id'"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
-          <CampanhasForm
-            v-if="isEditModalOpen"
-            :campanhas="editCampanhas"
-            :isEditing="isEditing"
-            @cancel="closeEditModal"
-          />
-          
-        </v-dialog>
+        <UserForm
+  :formData="editUser"
+  :fields="{
+    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
+    comeco: { label: 'Começo', rules: [(v) => !!v || 'Comeco é obrigatório'], required: true, type: 'date' },
+    fim: { label: 'Fim', rules: [(v) => !!v || 'Fim é obrigatório'], required: true, type: 'date' },
+    publico: { label: 'Publico', rules: [(v) => !!v || 'Publico é obrigatório'], required: true },
+    idade: { label: 'Idade', rules: [(v) => !!v || 'Idade é obrigatório'], required: true},
+    tipo: { label: 'Tipo', rules: [], required: true, type: 'bolean' },
+    password_confirmation: { label: 'Confirmar Senha', rules: [(v) => v === form.password || 'As senhas não coincidem'], required: !isEditing, type: 'password' }
+  }"
+  :isEditing="isEditing"
+  title="Campanhas Radio"
+  createRoute="camapanhas.store"
+  updateRoute="camapanhas.update"
+  @cancel="closeEditModal"
+/>
+      </v-dialog>
       </v-container>
     </AuthenticatedLayout>
   </template>

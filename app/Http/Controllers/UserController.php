@@ -25,6 +25,14 @@ class UserController extends Controller
             'users' => $users
         ]);
     }
+    public function count()
+    {
+        
+        $usersCount = $this->userRepository->count();
+        return $usersCount;
+        
+    }
+    
     public function new()
     {        
         
