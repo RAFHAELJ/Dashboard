@@ -7,9 +7,11 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Repositories\CampanhaRepository;
 use Illuminate\Support\Facades\Hash;
-
+use App\Traits\HandlesFileUpload;
 class CampanhaController extends Controller
 {
+    use HandlesFileUpload;
+
     protected $campanhaRepository;
 
     public function __construct(CampanhaRepository $campanhaRepository)
@@ -28,24 +30,55 @@ class CampanhaController extends Controller
     public function new()
     {        
         
-        return Inertia::render('campanhas/NovoUsuarioDashboard');
+        return Inertia::render('campanhas/CampanhasAdicionar');
     }
+
+
     public function store(Request $request)
     {
-        $request->validate([
+        //dd($request->all());
+         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:campanhas',
-            'password' => 'required|min:6',
+            'comeco' => 'required|date',
+            'fim' => 'required|date|after_or_equal:comeco',
+            'publico' => 'required|string',
+            'minimo' => 'required|integer|min:0',
+            'maxima' => 'required|integer|gte:minimo',
+            'tipo' => 'required|string|in:video,imagem',
+            'duracao' => 'required_if:tipo,video|integer|min:1',
+                   
+           
+           
         ]);
-
-        $user = $this->campanhaRepository->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        $idade =$request->minimo.",".$request->maxima;
+        $radios = json_encode($request->radios);
+        // Manipulando o upload dos arquivos
+        $videoPath = $request->hasFile('video') ? $this->uploadFile($request->file('video'), 'videos') : null;
+        $capaPath = $request->hasFile('capa') ? $this->uploadFile($request->file('capa'), 'capas') : null;
+        $imagemPath = $request->hasFile('imagem') ? $this->uploadFile($request->file('imagem'), 'imagens') : null;
+        // Criação da campanha
+        $campanha = $this->campanhaRepository->create([
+            'nome' => $request->name,
+            'comeco' => $request->comeco,
+            'fim' => $request->fim,
+            'publico' => $request->publico,
+            'radios' => $radios,
+            'idade' => $idade,            
+            'tipo' => $request->tipo,
+            'duracao' => $request->duracao,  
+            'video' => $videoPath,
+            'capa' => $capaPath,
+            'imagem' => $imagemPath,  
+            'tempo' => $request->tempo,
+            'url' => $request->url,
+            
         ]);
-
-        return redirect()->route('campanhas.index')->with('success', 'Campanha criado com sucesso!');
+    
+        return redirect()->route('campanhas.index')->with('success', 'Campanha criada com sucesso!');
     }
+    
+
+
 
     public function show($id)
     {

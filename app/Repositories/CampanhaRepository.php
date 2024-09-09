@@ -9,7 +9,7 @@ use App\Models\Campanha;
 class CampanhaRepository{
 
     public function all() {
-        return Campanha::all();
+        return Campanha::paginate();
     }
 
     public function find($id) {

@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\RadioController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CampanhaController;
+use App\Http\Controllers\LoginCustomizationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,9 +56,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::resource('login_customizations', LoginCustomizationController::class);
 
-    Route::prefix('radios')->group(function () {
+
+    Route::prefix('radios')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');
+        Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
+        Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
         Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');
         Route::post('/', [RadioController::class, 'store'])->name('radios.store');
         Route::put('/{id}', [RadioController::class, 'update'])->name('radios.update');
@@ -82,11 +88,18 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('campanhas')->group(function () {
         Route::get('/', [CampanhaController::class, 'index'])->name('campanhas.index');
-        Route::get('/new', [CampanhaController::class, 'new'])->name('campanhas.create');
+        Route::get('/adicionar', [CampanhaController::class, 'new'])->name('campanhas.create');
         Route::get('/{id}', [CampanhaController::class, 'show'])->name('campanhas.show');
         Route::post('/', [CampanhaController::class, 'store'])->name('campanhas.store');
         Route::put('/{id}', [CampanhaController::class, 'update'])->name('campanhas.update');
         Route::delete('/{id}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');
+    });
+
+    Route::prefix('faq')->group(function (){
+        Route::get('/', [FaqController::class, 'index'])->name('faq.index');
+        Route::get('/{id}', [FaqController::class, 'show'])->name('faq.show');
+        Route::post('/store', [FaqController::class, 'store'])->name('faq.store');
+        Route::put('/{id}', [FaqController::class, 'update'])->name('faq.update');
     });
 
     Route::resource('cards', CardController::class);

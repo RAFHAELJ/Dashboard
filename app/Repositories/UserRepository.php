@@ -9,7 +9,7 @@ use App\Models\User;
 class UserRepository{
 
     public function all() {
-        return User::all();
+        return User::paginate();
     }
     public function count() {
         return User::all()->count();

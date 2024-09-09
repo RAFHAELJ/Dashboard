@@ -19,8 +19,17 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@tiptap/extension-image": "^2.6.6",
+        "@tiptap/extension-link": "^2.6.6",
+        "@tiptap/extension-ordered-list": "^2.6.6",
+        "@tiptap/extension-text-align": "^2.6.6",
+        "@tiptap/starter-kit": "^2.6.6",
+        "@tiptap/vue-3": "^2.6.6",
+        "@vueup/vue-quill": "^1.2.0",
         "chart.js": "^4.4.3",
+        "ckeditor5": "^43.1.0",
         "grapesjs": "^0.21.12",
+        "interactjs": "^1.10.27",
         "vue-chartjs": "^5.3.1",
         "vue-color": "^2.8.1",
         "vue-echarts": "^7.0.3",

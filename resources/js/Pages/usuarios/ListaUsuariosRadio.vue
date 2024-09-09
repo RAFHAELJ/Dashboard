@@ -17,11 +17,11 @@ const editUsuarios = ref({
 const search = ref('');
 
 const headers = [
-  { text: 'ID', value: 'id' },
-  { text: 'Nome', value: 'name' },
-  { text: 'Email', value: 'email' },
-  { text: 'CPF', value: 'cpf' },
-  { text: 'MAC', value: 'mac' },
+
+  { text: 'ID', value: 'RadAcctId',sortable: true,title:'ID',key:'id' },
+  { text: 'Nome', value: 'UserName',sortable: true,title:'Nome',key:'UserName'},
+  { text: 'Endereço IP', value: 'NASIPAddress',sortable: true,title:'Endereço IP',key:'NASIPAddress' },  
+  { text: 'MAC', value: 'CalledStationId',sortable: true,title:'MAC',key:'CalledStationId' },
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 
@@ -78,6 +78,7 @@ const handleDeleteItem = (item) => {
         :items="usuarios"
         searchPlaceholder="Pesquisar Usuários Radio"
         createButtonLabel="Add Usuarios Radio"
+        :showCreateButton = false
         @create="handleCreateItem"
         @edit="handleEditItem"
         @delete="handleDeleteItem"

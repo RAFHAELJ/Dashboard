@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
+// Usando a conexão 'radius'
+//$radiusData = DB::connection('radius')->table('radios')->get();
 class UserController extends Controller
 {
     protected $userRepository;

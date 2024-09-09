@@ -97,10 +97,13 @@ export default {
                 <template v-slot:activator="{ props }">
                   <v-list-item v-bind="props" prepend-icon="mdi-radio-tower" title="Radios"></v-list-item>
                 </template>
-                <v-list-item title="Personaliza Hotspot" @click="navigateTo('/radios/personaliza-hotspot')"></v-list-item>
-                <v-list-item title="Mapa de Radios" @click="navigateTo('/radios/mapa')"></v-list-item>
+                
+                <v-list-item title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item>
+                <v-list-item title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
                 <v-list-item title="Configurar Radios" @click="navigateTo('/radios/configurar')"></v-list-item>
                 <v-list-item title="Rastrear Radios" @click="navigateTo('/radios/rastrear')"></v-list-item>
+                <v-list-item title="Adicionar Radios" @click="navigateTo('/radios/')"></v-list-item>                
+                <v-list-item title="Listar Radios" @click="navigateTo('/radios/')"></v-list-item>
               </v-list-group>
 
               <!-- Usuários Menu -->
@@ -121,9 +124,17 @@ export default {
                 <v-list-item title="Alterar Campanha" @click="navigateTo('/campanhas/alterar')"></v-list-item>
                 <v-list-item title="Listar Campanhas" @click="navigateTo('/campanhas/')"></v-list-item>
               </v-list-group>
+              <!-- Wi-fi Menu -->
+              <v-list-group v-model="menuStates.wifi" value="Wifi">
+                <template v-slot:activator="{ props }">
+                  <v-list-item v-bind="props" prepend-icon="mdi-wifi-settings" title="Wi-Fi"></v-list-item>
+                </template>
+                <v-list-item title="Adicionar Ap" @click="navigateTo('/radios/')"></v-list-item>                
+                <v-list-item title="Listar Aps" @click="navigateTo('/radios/')"></v-list-item>
+              </v-list-group>
 
               <!-- Radius, FAQ, and Logs -->
-              <v-list-item title="Wi-fi" prepend-icon="mdi-wifi-settings" @click="navigateTo('/wifi')"></v-list-item>
+              <v-list-item title="Personaliza Hotspot" prepend-icon="mdi-router-wireless-settings" @click="navigateTo('/login_customizations')"></v-list-item>
               <v-list-item title="Radius" prepend-icon="mdi-server" @click="navigateTo('/radius')"></v-list-item>
               <v-list-item title="FAQ" prepend-icon="mdi-help" @click="navigateTo('/faq')"></v-list-item>
               <v-list-item title="Logs" prepend-icon="mdi-archive" @click="navigateTo('/logs')"></v-list-item>
