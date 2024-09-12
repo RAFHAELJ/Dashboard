@@ -13,7 +13,10 @@ const editUser = ref({
   id: null,
   name: '',
   email: '',
+  password: '',
+  password_confirmation: '',
   regiao: '',
+  nivel: '',
 });
 const search = ref('');
 
@@ -21,6 +24,8 @@ const headers = [
   { text: 'ID', value: 'id' , sortable: true,title:'ID',key:'id'},
   { text: 'Nome', value: 'name', sortable: true,title:'Nome',key:'name' },
   { text: 'Email', value: 'email' , sortable: true,title:'Email',key:'email'},
+  { text: 'Regiao', value: 'regiao.cidade' , sortable: true,title:'Regiao',key:'regiao'},
+  { text: 'Cargo', value: 'nivel' , sortable: true,title:'Cargo',key:'nivel'},
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 
@@ -48,14 +53,21 @@ const handleCreateItem = () => {
     name: '',
     email: '',
     password: '',
+    password_confirmation: '',
     regiao: '',
+    nivel: '',
+    
   };
   isEditModalOpen.value = true;
 };
 
 const handleEditItem = (item) => {
   isEditing.value = true;
-  editUser.value = { ...item };
+  editUser.value = { 
+    ...item, 
+    password: '', // Inicializando o campo password vazio
+    password_confirmation: '' // Inicializando o campo password_confirmation vazio
+  };
   isEditModalOpen.value = true;
 };
 
@@ -89,10 +101,13 @@ const handleDeleteItem = (item) => {
   :formData="editUser"
   :showCreateRegiao="true"
   :fields="{
-    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
-    email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true },
-    password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: !isEditing, type: 'password' },
-    password_confirmation: { label: 'Confirmar Senha', rules: [(v) => v === form.password || 'As senhas não coincidem'], required: !isEditing, type: 'password' }
+    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
+    email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
+    nivel: { label: 'Cargo', type: 'select', required: true, items: ['Administrador', 'Cliente', 'Supervisor', 'Cliente Regional', 'Supervisor Regional'] },
+    ...( !isEditing ? {
+        password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
+        password_confirmation: {label: 'Confirmar Senha',rules: [(v) => !!v || 'A confirmação da senha é obrigatória',(v) => v === editUser.password || 'As senhas não coincidem'],required: true, type: 'password', autocomplete: 'new-password'  }
+      } : {})
   }"
   :isEditing="isEditing"
   title="Usuário"

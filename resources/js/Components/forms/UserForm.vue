@@ -10,27 +10,38 @@
     <v-divider></v-divider>
     <v-card-text>
       <v-form ref="dynamicForm" v-model="valid">
-        <v-text-field
-          v-for="(field, key) in fields"
-          :key="key"
-          v-model="form[key]"
-          :label="field.label"
-          :type="field.type || 'text'"
-          :rules="field.rules"
-          :required="field.required"
-        ></v-text-field>
+        <template v-for="(field, key) in fields" :key="key">
+          <v-text-field
+            v-if="field.type !== 'select'"
+            v-model="form[key]"
+            :label="field.label"
+            :type="field.type || 'text'"
+            :rules="field.rules"
+            :required="field.required"
+            :autocomplete="field.autocomplete" 
+          ></v-text-field>
+
+          <!-- Campo de Select para Cargos -->
+          <v-select
+              v-if="field.type === 'select'"
+              v-model="form[key]"
+              :items="field.items"
+              :label="field.label"
+              :rules="field.rules"
+              :required="field.required"
+            ></v-select>
+        </template>
       </v-form>
+
       <!-- Regiao -->
-        
-            <regioes-select
-             v-if="showCreateRegiao"
-                  v-model="form.regiao"
-                  label="Selecione uma região"
-                  :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
-                ></regioes-select>
-           
-        </v-card-text>
-      
+      <regioes-select
+        v-if="showCreateRegiao"
+        v-model="form.regiao"
+        label="Selecione uma região"
+        :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
+      ></regioes-select>
+    </v-card-text>
+    
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="primary" @click="submitForm">Salvar</v-btn>
@@ -41,8 +52,8 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { useForm,router } from '@inertiajs/vue3';
-import RegioesSelect from '../RegioesSelect.vue'
+import { useForm, router } from '@inertiajs/vue3';
+import RegioesSelect from '../RegioesSelect.vue';
 
 const props = defineProps({
   formData: {
@@ -93,19 +104,18 @@ const submitForm = () => {
 
   useForm(form).submit(method, route(routeName, routeParams), {
     onSuccess: () => {
-      // Reseta os campos dinâmicos do formulário após o sucesso
       Object.keys(form).forEach((key) => {
-        form[key] = '';
+        form[key] = ''; // Limpar os campos após a submissão
       });
-      emit('cancel');
-      router.visit(route(props.returnRoute));
-     
+      emit('cancel'); // Fechar o modal ou resetar o estado
+      router.visit(route(props.returnRoute)); // Redirecionar
     },
     onError: (e) => {
       console.error('Erro ao submeter o formulário:', e);
     }
   });
 };
+
 </script>
 
 <style scoped>

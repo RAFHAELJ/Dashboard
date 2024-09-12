@@ -5,12 +5,15 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 
 class UserRepository{
 
     public function all() {
-        return User::paginate();
+        $users = User::with('regiao')->paginate();       
+        return $users;
+        
     }
     public function count() {
         return User::all()->count();
@@ -26,7 +29,7 @@ class UserRepository{
     }
 
     public function update(Request $request, User $user) {
-       // dd($request->regiao);
+      
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -34,7 +37,7 @@ class UserRepository{
             'nivel' => $request->nivel
           
         ]);
-        \Log::info($user);
+        
         return $user;
     }
 

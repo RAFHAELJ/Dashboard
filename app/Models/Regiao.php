@@ -15,5 +15,10 @@ class Regiao extends Model
     protected $casts = [
         'bairros' => 'array',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'regiao_id');
+    }
 }
 

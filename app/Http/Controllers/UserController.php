@@ -54,7 +54,8 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'regiao' => $request->regiao
+            'regiao' => $request->regiao,
+            'nivel' => $request->nivel
         ]);
 
         return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
@@ -74,8 +75,9 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request,User $id)
     {
+       
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255' ,
@@ -83,7 +85,7 @@ class UserController extends Controller
             
         ]);        
 
-        $userResp = $this->userRepository->update($request, $user);
+        $userResp = $this->userRepository->update($request, $id);
         if ($userResp) {
             return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
         } else {
