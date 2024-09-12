@@ -12,10 +12,10 @@
       <v-form ref="dynamicForm" v-model="valid">
         <!-- Nome da campanha -->
         <v-text-field
-          v-model="form.name"
-          :label="fields.name.label"
-          :rules="fields.name.rules"
-          :required="fields.name.required"
+          v-model="form.nome"
+          :label="fields.nome.label"
+          :rules="fields.nome.rules"
+          :required="fields.nome.required"
         ></v-text-field>
 
         <!-- Período da campanha (intervalo de datas) -->
@@ -42,7 +42,7 @@
 
         <!-- Rádios da campanha -->
         <v-select
-          v-model="form.radio" 
+          v-model="form.radios" 
           :items="radios" 
           :label="fields.radio.label"
           :rules="fields.radio.rules"
@@ -59,12 +59,11 @@
           :required="fields.publico.required"
         ></v-select>
         <!-- Regiao -->
-        <v-select
+        <regioes-select
           v-model="form.regiao"
-          :items="fields.regiao.options"
-          :label="fields.regiao.label"
-          :required="fields.regiao.required"
-        ></v-select>
+          label="Selecione uma região"
+          :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
+        ></regioes-select>
 
         <!-- Idade mínima e máxima -->
         <v-row>
@@ -106,52 +105,120 @@
 
         <!-- Condicional: se tipo for 'imagem', mostra upload de imagem e campo de duração -->
         <div v-if="form.tipo === 'imagem'">
-          <v-file-input
-            v-model="form.imagem"
-            label="Upload de Imagem"
-            accept="image/*"
-            prepend-icon="mdi-image"
-            :show-size="true"
-            :rules="[v => !!v || 'Imagem é obrigatória']"
-            @change="onFileChange"
-          ></v-file-input>
-          <v-text-field
-            v-model="form.duracao"
-            label="Duração (em segundos)"
-            type="number"
-            :rules="[v => !!v || 'Campo obrigatório']"
-            required
-          ></v-text-field>
+          <v-row>
+            <!-- Upload de Imagem -->
+            <v-col cols="12">
+              <v-file-input
+                v-model="form.imagem"
+                label="Upload de Imagem"
+                accept="image/*"
+                prepend-icon="mdi-image"
+                :show-size="true"
+                :rules="[v => !!v || 'Imagem é obrigatória']"
+                :modelValue="form.imagem instanceof File ? form.imagem : null"
+                @change="onFileChange"
+              ></v-file-input>
+            </v-col>
+          </v-row>
+
+          <!-- Visualizador de Imagem -->
+          <v-row>
+            <v-col cols="12">
+              <div v-if="typeof form.imagem === 'string'">
+                <v-img
+                  :src="`/storage/${form.imagem}`"
+                  max-height="150"
+                  alt="Imagem da campanha"
+                ></v-img>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- Campo de Duração da Imagem -->
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="form.duracao"
+                label="Duração (em segundos)"
+                type="number"
+                :rules="[v => !!v || 'Campo obrigatório']"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
         </div>
+
 
         <!-- Condicional: se tipo for 'vídeo', mostra upload de vídeo, capa e campo de duração -->
         <div v-if="form.tipo === 'video'">
-          <v-file-input
-            v-model="form.video"
-            label="Upload de Vídeo"
-            accept="video/*"
-            prepend-icon="mdi-video"
-            :show-size="true"
-            :rules="[v => !!v || 'Vídeo é obrigatório']"
-            @change="onFileChange"
-          ></v-file-input>
-          <v-file-input
-            v-model="form.capa"
-            label="Upload de Capa (Imagem)"
-            accept="image/*"
-            prepend-icon="mdi-image"
-            :show-size="true"
-            :rules="[v => !!v || 'Capa é obrigatória']"
-            @change="onFileChange"
-          ></v-file-input>
-          <v-text-field
-            v-model="form.duracao"
-            label="Duração do Vídeo (em segundos)"
-            type="number"
-            :rules="[v => !!v || 'Campo obrigatório']"
-            required
-          ></v-text-field>
-        </div>
+          <v-row>
+            <!-- Upload de Vídeo -->
+            <v-col cols="6">
+              <v-file-input
+                v-model="form.video"
+                label="Upload de Vídeo"
+                accept="video/*"
+                prepend-icon="mdi-video"
+                :show-size="true"
+                :rules="[v => !!v || 'Vídeo é obrigatório']"
+                :modelValue="form.video instanceof File ? form.video : null"
+                @change="onFileChange"
+              ></v-file-input>
+            </v-col>
+
+            <!-- Upload de Capa -->
+            <v-col cols="6">
+              <v-file-input
+                v-model="form.capa"
+                label="Upload de Capa (Imagem)"
+                accept="image/*"
+                prepend-icon="mdi-image"
+                :show-size="true"
+                :rules="[v => !!v || 'Capa é obrigatória']"
+                :modelValue="form.capa instanceof File ? form.capa : null"
+                @change="onFileChange"
+              ></v-file-input>
+            </v-col>
+          </v-row>
+
+          <!-- Visualizadores de Vídeo e Capa -->
+          <v-row>
+            <!-- Visualizador de Vídeo -->
+            <v-col cols="6">
+              <div v-if="form.video && typeof form.video === 'string'">
+                <video
+                  :src="`/storage/${form.video}`"
+                  width="320"
+                  height="240"
+                  controls
+                >
+                  Seu navegador não suporta vídeos.
+                </video>
+              </div>
+            </v-col>
+
+    <!-- Visualizador de Capa -->
+    <v-col cols="6">
+      <div v-if="form.capa && typeof form.capa === 'string'">
+        <v-img
+          :src="`/storage/${form.capa}`"
+          max-height="150"
+          alt="Capa do vídeo"
+        ></v-img>
+      </div>
+    </v-col>
+  </v-row>
+
+  <!-- Campo de Duração do Vídeo -->
+  <v-text-field
+    v-model="form.duracao"
+    label="Duração do Vídeo (em segundos)"
+    type="number"
+    :rules="[v => !!v || 'Campo obrigatório']"
+    required
+  ></v-text-field>
+</div>
+
 
         <!-- Campo URL -->
         <v-text-field
@@ -169,7 +236,7 @@
               :min="fields.tempo.min"
               :max="fields.tempo.max"
               :label="fields.tempo.label"
-              ticks
+              :ticks="['10', '20', '30', '40', '50', '60']"
               tick-size="2"
               thumb-label="always"
               thumb-size="24"
@@ -192,7 +259,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import RegioesSelect from '../RegioesSelect.vue'
 
 const props = defineProps({
   formData: {
@@ -245,10 +312,13 @@ const submitForm = async () => {
 
   const formData = new FormData();
   for (const key in form) {
+    if (form[key] === null || form[key] === 'null') {
+      continue; // Pular valores nulos
+    }
     if (form[key] instanceof File || form[key] instanceof Blob) {
       formData.append(key, form[key]);
     } else if (Array.isArray(form[key])) {
-      form[key].forEach((item) => {       
+      form[key].forEach((item) => {
         formData.append(`${key}[]`, item);
       });
     } else {
@@ -256,15 +326,18 @@ const submitForm = async () => {
     }
   }
 
+  if (props.isEditing) {
+    formData.append('_method', 'PUT');
+  }
+
   console.log('FormData:', [...formData.entries()]);
 
   const routeName = props.isEditing ? props.updateRoute : props.createRoute;
-  const method = props.isEditing ? 'PUT' : 'POST';
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
 
   try {
     const response = await fetch(route(routeName, routeParams), {
-      method: method,
+      method: 'POST',  // Sempre usar POST
       body: formData,
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -276,6 +349,8 @@ const submitForm = async () => {
       snackbar.show = true;
       emit('cancel');
     } else {
+      const responseData = await response.json();  // Mostrar detalhes do erro
+      console.error('Erro no servidor:', responseData);
       snackbar.text = 'Erro ao enviar o formulário. Tente novamente.';
       snackbar.show = true;
     }
@@ -287,5 +362,6 @@ const submitForm = async () => {
     loading.value = false;
   }
 };
+
 
 </script>

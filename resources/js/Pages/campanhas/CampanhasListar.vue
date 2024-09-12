@@ -3,7 +3,8 @@ import { ref, computed, onMounted } from 'vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { VContainer, VRow, VCol, VCard, VCardActions, VCardTitle, VCardText, VBtn, VTextField, VSelect, VDialog, VIcon, VSlider, VFileInput, VSpacer } from 'vuetify/components';
-import RadiosForm from '@/Components/forms/CampanhaForm.vue';
+import CampanhasForm from '@/Components/forms/CampanhaForm.vue';
+
 
 const radios = ref([]);
 const { props } = usePage();
@@ -12,17 +13,19 @@ const isEditModalOpen = ref(false);
 const isEditing = ref(false);
 const editCampanhas = ref({
   id: null,
-  name: '',
+  nome: '',
   comeco: '',
   fim: '',
   publico: '',
-  idade: { minimo: '', maximo: '' },
+  minimo: '',   
+  maximo: '' ,
   tipo: '',
   video: '',
   capa: '',
-  tempo: '',
+  tempo: '',  
   url: '',
-  duracao: ''
+  duracao: '',
+  regiao:''
 });
 
 const search = ref('');
@@ -33,29 +36,38 @@ const deleteCampanhas = async (id) => {
   if (confirm('Tem certeza que deseja deletar esta campanha?')) {
     try {
       await router.delete(route('campanhas.destroy', id));
-      campanhas.value = campanhas.value.filter(campanha => campanha.id !== id);
+
+      // Verifica se campanhas.value.data é um array antes de aplicar o filtro
+      if (Array.isArray(campanhas.value.data)) {
+        campanhas.value.data = campanhas.value.data.filter(campanha => campanha.id !== id);
+      }
+      
+      // Se preferir recarregar a página após deletar, mantenha o reload
+      window.location.reload(); 
     } catch (error) {
       console.error('Erro ao deletar campanha:', error);
     }
   }
 };
 
+
 const handleCreateItem = () => {
   isEditing.value = false;
   editCampanhas.value = {
     id: null,
-    name: '',
-    comeco: '',
-    fim: '',
-    publico: '',
-    idade: { minimo: '', maximo: '' },
-    tipo: '',
-    video: '',
-    imagem: '',
-    capa: '',
-    tempo: '',
-    url: '',
-    duracao: ''
+  nome: '',
+  comeco: '',
+  fim: '',
+  publico: '',
+  minimo: '',   
+  maximo: '' ,
+  tipo: '',
+  video: '',
+  capa: '',
+  tempo: '',  
+  url: '',
+  duracao: '',
+  regiao:''
   };
   isEditModalOpen.value = true;
 };
@@ -91,6 +103,7 @@ const fetchRadios = async () => {
   }
 };
 
+
 onMounted(() => {
   fetchRadios();
 });
@@ -99,7 +112,7 @@ const filteredCampanhas = computed(() => {
   const campanhaArray = campanhas.value.data || [];
 
   return campanhaArray.filter(campanha => {
-    const nome = typeof campanha.name === 'string' ? campanha.name.toLowerCase() : '';
+    const nome = typeof campanha.nome === 'string' ? campanha.nome.toLowerCase() : '';
     const matchesSearch = nome.includes(search.value.toLowerCase());
     const matchesPublico = selectedPublico.value ? campanha.publico === selectedPublico.value : true;
     const matchesTipo = selectedTipo.value ? campanha.tipo === selectedTipo.value : true;
@@ -131,13 +144,14 @@ const submitForm = async () => {
 
     if (response.ok) {
       closeEditModal();
-      router.reload();
+      window.location.reload(); 
     } else {
       console.error('Erro ao enviar o formulário.');
     }
   } catch (error) {
     console.error('Erro ao enviar o formulário:', error);
   }
+  
 };
 </script>
 
@@ -155,6 +169,8 @@ const submitForm = async () => {
 .search-field, .filters {
   border-radius: 8px;
   background-color: #ffffff;
+  height: '10px';
+  width: '10px';
 }
 
 .card-campanha {
@@ -188,6 +204,9 @@ const submitForm = async () => {
             :items="['Todos', 'Homens', 'Mulheres']"
             label="Filtrar por Público"
             class="filters"
+            density="compact"
+            multiple
+            chips
           />
         </v-col>
         <v-col cols="3">
@@ -196,6 +215,9 @@ const submitForm = async () => {
             :items="['Imagem', 'Vídeo']"
             label="Filtrar por Tipo"
             class="filters"
+            density="compact"
+            multiple
+            chips
           />
         </v-col>
         <v-col cols="2" class="d-flex justify-end align-center">
@@ -214,7 +236,7 @@ const submitForm = async () => {
       <!-- Listagem de Campanhas em Formato de Card -->
       <v-row>
         <v-col cols="12" sm="6" md="4" v-for="campanha in filteredCampanhas" :key="campanha.id">
-          <v-card class="card-campanha">
+          <v-card class="card-campanha"  hover>
             <v-card-title>{{ campanha.nome }}</v-card-title>
             <v-card-text>
               <p><strong>Começo:</strong> {{ campanha.comeco }}</p>
@@ -231,7 +253,7 @@ const submitForm = async () => {
               <video
               v-if="campanha.video"
               controls
-              :src="campanha.video"
+              :src="`/storage/${campanha.video}`"
               width="320"
               height="240"
             >
@@ -253,15 +275,14 @@ const submitForm = async () => {
 
       <!-- Formulário para Edição/Criar Campanhas -->
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
-        <RadiosForm
+        <CampanhasForm
           :formData="editCampanhas"
           :radios="radios"
           :fields="{
-            name: { label: 'Nome da campanha', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
+            nome: { label: 'Nome da campanha', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
             periodo: { label: 'Período da campanha', type: 'date-range', start: 'comeco', startLabel: 'Começo', end: 'fim', endLabel: 'Fim', rules: [(v) => !!v || 'Campo obrigatório'], required: true },
             radio: { label: 'Rádios da campanha', rules: [(v) => !!v || 'Rádio é obrigatório'], required: true },
             publico: { label: 'Público', type: 'select', options: ['Homens', 'Mulheres', 'Todos'], required: true },
-            regiao: { label: 'Região', type: 'select', options: ['Campo Largo', 'Campina do Siqueira', 'Curitiba'], required: true },
             idade: { label: 'Idade mínima', type: 'date-range', start: 'minimo', startLabel: 'Mínima', end: 'maxima', endLabel: 'Máxima', rules: [(v) => !!v || 'Campo obrigatório'], required: true },
             tipo: { label: 'Tipo de anúncio', type: 'radio', options: [{ text: 'Vídeo', value: 'video' }, { text: 'Imagem', value: 'imagem' }], required: true },
             url: { label: 'Url Destino', rules: [(v) => !!v || 'url é obrigatório'], required: true },
@@ -271,8 +292,11 @@ const submitForm = async () => {
           title="Campanha Radio"
           createRoute="campanhas.store"
           updateRoute="campanhas.update"
+          
           @cancel="closeEditModal"
         />
+        
+        
       </v-dialog>
     </v-container>
   </AuthenticatedLayout>

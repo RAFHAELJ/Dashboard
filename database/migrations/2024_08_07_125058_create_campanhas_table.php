@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('video')->nullable();
             $table->string('capa')->nullable();
             $table->string('imagem')->nullable();
+            $table->string('regiao')->nullable();
             $table->integer('tempo');
             $table->string('url');
             $table->integer('duracao');

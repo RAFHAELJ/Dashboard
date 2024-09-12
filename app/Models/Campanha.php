@@ -22,6 +22,7 @@ class Campanha extends Model
         'video',
         'capa',
         'tempo',
-        'url'
+        'url',
+        'regiao'
     ];
 }

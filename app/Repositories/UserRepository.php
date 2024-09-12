@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 
 
 class UserRepository{
@@ -25,11 +26,15 @@ class UserRepository{
     }
 
     public function update(Request $request, User $user) {
+       // dd($request->regiao);
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'regiao' => $request->regiao,
+            'nivel' => $request->nivel
           
         ]);
+        \Log::info($user);
         return $user;
     }
 

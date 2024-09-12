@@ -96,21 +96,23 @@
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UserForm
-  :formData="editUser"
-  :fields="{
-    radio: { label: 'Nome Radio', rules: [(v) => !!v || 'RADIO é obrigatório'], required: true },
-    mac: { label: 'Mac adress', rules: [(v) => !!v || 'Mac é obrigatório'], required: true, type: 'text' },
-    geo: { label: 'GeoLocalização', rules: [(v) => !!v || 'Geo é obrigatório'], required: true, type: 'text' },
-    endereco: { label: 'Endereço', rules: [(v) => !!v || 'Endereço é obrigatório'], required: true },
-    info: { label: 'Info', rules: [(v) => !!v || 'Info é obrigatório'], required: true},    
-    regiao: { label: 'Regiao', rules: [(v) => !!v || 'regiao é obrigatório'], required: true},  
-  }"
-  :isEditing="isEditing"
-  title="Radios Radio"
-  createRoute="radios.store"
-  updateRoute="radios.update"
-  @cancel="closeEditModal"
-/>
+          :showCreateRegiao="true"
+          :formData="editUser"
+          :fields="{
+            radio: { label: 'Nome Radio', rules: [(v) => !!v || 'RADIO é obrigatório'], required: true },
+            mac: { label: 'Mac adress', rules: [(v) => !!v || 'Mac é obrigatório'], required: true, type: 'text' },
+            geo: { label: 'GeoLocalização', rules: [(v) => !!v || 'Geo é obrigatório'], required: true, type: 'text' },
+            endereco: { label: 'Endereço', rules: [(v) => !!v || 'Endereço é obrigatório'], required: true },
+            info: { label: 'Info', rules: [(v) => !!v || 'Info é obrigatório'], required: true},    
+             
+          }"
+          :isEditing="isEditing"
+          title="Radios Radio"
+          createRoute="radios.store"
+          updateRoute="radios.update"
+          returnRoute="radios.index"
+          @cancel="closeEditModal"
+        />
       </v-dialog>
       </v-container>
     </AuthenticatedLayout>

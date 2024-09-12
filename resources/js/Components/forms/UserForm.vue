@@ -20,7 +20,17 @@
           :required="field.required"
         ></v-text-field>
       </v-form>
-    </v-card-text>
+      <!-- Regiao -->
+        
+            <regioes-select
+             v-if="showCreateRegiao"
+                  v-model="form.regiao"
+                  label="Selecione uma região"
+                  :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
+                ></regioes-select>
+           
+        </v-card-text>
+      
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="primary" @click="submitForm">Salvar</v-btn>
@@ -31,7 +41,8 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm,router } from '@inertiajs/vue3';
+import RegioesSelect from '../RegioesSelect.vue'
 
 const props = defineProps({
   formData: {
@@ -41,6 +52,10 @@ const props = defineProps({
   fields: {
     type: Object,
     required: true,
+  },
+  showCreateRegiao: {
+    type: Boolean,
+    default: false,
   },
   isEditing: Boolean,
   title: {
@@ -55,10 +70,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  returnRoute: {
+    type: String,
+    required: true,
+  },
 });
-
+const emit = defineEmits(['cancel']);
 const form = reactive({ ...props.formData });
-
 const valid = ref(true);
 
 watch(
@@ -80,6 +98,8 @@ const submitForm = () => {
         form[key] = '';
       });
       emit('cancel');
+      router.visit(route(props.returnRoute));
+     
     },
     onError: (e) => {
       console.error('Erro ao submeter o formulário:', e);

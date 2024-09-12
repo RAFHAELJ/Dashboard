@@ -115,6 +115,15 @@ export default {
                 <v-list-item title="Lista Usuários Radio" @click="navigateTo('/usuarios/')"></v-list-item>
               </v-list-group>
 
+              <!-- Regiao Menu -->
+              <v-list-group v-model="menuStates.usuarios" value="Regiões">
+                <template v-slot:activator="{ props }">
+                  <v-list-item v-bind="props" prepend-icon="mdi-city" title="Regiões"></v-list-item>
+                </template> 
+                <v-list-item title="Lista Rregioes" @click="navigateTo('/regioes/')"></v-list-item>
+                
+              </v-list-group>
+
               <!-- Campanhas Menu -->
               <v-list-group v-model="menuStates.campanhas" value="Campanhas">
                 <template v-slot:activator="{ props }">

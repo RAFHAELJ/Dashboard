@@ -13,6 +13,7 @@ const editUser = ref({
   id: null,
   name: '',
   email: '',
+  regiao: '',
 });
 const search = ref('');
 
@@ -25,18 +26,20 @@ const headers = [
 
 const deleteUser = async (id) => {
   if (confirm('Tem certeza que deseja deletar este usuário?')) {
-    try {
-      await router.delete(route('users.destroy', id));
-      users.value = users.value.filter(user => user.id !== id);
+    try {      
+      const userArray = users.value.data ? users.value.data : [];
+      await router.delete(route('users.destroy', id));      
+      
+      users.value.data = userArray.filter(user => user.id !== id);
+     
+      window.location.reload(); 
+      
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);
     }
   }
 };
 
-const handleViewItem = (item) => {
-  console.log('Visualizar item:', item);
-};
 
 const handleCreateItem = () => {
   isEditing.value = false;
@@ -44,7 +47,8 @@ const handleCreateItem = () => {
     id: null,
     name: '',
     email: '',
-    password: ''
+    password: '',
+    regiao: '',
   };
   isEditModalOpen.value = true;
 };
@@ -83,6 +87,7 @@ const handleDeleteItem = (item) => {
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UserForm
   :formData="editUser"
+  :showCreateRegiao="true"
   :fields="{
     name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
     email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true },
@@ -93,6 +98,7 @@ const handleDeleteItem = (item) => {
   title="Usuário"
   createRoute="users.store"
   updateRoute="users.update"
+  returnRoute="users.index"
   @cancel="closeEditModal"
 />
       </v-dialog>

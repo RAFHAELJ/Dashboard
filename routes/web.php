@@ -9,6 +9,7 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RadioController;
+use App\Http\Controllers\RegiaoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CampanhaController;
@@ -56,7 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('login_customizations', LoginCustomizationController::class);
+    
 
 
     Route::prefix('radios')->group(function () {        
@@ -101,9 +102,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/store', [FaqController::class, 'store'])->name('faq.store');
         Route::put('/{id}', [FaqController::class, 'update'])->name('faq.update');
     });
-
+    Route::prefix('regioes')->group(function (){
+        Route::get('/', [RegiaoController::class, 'index'])->name('regioes.index');
+        Route::get('/{id}', [RegiaoController::class, 'show'])->name('regioes.show');
+        Route::post('/store', [RegiaoController::class, 'store'])->name('regioes.store');
+        Route::put('/{id}', [RegiaoController::class, 'update'])->name('regioes.update');
+        Route::delete('/{id}', [RegiaoController::class, 'destroy'])->name('regioes.destroy');
+    });
     Route::resource('cards', CardController::class);
     Route::resource('notes', NoteController::class);
+    Route::resource('login_customizations', LoginCustomizationController::class);
+    //Route::resource('regioes', RegiaoController::class);
 
 });
 

@@ -42,16 +42,19 @@ class UserController extends Controller
     }
     public function store(Request $request)
     {
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|min:6',
+            'regiao' => 'required',
         ]);
 
         $user = $this->userRepository->create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'regiao' => $request->regiao
         ]);
 
         return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
@@ -75,7 +78,8 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' ,
+            'email' => 'sometimes|required|string|email|max:255' ,
+            'regiao' => 'required',
             
         ]);        
 
