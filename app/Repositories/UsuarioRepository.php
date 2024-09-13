@@ -6,11 +6,10 @@ namespace App\Repositories;
 use App\Models\RadAcct;
 use App\Models\Usuario;
 
-class UsuarioRepository implements UsuarioRepositoryInterface {
+class UsuarioRepository  {
 
-    public function all() {
-        $perPage = 15;
-        return RadAcct::paginate($perPage);
+    public function all(){        
+        return RadAcct::paginate();
     }
 
     public function find($id) {

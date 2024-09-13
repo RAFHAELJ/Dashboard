@@ -39,7 +39,7 @@
       const regioesData = await response.json();
       if (regioesData && regioesData.data) {
         regioes.value = regioesData.data; // Garante que a propriedade 'data' está presente
-        console.log('Regioes:', regioes);
+        
       } else {
         console.error('Estrutura de resposta inesperada:', regioesData);
       }

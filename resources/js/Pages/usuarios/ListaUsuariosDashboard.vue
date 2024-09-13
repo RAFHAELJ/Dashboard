@@ -24,7 +24,7 @@ const headers = [
   { text: 'ID', value: 'id' , sortable: true,title:'ID',key:'id'},
   { text: 'Nome', value: 'name', sortable: true,title:'Nome',key:'name' },
   { text: 'Email', value: 'email' , sortable: true,title:'Email',key:'email'},
-  { text: 'Regiao', value: 'regiao.cidade' , sortable: true,title:'Regiao',key:'regiao'},
+  { text: 'Regiao', value: 'regiao.cidade' , sortable: true,title:'Regiao',key:'regiao.cidade'},
   { text: 'Cargo', value: 'nivel' , sortable: true,title:'Cargo',key:'nivel'},
   { text: 'Ações', value: 'actions', sortable: false },
 ];

@@ -22,7 +22,7 @@ const headers = [
   { text: 'Nome', value: 'UserName',sortable: true,title:'Nome',key:'UserName'},
   { text: 'Endereço IP', value: 'NASIPAddress',sortable: true,title:'Endereço IP',key:'NASIPAddress' },  
   { text: 'MAC', value: 'CalledStationId',sortable: true,title:'MAC',key:'CalledStationId' },
- // { text: 'Ações', value: 'actions', sortable: false },
+  //{ text: 'Ações', value: 'actions', sortable: false },
 ];
 
 const deleteUsuarios = async (RadAcctId) => {

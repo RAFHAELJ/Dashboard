@@ -42,13 +42,13 @@
 
         <!-- Rádios da campanha -->
         <v-select
-          v-model="form.radios" 
-          :items="radios" 
+          v-model="form.radios"
+          :items="radios"
           :label="fields.radio.label"
           :rules="fields.radio.rules"
           multiple
-          item-title="radio" 
-          item-value="id" 
+          item-title="radio"
+          item-value="id"
         ></v-select>
 
         <!-- Público -->
@@ -58,7 +58,8 @@
           :label="fields.publico.label"
           :required="fields.publico.required"
         ></v-select>
-        <!-- Regiao -->
+
+        <!-- Região -->
         <regioes-select
           v-model="form.regiao"
           label="Selecione uma região"
@@ -102,11 +103,9 @@
           ></v-radio>
         </v-radio-group>
 
-
-        <!-- Condicional: se tipo for 'imagem', mostra upload de imagem e campo de duração -->
+        <!-- Upload de Imagem -->
         <div v-if="form.tipo === 'imagem'">
           <v-row>
-            <!-- Upload de Imagem -->
             <v-col cols="12">
               <v-file-input
                 v-model="form.imagem"
@@ -115,26 +114,23 @@
                 prepend-icon="mdi-image"
                 :show-size="true"
                 :rules="[v => !!v || 'Imagem é obrigatória']"
-                :modelValue="form.imagem instanceof File ? form.imagem : null"
                 @change="onFileChange"
               ></v-file-input>
             </v-col>
           </v-row>
 
           <!-- Visualizador de Imagem -->
-          <v-row>
+          <v-row v-if="originalImagem">
             <v-col cols="12">
-              <div v-if="typeof form.imagem === 'string'">
-                <v-img
-                  :src="`/storage/${form.imagem}`"
-                  max-height="150"
-                  alt="Imagem da campanha"
-                ></v-img>
-              </div>
+              <v-img
+                :src="`/storage/${originalImagem}`"
+                max-height="150"
+                alt="Imagem da campanha"
+              ></v-img>
             </v-col>
           </v-row>
 
-          <!-- Campo de Duração da Imagem -->
+          <!-- Duração da Imagem -->
           <v-row>
             <v-col cols="12">
               <v-text-field
@@ -148,11 +144,9 @@
           </v-row>
         </div>
 
-
-        <!-- Condicional: se tipo for 'vídeo', mostra upload de vídeo, capa e campo de duração -->
+        <!-- Upload de Vídeo e Capa -->
         <div v-if="form.tipo === 'video'">
           <v-row>
-            <!-- Upload de Vídeo -->
             <v-col cols="6">
               <v-file-input
                 v-model="form.video"
@@ -161,12 +155,10 @@
                 prepend-icon="mdi-video"
                 :show-size="true"
                 :rules="[v => !!v || 'Vídeo é obrigatório']"
-                :modelValue="form.video instanceof File ? form.video : null"
                 @change="onFileChange"
               ></v-file-input>
             </v-col>
 
-            <!-- Upload de Capa -->
             <v-col cols="6">
               <v-file-input
                 v-model="form.capa"
@@ -175,50 +167,48 @@
                 prepend-icon="mdi-image"
                 :show-size="true"
                 :rules="[v => !!v || 'Capa é obrigatória']"
-                :modelValue="form.capa instanceof File ? form.capa : null"
                 @change="onFileChange"
               ></v-file-input>
             </v-col>
           </v-row>
 
           <!-- Visualizadores de Vídeo e Capa -->
-          <v-row>
-            <!-- Visualizador de Vídeo -->
+          <v-row v-if="originalVideo">
             <v-col cols="6">
-              <div v-if="form.video && typeof form.video === 'string'">
-                <video
-                  :src="`/storage/${form.video}`"
-                  width="320"
-                  height="240"
-                  controls
-                >
-                  Seu navegador não suporta vídeos.
-                </video>
-              </div>
+              <video
+                :src="`/storage/${originalVideo}`"
+                width="320"
+                height="240"
+                controls
+              >
+                Seu navegador não suporta vídeos.
+              </video>
             </v-col>
+          </v-row>
 
-    <!-- Visualizador de Capa -->
-    <v-col cols="6">
-      <div v-if="form.capa && typeof form.capa === 'string'">
-        <v-img
-          :src="`/storage/${form.capa}`"
-          max-height="150"
-          alt="Capa do vídeo"
-        ></v-img>
-      </div>
-    </v-col>
-  </v-row>
+          <v-row v-if="originalCapa">
+            <v-col cols="6">
+              <v-img
+                :src="`/storage/${originalCapa}`"
+                max-height="150"
+                alt="Capa do vídeo"
+              ></v-img>
+            </v-col>
+          </v-row>
 
-  <!-- Campo de Duração do Vídeo -->
-  <v-text-field
-    v-model="form.duracao"
-    label="Duração do Vídeo (em segundos)"
-    type="number"
-    :rules="[v => !!v || 'Campo obrigatório']"
-    required
-  ></v-text-field>
-</div>
-
+          <!-- Duração do Vídeo -->
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="form.duracao"
+                label="Duração do Vídeo (em segundos)"
+                type="number"
+                :rules="[v => !!v || 'Campo obrigatório']"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </div>
 
         <!-- Campo URL -->
         <v-text-field
@@ -236,7 +226,6 @@
               :min="fields.tempo.min"
               :max="fields.tempo.max"
               :label="fields.tempo.label"
-              :ticks="['10', '20', '30', '40', '50', '60']"
               tick-size="2"
               thumb-label="always"
               thumb-size="24"
@@ -256,10 +245,9 @@
   </v-snackbar>
 </template>
 
-
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import RegioesSelect from '../RegioesSelect.vue'
+import RegioesSelect from '../RegioesSelect.vue'; // ajuste o caminho se necessário
 
 const props = defineProps({
   formData: {
@@ -289,10 +277,29 @@ const props = defineProps({
     required: true,
   },
 });
-
+const dynamicForm = ref(null);
 const snackbar = reactive({ show: false, text: '', timeout: 3000 });
 const emit = defineEmits(['cancel']);
-const form = reactive({ ...props.formData });
+const form = reactive({
+  ...props.formData,
+
+  // Verifica se `radios` é válido antes de tentar fazer o JSON.parse
+  radios: props.formData.radios ? JSON.parse(props.formData.radios).map(item => parseInt(item)) : [],
+
+  // Inicializa os campos de idade
+  minimo: props.formData.idade ? parseInt(props.formData.idade.split(',')[0]) : null,
+  maxima: props.formData.idade ? parseInt(props.formData.idade.split(',')[1]) : null,
+
+  // Inicializa imagem, capa e vídeo como null se forem strings
+  imagem: typeof props.formData.imagem === 'string' ? null : props.formData.imagem,
+  capa: typeof props.formData.capa === 'string' ? null : props.formData.capa,
+  video: typeof props.formData.video === 'string' ? null : props.formData.video,
+});
+
+// Variáveis para armazenar os valores originais das mídias (caso existam)
+const originalImagem = ref(typeof props.formData.imagem === 'string' ? props.formData.imagem : null);
+const originalCapa = ref(typeof props.formData.capa === 'string' ? props.formData.capa : null);
+const originalVideo = ref(typeof props.formData.video === 'string' ? props.formData.video : null);
 const valid = ref(true);
 const loading = ref(false);
 
@@ -301,28 +308,36 @@ watch(
   (newData) => {
     Object.assign(form, newData);
   }
+  
 );
-
+console.log("Form Data:", form);
 const onFileChange = (file) => {
-  console.log("Arquivo selecionado: ", file);
+  console.log("Arquivo selecionado:", file);
 };
 
 const submitForm = async () => {
+  
+  const isValid = dynamicForm.value.validate();
+  console.log("isValid:", isValid);
+  if (!isValid) {
+    snackbar.text = 'Por favor, preencha todos os campos obrigatórios corretamente.';
+    snackbar.show = true;
+    return; // Impede o envio do formulário se não for válido
+  }
   loading.value = true;
 
   const formData = new FormData();
   for (const key in form) {
-    if (form[key] === null || form[key] === 'null') {
-      continue; // Pular valores nulos
-    }
-    if (form[key] instanceof File || form[key] instanceof Blob) {
-      formData.append(key, form[key]);
-    } else if (Array.isArray(form[key])) {
-      form[key].forEach((item) => {
-        formData.append(`${key}[]`, item);
-      });
-    } else {
-      formData.append(key, form[key]);
+    if (form[key] !== null && form[key] !== 'null') {
+      if (form[key] instanceof File) {
+        formData.append(key, form[key]);
+      } else if (Array.isArray(form[key])) {
+        form[key].forEach((item) => {
+          formData.append(`${key}[]`, item);
+        });
+      } else {
+        formData.append(key, form[key]);
+      }
     }
   }
 
@@ -330,14 +345,12 @@ const submitForm = async () => {
     formData.append('_method', 'PUT');
   }
 
-  console.log('FormData:', [...formData.entries()]);
-
   const routeName = props.isEditing ? props.updateRoute : props.createRoute;
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
 
   try {
     const response = await fetch(route(routeName, routeParams), {
-      method: 'POST',  // Sempre usar POST
+      method: 'POST',
       body: formData,
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -347,9 +360,11 @@ const submitForm = async () => {
     if (response.ok) {
       snackbar.text = 'Formulário enviado com sucesso!';
       snackbar.show = true;
-      emit('cancel');
+      setTimeout(() => {
+        window.location.reload(); // Recarrega a página
+      }, 1000); // 1 segundo de espera para exibir a mensagem
     } else {
-      const responseData = await response.json();  // Mostrar detalhes do erro
+      const responseData = await response.json();
       console.error('Erro no servidor:', responseData);
       snackbar.text = 'Erro ao enviar o formulário. Tente novamente.';
       snackbar.show = true;
@@ -362,6 +377,4 @@ const submitForm = async () => {
     loading.value = false;
   }
 };
-
-
 </script>

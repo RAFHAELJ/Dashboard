@@ -2,9 +2,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { VContainer, VRow, VCol, VCard, VCardActions, VCardTitle, VCardText, VBtn, VTextField, VSelect, VDialog, VIcon, VSlider, VFileInput, VSpacer } from 'vuetify/components';
+import { VContainer, VRow, VCol, VCard, VCardActions, VCardTitle, VCardText, VBtn, VTextField, VSelect, VDialog, VIcon } from 'vuetify/components';
 import CampanhasForm from '@/Components/forms/CampanhaForm.vue';
-
 
 const radios = ref([]);
 const { props } = usePage();
@@ -18,31 +17,30 @@ const editCampanhas = ref({
   fim: '',
   publico: '',
   minimo: '',   
-  maximo: '' ,
+  maximo: '', 
   tipo: '',
   video: '',
   capa: '',
   tempo: '',  
   url: '',
   duracao: '',
-  regiao:''
+  regiao: '',
+  imagem: []
 });
 
 const search = ref('');
-const selectedPublico = ref('');
-const selectedTipo = ref('');
+const selectedPublico = ref([]);
+const selectedTipo = ref([]);
 
 const deleteCampanhas = async (id) => {
   if (confirm('Tem certeza que deseja deletar esta campanha?')) {
     try {
       await router.delete(route('campanhas.destroy', id));
 
-      // Verifica se campanhas.value.data é um array antes de aplicar o filtro
       if (Array.isArray(campanhas.value.data)) {
         campanhas.value.data = campanhas.value.data.filter(campanha => campanha.id !== id);
       }
-      
-      // Se preferir recarregar a página após deletar, mantenha o reload
+
       window.location.reload(); 
     } catch (error) {
       console.error('Erro ao deletar campanha:', error);
@@ -50,24 +48,24 @@ const deleteCampanhas = async (id) => {
   }
 };
 
-
 const handleCreateItem = () => {
   isEditing.value = false;
   editCampanhas.value = {
     id: null,
-  nome: '',
-  comeco: '',
-  fim: '',
-  publico: '',
-  minimo: '',   
-  maximo: '' ,
-  tipo: '',
-  video: '',
-  capa: '',
-  tempo: '',  
-  url: '',
-  duracao: '',
-  regiao:''
+    nome: '',
+    comeco: '',
+    fim: '',
+    publico: '',
+    minimo: '',   
+    maximo: '', 
+    tipo: '',
+    video: '',
+    capa: '',
+    tempo: '',  
+    url: '',
+    duracao: '',
+    regiao: '',
+    imagem: []
   };
   isEditModalOpen.value = true;
 };
@@ -103,7 +101,6 @@ const fetchRadios = async () => {
   }
 };
 
-
 onMounted(() => {
   fetchRadios();
 });
@@ -114,79 +111,14 @@ const filteredCampanhas = computed(() => {
   return campanhaArray.filter(campanha => {
     const nome = typeof campanha.nome === 'string' ? campanha.nome.toLowerCase() : '';
     const matchesSearch = nome.includes(search.value.toLowerCase());
-    const matchesPublico = selectedPublico.value ? campanha.publico === selectedPublico.value : true;
-    const matchesTipo = selectedTipo.value ? campanha.tipo === selectedTipo.value : true;
+    const matchesPublico = selectedPublico.value.length > 0 ? selectedPublico.value.includes(campanha.publico) : true;
+    const matchesTipo = selectedTipo.value.length > 0 ? selectedTipo.value.includes(campanha.tipo) : true;
     
     return matchesSearch && matchesPublico && matchesTipo;
   });
 });
 
-const submitForm = async () => {
-  const formData = new FormData();
-  for (const key in editCampanhas.value) {
-    if (editCampanhas.value[key] instanceof File || editCampanhas.value[key] instanceof Blob) {
-      formData.append(key, editCampanhas.value[key]);
-    } else {
-      formData.append(key, editCampanhas.value[key]);
-    }
-  }
-
-  const routeName = isEditing.value ? 'campanhas.update' : 'campanhas.store';
-  const method = isEditing.value ? 'PUT' : 'POST';
-  const routeParams = isEditing.value ? { id: editCampanhas.value.id } : {};
-
-  try {
-    const response = await fetch(route(routeName, routeParams), {
-      method: method,
-      body: formData,
-      headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-    });
-
-    if (response.ok) {
-      closeEditModal();
-      window.location.reload(); 
-    } else {
-      console.error('Erro ao enviar o formulário.');
-    }
-  } catch (error) {
-    console.error('Erro ao enviar o formulário:', error);
-  }
-  
-};
 </script>
-
-<style>
-.page-background {
-  background-color: #f4f4f9;
-  padding: 20px;
-}
-
-.add-button {
-  border-radius: 60px;
-  text-transform: uppercase;
-}
-
-.search-field, .filters {
-  border-radius: 8px;
-  background-color: #ffffff;
-  height: '10px';
-  width: '10px';
-}
-
-.card-campanha {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card-campanha .v-card-title {
-  font-weight: bold;
-}
-
-.card-campanha img, video {
-  border-radius: 8px;
-}
-</style>
 
 <template>
   <Head title="Campanhas" />
@@ -194,49 +126,56 @@ const submitForm = async () => {
   <AuthenticatedLayout>
     <v-container class="page-background" fluid fill-height>
       <!-- Filtros e Botão de Adicionar na Mesma Linha -->
-      <v-row>
-        <v-col cols="4">
-          <v-text-field v-model="search" label="Buscar Campanha" prepend-icon="mdi-magnify" class="search-field" />
+      <v-row class="align-center">
+        <v-col cols="12" md="4" class="py-1">
+          <v-text-field
+            v-model="search"
+            label="Buscar Campanha"
+            prepend-icon="mdi-magnify"
+            density="compact"
+            class="search-field"
+          />
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" md="3" class="py-1">
           <v-select
             v-model="selectedPublico"
-            :items="['Todos', 'Homens', 'Mulheres']"
+            :items="['Homens', 'Mulheres', 'Todos']"
             label="Filtrar por Público"
-            class="filters"
             density="compact"
             multiple
             chips
+            class="filters"
           />
         </v-col>
-        <v-col cols="3">
+        <v-col cols="12" md="3" class="py-1">
           <v-select
             v-model="selectedTipo"
             :items="['Imagem', 'Vídeo']"
             label="Filtrar por Tipo"
-            class="filters"
             density="compact"
             multiple
             chips
+            class="filters"
           />
         </v-col>
-        <v-col cols="2" class="d-flex justify-end align-center">
+        <v-col cols="12" md="2" class="py-1 d-flex justify-end align-center">
           <v-btn
             @click="handleCreateItem"
             density="comfortable"
             color="primary"
             class="add-button"
+            block
           >
             <v-icon start>mdi-plus</v-icon>
             Adicionar Campanha
           </v-btn>
         </v-col>
       </v-row>
-      
+
       <!-- Listagem de Campanhas em Formato de Card -->
       <v-row>
-        <v-col cols="12" sm="6" md="4" v-for="campanha in filteredCampanhas" :key="campanha.id">
-          <v-card class="card-campanha"  hover>
+        <v-col cols="12" sm="6" md="4" lg="3" v-for="campanha in filteredCampanhas" :key="campanha.id">
+          <v-card class="card-campanha" hover>
             <v-card-title>{{ campanha.nome }}</v-card-title>
             <v-card-text>
               <p><strong>Começo:</strong> {{ campanha.comeco }}</p>
@@ -251,13 +190,13 @@ const submitForm = async () => {
                 max-height="150"
               ></v-img>
               <video
-              v-if="campanha.video"
-              controls
-              :src="`/storage/${campanha.video}`"
-              width="320"
-              height="240"
-            >
-              Seu navegador não suporta vídeos.
+                v-if="campanha.video"
+                controls
+                :src="`/storage/${campanha.video}`"
+                width="320"
+                height="240"
+              >
+                Seu navegador não suporta vídeos.
               </video>
             </v-card-text>
 
@@ -292,12 +231,40 @@ const submitForm = async () => {
           title="Campanha Radio"
           createRoute="campanhas.store"
           updateRoute="campanhas.update"
-          
           @cancel="closeEditModal"
         />
-        
-        
       </v-dialog>
     </v-container>
   </AuthenticatedLayout>
 </template>
+
+<style>
+.page-background {
+  background-color: #f4f4f9;
+  padding: 20px;
+}
+
+.add-button {
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.search-field, .filters {
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.card-campanha {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-campanha .v-card-title {
+  font-weight: bold;
+}
+
+.card-campanha img, video {
+  border-radius: 8px;
+}
+</style>
