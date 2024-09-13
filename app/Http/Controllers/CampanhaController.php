@@ -71,7 +71,7 @@ class CampanhaController extends Controller
             'video' => $videoPath,
             'capa' => $capaPath,
             'imagem' => $imagemPath,  
-            'tempo' => $request->tempo,
+            'tempo' => $request->duracao,
             'url' => $request->url,
             'regiao' => $request->regiao
             

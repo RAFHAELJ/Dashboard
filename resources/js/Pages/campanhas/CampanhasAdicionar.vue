@@ -1,195 +1,182 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { Head, usePage, router } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { VContainer, VRow, VCol, VCard, VCardActions, VCardTitle, VCardText, VBtn, VTextField, VSelect, VDialog, VIcon } from 'vuetify/components';
+import CampanhasForm from '@/Components/forms/CampanhaForm.vue';
+
+const radios = ref([]);
+const { props } = usePage();
+const campanhas = ref(props.campanhas || []);
+const isEditModalOpen = ref(false);
+const isEditing = ref(false);
+const editCampanhas = ref({
+  id: null,
+  nome: '',
+  comeco: '',
+  fim: '',
+  publico: '',
+  minimo: '',   
+  maximo: '', 
+  tipo: '',
+  video: '',
+  capa: '',
+  tempo: '',  
+  url: '',
+  duracao: '',
+  regiao: '',
+  imagem: []
+});
+
+const search = ref('');
+const selectedPublico = ref([]);
+const selectedTipo = ref([]);
+
+const deleteCampanhas = async (id) => {
+  if (confirm('Tem certeza que deseja deletar esta campanha?')) {
+    try {
+      await router.delete(route('campanhas.destroy', id));
+
+      if (Array.isArray(campanhas.value.data)) {
+        campanhas.value.data = campanhas.value.data.filter(campanha => campanha.id !== id);
+      }
+
+      window.location.reload(); 
+    } catch (error) {
+      console.error('Erro ao deletar campanha:', error);
+    }
+  }
+};
+
+const handleCreateItem = () => {
+  isEditing.value = false;
+  editCampanhas.value = {
+    id: null,
+    nome: '',
+    comeco: '',
+    fim: '',
+    publico: '',
+    minimo: '',   
+    maximo: '', 
+    tipo: '',
+    video: '',
+    capa: '',
+    tempo: '',  
+    url: '',
+    duracao: '',
+    regiao: '',
+    imagem: []
+  };
+  isEditModalOpen.value = true;
+};
+
+const handleEditItem = (item) => {
+  isEditing.value = true;
+  editCampanhas.value = { ...item };
+  isEditModalOpen.value = true;
+};
+
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+};
+
+const handleDeleteItem = (item) => {
+  deleteCampanhas(item.id);
+};
+
+const fetchRadios = async () => {
+  try {
+    const response = await fetch(route('radios.index'), {
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (response.ok) {
+      const radiosData = await response.json();
+      radios.value = radiosData.data;
+    } else {
+      console.error('Erro ao buscar rádios:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Erro ao buscar rádios:', error);
+  }
+};
+
+onMounted(() => {
+  fetchRadios();
+});
+
+const filteredCampanhas = computed(() => {
+  const campanhaArray = campanhas.value.data || [];
+
+  return campanhaArray.filter(campanha => {
+    const nome = typeof campanha.nome === 'string' ? campanha.nome.toLowerCase() : '';
+    const matchesSearch = nome.includes(search.value.toLowerCase());
+    const matchesPublico = selectedPublico.value.length > 0 ? selectedPublico.value.includes(campanha.publico) : true;
+    const matchesTipo = selectedTipo.value.length > 0 ? selectedTipo.value.includes(campanha.tipo) : true;
+    
+    return matchesSearch && matchesPublico && matchesTipo;
+  });
+});
+
+</script>
+
 <template>
   <Head title="Campanhas" />
 
   <AuthenticatedLayout>
-    <v-container fluid>
-      <v-card>
-        <v-card-title>
-          {{ isEditing ? 'Editar' : 'Adicionar' }} Campanha
-          <v-spacer></v-spacer>
-          <v-btn icon @click="$emit('cancel')">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-divider></v-divider>
-        <v-card-text>
-          <v-form ref="dynamicForm" v-model="valid">
-            <v-row>
-              <!-- Nome da Campanha -->
-              <v-col cols="12">
-                <v-text-field
-                  v-model="form.name"
-                  label="Nome da Campanha"
-                  :rules="[rules.required]"
-                  required
-                  full-width
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <!-- Período da Campanha -->
-              <v-col cols="6">
-                <v-text-field
-                  v-model="form.comeco"
-                  label="Começo"
-                  type="date"
-                  :rules="[rules.required]"
-                  required
-                  full-width
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="form.fim"
-                  label="Fim"
-                  type="date"
-                  :rules="[rules.required]"
-                  required
-                  full-width
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <!-- Público da Campanha -->
-              <v-col cols="12">
-                <v-select
-                  v-model="form.publico"
-                  :items="['Homens', 'Mulheres', 'Todos']"
-                  label="Público"
-                  :rules="[rules.required]"
-                  required
-                  full-width
-                ></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <!-- Tipo de Anúncio -->
-              <v-col cols="12">
-                <v-radio-group v-model="form.tipo" label="Tipo de Anúncio" @change="handleTipoChange" full-width>
-                  <v-radio label="Imagem" value="imagem"></v-radio>
-                  <v-radio label="Vídeo" value="video"></v-radio>
-                </v-radio-group>
-              </v-col>
-            </v-row>
-
-            <!-- Upload de Arquivos -->
-            <v-row v-if="form.tipo === 'imagem'">
-              <v-col cols="12">
-                <v-file-input
-                  v-model="form.imagem"
-                  label="Upload de Imagem"
-                  accept="image/*"
-                  @change="previewImagem"
-                  required
-                  full-width
-                ></v-file-input>
-                <v-img v-if="form.previewImagem" :src="form.previewImagem" max-width="200"></v-img>
-              </v-col>
-            </v-row>
-
-            <v-row v-if="form.tipo === 'video'">
-              <v-col cols="6">
-                <v-file-input
-                  v-model="form.capa"
-                  label="Upload da Capa"
-                  accept="image/*"
-                  @change="previewCapa"
-                  required
-                  full-width
-                ></v-file-input>
-                <v-img v-if="form.previewCapa" :src="form.previewCapa" max-width="200"></v-img>
-              </v-col>
-              <v-col cols="6">
-                <v-file-input
-                  v-model="form.video"
-                  label="Upload do Vídeo"
-                  accept="video/*"
-                  @change="previewVideo"
-                  required
-                  full-width
-                ></v-file-input>
-                <v-video v-if="form.previewVideo" :src="form.previewVideo" max-width="200" controls></v-video>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <!-- Duração -->
-              <v-col cols="12">
-                <v-slider
-                  v-model="form.tempo"
-                  label="Duração (segundos)"
-                  :min="1"
-                  :max="60"
-                  required
-                  full-width
-                ></v-slider>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="submitForm">Salvar</v-btn>
-          <v-btn text @click="$emit('cancel')">Cancelar</v-btn>
-        </v-card-actions>
-      </v-card>
+    <v-container class="page-background" fluid fill-height>
+      
+        <CampanhasForm
+          :formData="editCampanhas"
+          :radios="radios"
+          :fields="{
+            nome: { label: 'Nome da campanha', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
+            periodo: { label: 'Período da campanha', type: 'date-range', start: 'comeco', startLabel: 'Começo', end: 'fim', endLabel: 'Fim', rules: [(v) => !!v || 'Campo obrigatório'], required: true },
+            radio: { label: 'Rádios da campanha', rules: [(v) => !!v || 'Rádio é obrigatório'], required: true },
+            publico: { label: 'Público', type: 'select', options: ['Homens', 'Mulheres', 'Todos'], required: true },
+            idade: { label: 'Idade mínima', type: 'date-range', start: 'minimo', startLabel: 'Mínima', end: 'maxima', endLabel: 'Máxima', rules: [(v) => !!v || 'Campo obrigatório'], required: true },
+            tipo: { label: 'Tipo de anúncio', type: 'radio', options: [{ text: 'Vídeo', value: 'video' }, { text: 'Imagem', value: 'imagem' }], required: true },
+            url: { label: 'Url Destino', rules: [(v) => !!v || 'url é obrigatório'], required: true },
+           
+          }"
+          :isEditing="isEditing"
+          title="Campanha Radio"
+          createRoute="campanhas.store"
+          updateRoute="campanhas.update"
+          @cancel="closeEditModal"
+        />
+     
     </v-container>
   </AuthenticatedLayout>
 </template>
 
-<script setup>
-import { ref, reactive } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+<style>
+.page-background {
+  background-color: #f4f4f9;
+  padding: 20px;
+}
 
+.add-button {
+  border-radius: 8px;
+  text-transform: uppercase;
+}
 
-const form = reactive({
-  name: '',
-  comeco: '',
-  fim: '',
-  publico: '',
-  tipo: '',
-  imagem: null,
-  capa: null,
-  video: null,
-  tempo: 30,
-  previewImagem: '',
-  previewCapa: '',
-  previewVideo: ''
-});
+.search-field, .filters {
+  border-radius: 8px;
+  background-color: #ffffff;
+}
 
-const rules = {
-  required: value => !!value || 'Campo obrigatório'
-};
+.card-campanha {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-const handleTipoChange = () => {
-  form.previewImagem = '';
-  form.previewCapa = '';
-  form.previewVideo = '';
-};
+.card-campanha .v-card-title {
+  font-weight: bold;
+}
 
-const previewImagem = (file) => {
-  const reader = new FileReader();
-  reader.onload = e => form.previewImagem = e.target.result;
-  reader.readAsDataURL(file);
-};
-
-const previewCapa = (file) => {
-  const reader = new FileReader();
-  reader.onload = e => form.previewCapa = e.target.result;
-  reader.readAsDataURL(file);
-};
-
-const previewVideo = (file) => {
-  const reader = new FileReader();
-  reader.onload = e => form.previewVideo = e.target.result;
-  reader.readAsDataURL(file);
-};
-
-const submitForm = () => {
-  // Lógica para enviar o formulário
-  console.log('Form data:', form);
-};
-</script>
+.card-campanha img, video {
+  border-radius: 8px;
+}
+</style>

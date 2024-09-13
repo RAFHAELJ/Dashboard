@@ -129,8 +129,7 @@ export default {
                 <template v-slot:activator="{ props }">
                   <v-list-item v-bind="props" prepend-icon="mdi-bullhorn" title="Campanhas"></v-list-item>
                 </template>
-                <v-list-item title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item>
-                <v-list-item title="Alterar Campanha" @click="navigateTo('/campanhas/alterar')"></v-list-item>
+                <v-list-item title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item>                
                 <v-list-item title="Listar Campanhas" @click="navigateTo('/campanhas/')"></v-list-item>
               </v-list-group>
               <!-- Wi-fi Menu -->

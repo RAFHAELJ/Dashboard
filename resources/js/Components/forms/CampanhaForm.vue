@@ -219,7 +219,7 @@
         ></v-text-field>
 
         <!-- Campo Tempo (slider) -->
-        <v-row>
+        <v-row v-if="form.tempo">
           <v-col>
             <v-slider
               v-model="form.tempo"
