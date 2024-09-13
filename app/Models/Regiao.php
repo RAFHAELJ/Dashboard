@@ -18,7 +18,12 @@ class Regiao extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class, 'regiao_id');
+        return $this->hasMany(User::class, 'regiao');
+    }
+
+    public function radios()
+    {
+        return $this->hasMany(Radio::class, 'regiao');
     }
 }
 

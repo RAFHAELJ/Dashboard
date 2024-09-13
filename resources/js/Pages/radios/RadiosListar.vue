@@ -28,7 +28,7 @@
     { text: 'Geo', value: 'geo', sortable: true,title:'Geo',key:'geo' },
     { text: 'Endereço', value: 'endereco', sortable: true,title:'Endereço',key:'endereco' },
     { text: 'Info', value: 'info', sortable: true,title:'Info',key:'info' },
-    { text: 'Regiao', value: 'regiao', sortable: true,title:'Regiao',key:'regiao' },
+    { text: 'Regiao', value: 'regiao.cidade', sortable: true,title:'Regiao',key:'regiao.cidade' },
     { text: 'Ações', value: 'actions', sortable: false },
   ];
   
@@ -97,7 +97,7 @@
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UserForm
           :showCreateRegiao="true"
-          :formData="editUser"
+          :formData="editRadios"
           :fields="{
             radio: { label: 'Nome Radio', rules: [(v) => !!v || 'RADIO é obrigatório'], required: true },
             mac: { label: 'Mac adress', rules: [(v) => !!v || 'Mac é obrigatório'], required: true, type: 'text' },

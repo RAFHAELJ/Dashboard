@@ -14,5 +14,8 @@ class Radio extends Model
         'radio', 'mac', 'geo', 'endereco', 'info', 'regiao'
     ];
 
-    
+    public function regiao()
+    {
+        return $this->belongsTo(Regiao::class, 'regiao');
+    }
 }

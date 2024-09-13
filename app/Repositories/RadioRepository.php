@@ -7,11 +7,11 @@ use App\Models\Radio;
 use App\Models\RadAcct;
 use Illuminate\Http\Request;
 
-class RadioRepository implements RadioRepositoryInterface {
+class RadioRepository  {
 
     public function all() {
         
-        return Radio::paginate();
+        return Radio::with('regiao')->paginate();
     }
 
     public function radioRelatorio(Request $request)

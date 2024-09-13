@@ -16,7 +16,7 @@
   
   // Definir as props recebidas
   const props = defineProps({
-    modelValue: [String, Number],  // O valor inicial da seleção
+    modelValue: [String, Number,Object],  // O valor inicial da seleção
     label: String,
     rules: Array,
   });
