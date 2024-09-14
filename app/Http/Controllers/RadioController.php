@@ -70,4 +70,27 @@ class RadioController extends Controller {
 
         return inertia('radios/GetMapaRadios', ['data' => $data]);
     }
+    public function track(Request $request)
+    {
+        
+        $startDate = $request->input('startD');
+        $endDate = $request->input('endD');
+        $username = $request->input('username');
+       
+        $usersFinal = $this->radioRepository->getTrackedUsers($startDate, $endDate ,$perPage = 10, $username);
+
+       
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data',
+                'data' => $usersFinal,
+            ]);
+        }
+
+        
+        return Inertia::render('radios/RastrearRadios', [
+            'users' => $usersFinal
+        ]);
+    }
 }

@@ -1,120 +1,113 @@
 <template>
-    <v-app-bar flat color="primary" dark>
-      <v-toolbar-title>Filtros do Relatório</v-toolbar-title>
-  
-      <!-- Campo de filtro por nome -->
-      <v-text-field
-        v-model="filters.name"
-        label="Buscar por nome"
-        prepend-icon="mdi-account-search"
-        class="mx-3"
-      ></v-text-field>
-  
-      <!-- Campo de data de com calendário -->
-      <v-menu
-        v-model="menuFrom"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
+  <v-sheet color="lighten-4" class="mb-4 py-3 px-4" rounded elevation="2">
+    <v-row align="center" justify="space-between">
+      <!-- Campo de Data de Início -->
+      <v-col cols="12" sm="6" md="3">
+        <v-text-field
+          v-model="internalFilters.startD"
+          label="Data de Início"
+          prepend-inner-icon="mdi-calendar"
+          type="date"
+          outlined
+          dense
+          hide-details
+        ></v-text-field>
+      </v-col>
+
+      <!-- Campo de Data de Fim -->
+      <v-col cols="12" sm="6" md="3">
+        <v-text-field
+          v-model="internalFilters.endD"
+          label="Data de Fim"
+          prepend-inner-icon="mdi-calendar"
+          type="date"
+          outlined
+          dense
+          hide-details
+        ></v-text-field>
+      </v-col>
+
+      <!-- Campo de Nome do Usuário -->
+      <v-col cols="12" sm="6" md="3">
+        <v-text-field
+          v-model="internalFilters.username"
+          label="Nome do Usuário"
+          prepend-inner-icon="mdi-account"
+          outlined
+          dense
+          hide-details
+        ></v-text-field>
+      </v-col>
+
+      <!-- Renderização dinâmica de campos adicionais -->
+      <template v-for="(field, key) in extraFields" :key="key">
+        <v-col :cols="field.cols || '12'" :sm="field.sm || '6'" :md="field.md || '3'">
           <v-text-field
-            v-model="filters.dateFrom"
-            label="Data de"
-            prepend-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            @click="menuFrom = true"
+            v-model="internalFilters[key]"
+            :label="field.label"
+            :prepend-inner-icon="field.icon || ''"
+            :type="field.type || 'text'"
+            outlined
+            dense
+            hide-details
           ></v-text-field>
-        </template>
-        <v-date-picker v-model="filters.dateFrom" @input="menuFrom = false"></v-date-picker>
-      </v-menu>
-  
-      <!-- Campo de data até com calendário -->
-      <v-menu
-        v-model="menuTo"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model="filters.dateTo"
-            label="Data até"
-            prepend-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            @click="menuTo = true"
-          ></v-text-field>
-        </template>
-        <v-date-picker v-model="filters.dateTo" @input="menuTo = false"></v-date-picker>
-      </v-menu>
-  
-      <!-- Seleção de região -->
-      <v-select
-        v-model="filters.region"
-        :items="regions"
-        label="Selecione uma Região"
-        prepend-icon="mdi-map-marker"
-        class="mx-3"
-      ></v-select>
-  
-      <!-- Botões de Imprimir e Exportar -->
-      <v-menu offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item @click="printReport">
-            <v-icon left>mdi-printer</v-icon>
-            <v-list-item-title>Imprimir</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="exportReport">
-            <v-icon left>mdi-file-export</v-icon>
-            <v-list-item-title>Exportar</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  
-  // Filtros iniciais
-  const filters = ref({
-    name: '',
-    dateFrom: '',
-    dateTo: '',
-    region: null,
-  });
-  
-  // Opções de regiões
-  const regions = ['Norte', 'Sul', 'Leste', 'Oeste'];
-  
-  // Controle dos menus de calendário
-  const menuFrom = ref(false);
-  const menuTo = ref(false);
-  
-  // Funções para exportar e imprimir
-  const printReport = () => {
-    window.print();
-  };
-  
-  const exportReport = () => {
-    alert('Exportação de relatório!');
-  };
-  </script>
-  
-  <style scoped>
-  .v-app-bar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  </style>
-  
+        </v-col>
+      </template>
+
+      <!-- Botão de Busca -->
+      <v-col cols="12" sm="6" md="2" class="d-flex justify-center">
+        <v-btn @click="onSearch" color="primary" block small rounded>
+          <v-icon left>mdi-magnify</v-icon>
+          Buscar
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-sheet>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+  filters: {
+    type: Object,
+    required: true,
+  },
+  extraFields: {
+    type: Object,
+    default: () => ({}), // Recebe campos adicionais dinamicamente
+  },
+});
+
+const emit = defineEmits(['update:filters', 'search']);
+
+// Cópia local dos filtros
+const internalFilters = ref({ ...props.filters });
+
+// Observa mudanças no filtro externo para refletir no interno
+watch(
+  () => props.filters,
+  (newFilters) => {
+    if (JSON.stringify(newFilters) !== JSON.stringify(internalFilters.value)) {
+      internalFilters.value = { ...newFilters };
+    }
+  },
+  { deep: true }
+);
+
+// Emite as atualizações para o componente pai
+watch(
+  internalFilters,
+  (newFilters) => {
+    if (JSON.stringify(newFilters) !== JSON.stringify(props.filters)) {
+      emit('update:filters', newFilters);
+    }
+  },
+  { deep: true }
+);
+
+// Função de busca
+const onSearch = () => {
+  emit('search', internalFilters.value); // Emite os filtros atuais ao buscar
+};
+</script>

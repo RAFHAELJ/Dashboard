@@ -5,7 +5,9 @@ namespace App\Repositories;
 use Carbon\Carbon;
 use App\Models\Radio;
 use App\Models\RadAcct;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RadioRepository  {
 
@@ -139,6 +141,53 @@ class RadioRepository  {
         }
 
         return false;
+    }
+    public function getTrackedUsers($startDate, $endDate, $perPage = 10, $username = null)
+    {
+       
+        $query = RadAcct::select('RadAcctId', 'UserName', 'AcctStartTime', 'AcctStopTime', 'acctsessiontime', 'acctinputoctets', 'acctoutputoctets', 'calledstationid', 'callingstationid');
+    
+        // Se o nome for fornecido, faz a busca por nome
+        if (!empty($username)) {
+            
+            $query->where('UserName', 'LIKE', '%' . $username . '%');    
+           
+        } else {
+           
+            $query->whereBetween(DB::raw('DATE(AcctStartTime)'), [$startDate, $endDate]);
+        }    
+      
+        $paginatedUsers = $query->paginate($perPage);    
+        
+        foreach ($paginatedUsers->items() as $user) {
+            $user->acctinputoctets = $this->convertBytes($user->acctinputoctets);
+            $user->acctoutputoctets = $this->convertBytes($user->acctoutputoctets);
+            $user->acctsessiontime = gmdate('H:i:s', $user->acctsessiontime);
+            $user->acctstarttime = Carbon::parse($user->acctstarttime)->format('d/m/Y H:i:s');
+            $user->acctstoptime = Carbon::parse($user->acctstoptime)->format('d/m/Y H:i:s');
+        }
+    
+        
+        return $paginatedUsers;
+    }
+    
+
+    private function dateRange($startDate, $endDate)
+    {
+        
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+    
+        
+        $period = CarbonPeriod::create($start, $end);
+    
+        
+        return $period->toArray();
+    }
+
+    private function convertBytes($bytes)
+    {
+        return round($bytes / 1024 / 1024, 2) . ' MB';
     }
     
 }

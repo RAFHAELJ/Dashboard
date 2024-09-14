@@ -15,7 +15,7 @@
   </template>
   
   <script setup>
-  import FilterBar from '@/Components/FilterBar.vue';
+  import FilterBar from '@/Components/FilterBar-old.vue';
   import ReportDisplay from '@/Components/ReportDisplay.vue';
   import { ref } from 'vue';
   import { usePage } from '@inertiajs/vue3';

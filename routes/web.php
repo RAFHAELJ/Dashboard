@@ -61,13 +61,16 @@ Route::middleware('auth')->group(function () {
 
 
     Route::prefix('radios')->group(function () {        
-        Route::get('/', [RadioController::class, 'index'])->name('radios.index');
+        Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
+        Route::get('/track', [RadioController::class, 'track'])->name('radios.track');     
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
         Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');
-        Route::post('/', [RadioController::class, 'store'])->name('radios.store');
-        Route::put('/{id}', [RadioController::class, 'update'])->name('radios.update');
+        Route::post('/', [RadioController::class, 'store'])->name('radios.store');  
+        Route::post('/track', [RadioController::class, 'track'])->name('radios.track');        
+        Route::put('/{id}', [RadioController::class, 'update'])->name('radios.update');       
         Route::delete('/{id}', [RadioController::class, 'destroy'])->name('radios.destroy');
+        
     });
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');

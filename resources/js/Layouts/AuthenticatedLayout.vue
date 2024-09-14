@@ -101,7 +101,7 @@ export default {
                 <v-list-item title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item>
                 <v-list-item title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
                 <v-list-item title="Configurar Radios" @click="navigateTo('/radios/configurar')"></v-list-item>
-                <v-list-item title="Rastrear Radios" @click="navigateTo('/radios/rastrear')"></v-list-item>
+                <v-list-item title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
                 <v-list-item title="Adicionar Radios" @click="navigateTo('/radios/')"></v-list-item>                
                 <v-list-item title="Listar Radios" @click="navigateTo('/radios/')"></v-list-item>
               </v-list-group>
