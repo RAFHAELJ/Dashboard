@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     protected $userRepository;
+    
 
     public function __construct(UserRepository $userRepository)
     {
@@ -55,7 +56,10 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'regiao' => $request->regiao,
-            'nivel' => $request->nivel
+            'nivel' => $request->nivel,
+            'selectedActions' => $request->selectedActions,
+            'selectedPages' => $request->selectedPages
+
         ]);
 
         return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
@@ -77,11 +81,11 @@ class UserController extends Controller
 
     public function update(Request $request,User $id)
     {
-       
+      // dd($request->all());
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255' ,
-            'regiao' => 'required',
+            
             
         ]);        
 

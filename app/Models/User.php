@@ -52,4 +52,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Regiao::class, 'regiao');
     }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'user_permissions')->withPivot('page_id')->withTimestamps();
+    }
+
+    public function pages()
+    {
+        return $this->belongsToMany(Page::class, 'user_permissions')->withPivot('permission_id')->withTimestamps();
+    }
 }

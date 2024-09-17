@@ -45,25 +45,11 @@
         :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
       />
 
-      <!-- Ícone para editar permissões (visível apenas no modo de edição) -->
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn v-if="isEditing" icon v-bind="attrs"  @click="openRoleModal">
-            <v-icon>mdi-lock</v-icon>
-          </v-btn>
-        </template>
-        <span>Alterar Permissões</span>
-      </v-tooltip>
-
       <!-- Componente RolesModal -->
       <RolesModal
         :show="showRoleModal"
         :roleTitle="'Operador'"
-        :userId="form.id" 
-        :actions="actions"
-        :pages="pages"
-        :selectedActions="selectedActions"
-        :selectedPages="selectedPages"
+        :userId="form.id || null" 
         @save="handleSaveRoles"
         @close="closeRoleModal"
       />
@@ -78,11 +64,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import RegioesSelect from '../RegioesSelect.vue';
 import RolesModal from '../RolesModal.vue';
-import axios from 'axios';
 
 const props = defineProps({
   formData: {
@@ -127,10 +112,8 @@ const valid = ref(true);
 const showRoleModal = ref(false);
 const selectedActions = ref([]);
 const selectedPages = ref([]);
-const actions = ref([]); 
-const pages = ref([]);   
 
-// Função checkRole para verificar o nível/cargo do usuário
+// Função para verificar o cargo
 const checkRole = (newRole) => {
   if (newRole === 'Operador') {
     showRoleModal.value = true;
@@ -139,20 +122,8 @@ const checkRole = (newRole) => {
   }
 };
 
-// Função para abrir o modal e carregar as permissões existentes
-const openRoleModal = () => {
-  // Apenas carregar permissões se o usuário já existir
-  if (form.id) {
-    axios.get(`/users/${form.id}/permissions`).then(response => {
-      selectedActions.value = response.data.actions; 
-      selectedPages.value = response.data.pages; 
-      showRoleModal.value = true;
-    });
-  }
-};
-
 // Salvar as roles e fechar o modal
-const handleSaveRoles = (data) => { 
+const handleSaveRoles = (data) => {
   selectedActions.value = data.actions;
   selectedPages.value = data.pages;
   closeRoleModal();
@@ -178,14 +149,14 @@ const submitForm = () => {
 
   const formData = {
     ...form,
-    selectedActions: selectedActions.value, 
-    selectedPages: selectedPages.value      
+    selectedActions: selectedActions.value,  // Enviar ações selecionadas
+    selectedPages: selectedPages.value        // Enviar páginas selecionadas
   };
 
   useForm(formData).submit(method, route(routeName, routeParams), {
     onSuccess: () => {
-      emit('cancel'); 
-      router.visit(route(props.returnRoute)); 
+      emit('cancel'); // Fechar o modal
+      router.visit(route(props.returnRoute)); // Redirecionar
     },
     onError: (e) => {
       console.error('Erro ao submeter o formulário:', e);

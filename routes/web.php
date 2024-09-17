@@ -13,6 +13,7 @@ use App\Http\Controllers\RegiaoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CampanhaController;
+use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
 
 /*
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/actions', [UserPermissionController::class, 'getActions']);
+    Route::get('/pages', [UserPermissionController::class, 'getPages']);
     
 
 
@@ -79,7 +83,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
         Route::post('/', [UserController::class, 'store'])->name('users.store');
         Route::put('/{id}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.destroy');        
+
+        Route::get('/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
+        Route::get('/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
+        Route::post('/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
+
     });
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');

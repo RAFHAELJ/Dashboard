@@ -1,5 +1,5 @@
 <template>
-  <v-sheet color="lighten-4" class="mb-4 py-3 px-4" rounded elevation="2">
+  <v-sheet color="lighten-4" class="mb-6 py-4 px-4" rounded elevation="2">
     <v-row align="center" justify="space-between">
       <!-- Campo de Data de Início -->
       <v-col cols="12" sm="6" md="3">
@@ -39,6 +39,14 @@
         ></v-text-field>
       </v-col>
 
+            <!-- Regiao -->
+            <regioes-select              
+              v-model="internalFilters.regiao"
+              label="Selecione uma região"
+              :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
+            ></regioes-select>
+   
+
       <!-- Renderização dinâmica de campos adicionais -->
       <template v-for="(field, key) in extraFields" :key="key">
         <v-col :cols="field.cols || '12'" :sm="field.sm || '6'" :md="field.md || '3'">
@@ -67,7 +75,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-
+import RegioesSelect from '@/Components/RegioesSelect.vue';
 const props = defineProps({
   filters: {
     type: Object,

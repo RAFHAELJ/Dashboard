@@ -25,7 +25,7 @@ const headers = [
   { text: 'Nome', value: 'name', sortable: true,title:'Nome',key:'name' },
   { text: 'Email', value: 'email' , sortable: true,title:'Email',key:'email'},
   { text: 'Regiao', value: 'regiao.cidade' , sortable: true,title:'Regiao',key:'regiao.cidade'},
-  { text: 'Cargo', value: 'nivel' , sortable: true,title:'Cargo',key:'nivel'},
+  { text: 'Nivel', value: 'nivel' , sortable: true,title:'Nivel',key:'Nivel'},
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 
@@ -103,10 +103,10 @@ const handleDeleteItem = (item) => {
   :fields="{
     name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
     email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
-    nivel: { label: 'Cargo', type: 'select', required: true, items: ['Administrador', 'Cliente', 'Supervisor', 'Cliente Regional', 'Supervisor Regional'] },
+    nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
     ...( !isEditing ? {
         password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
-        password_confirmation: {label: 'Confirmar Senha',rules: [(v) => !!v || 'A confirmação da senha é obrigatória',(v) => v === editUser.password || 'As senhas não coincidem'],required: true, type: 'password', autocomplete: 'new-password'  }
+        password_confirmation: {label: 'Confirmar Senha',rules: [(v) => !!v || 'A confirmação da senha é obrigatória',(v) => v == editUser.password || 'As senhas não coincidem'],required: true, type: 'password', autocomplete: 'new-password'  }
       } : {})
   }"
   :isEditing="isEditing"
