@@ -43,27 +43,31 @@ class UserController extends Controller
     }
     public function store(Request $request)
     {
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|min:6',
-            'regiao' => 'required',
-        ]);
-
-        $user = $this->userRepository->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'regiao' => $request->regiao,
-            'nivel' => $request->nivel,
-            'selectedActions' => $request->selectedActions,
-            'selectedPages' => $request->selectedPages
-
-        ]);
-
-        return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+                'nivel' => 'required',
+                'regiao' => 'required',
+            ]);
+    
+            $user = $this->userRepository->create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'regiao' => $request->regiao,
+                'nivel' => $request->nivel,
+                'selectedActions' => $request->selectedActions,
+                'selectedPages' => $request->selectedPages
+            ]);
+    
+            return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
+        }
     }
+    
 
     public function show($id)
     {
@@ -79,25 +83,28 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request,User $id)
+    public function update(Request $request, User $id)
     {
-      // dd($request->all());
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255' ,
-            
-            
-        ]);        
-
-        $userResp = $this->userRepository->update($request, $id);
-        if ($userResp) {
-            return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
-        } else {
-            return Inertia::render('Errors/404', [
-                'message' => 'Usuário não encontrado'
+        try {
+            $request->validate([
+                'name' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|string|email|max:255',
+                'regiao' => 'sometimes|required',
             ]);
+    
+            $userResp = $this->userRepository->update($request, $id);
+            if ($userResp) {
+                return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
+            } else {
+                return Inertia::render('Errors/404', [
+                    'message' => 'Usuário não encontrado'
+                ]);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
     }
+    
 
     public function destroy($id)
     {

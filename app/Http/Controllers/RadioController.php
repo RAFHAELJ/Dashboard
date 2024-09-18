@@ -40,10 +40,29 @@ class RadioController extends Controller {
     }
 
     public function store(Request $request) {
-        $radio = $this->radioRepository->create($request->all());
-        return redirect()->route('radios.index')
-            ->with('success', 'Rádio criado com sucesso!');
+        
+        // Validações
+        $validatedData = $request->validate([
+            'radio' => 'required|string|max:255',
+            'mac' => 'required|string',
+            'geo' => 'required|string|max:255',
+            'endereco' => 'required|string|max:255',
+            'info' => 'required|string|max:255',
+            'regiao'=>'required',
+        ]);
+       
+        try {
+            // Criação do rádio no repositório
+            $radio = $this->radioRepository->create($validatedData);
+           
+            return redirect()->route('radios.index')
+                ->with('success', 'Rádio criado com sucesso!');
+        } catch (\Exception $e) {
+            // Captura a exceção e redireciona com erro
+            return redirect()->back()->withErrors(['error' => 'Erro ao criar rádio: ' . $e->getMessage()]);
+        }
     }
+    
 
     public function show($id) {
         $radio = $this->radioRepository->find($id);
@@ -53,10 +72,29 @@ class RadioController extends Controller {
     }
 
     public function update(Request $request, $id) {
-        $radio = $this->radioRepository->update($id, $request->all());
-        return redirect()->route('radios.index')
-            ->with('success', 'Rádio atualizado com sucesso!');
+
+        // Validações
+        $validatedData = $request->validate([
+            'radio' => 'required|string|max:255',
+            'mac' => 'required|string',
+            'geo' => 'required|string|max:255',
+            'endereco' => 'required|string|max:255',
+            'info' => 'required|string|max:255',
+            'regiao'=>'required',
+        ]);
+    
+        try {
+            // Atualização do rádio no repositório
+            $radio = $this->radioRepository->update($id, $validatedData);
+    
+            return redirect()->route('radios.index')
+                ->with('success', 'Rádio atualizado com sucesso!');
+        } catch (\Exception $e) {
+            // Captura a exceção e redireciona com erro
+            return redirect()->back()->withErrors(['error' => 'Erro ao atualizar rádio: ' . $e->getMessage()]);
+        }
     }
+    
 
     public function destroy($id) {
         $this->radioRepository->delete($id);

@@ -106,8 +106,11 @@ const handleDeleteItem = (item) => {
     nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
     ...( !isEditing ? {
         password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
-        password_confirmation: {label: 'Confirmar Senha',rules: [(v) => !!v || 'A confirmação da senha é obrigatória',(v) => v == editUser.password || 'As senhas não coincidem'],required: true, type: 'password', autocomplete: 'new-password'  }
-      } : {})
+        password_confirmation: {label: 'Confirmar Senha',rules: [
+        (v) => !!v || 'A confirmação da senha é obrigatória'
+        
+      ],
+        required: true, type: 'password', autocomplete: 'new-password'  }} : {})
   }"
   :isEditing="isEditing"
   title="Usuário"

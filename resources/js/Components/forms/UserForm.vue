@@ -19,21 +19,25 @@
             v-model="form[key]"
             :label="field.label"
             :type="field.type || 'text'"
-            :rules="field.rules"
+            :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"  
+            :error="!!formErrors[key]"
+            :error-messages="formErrors[key] ? formErrors[key] : []"
             :required="field.required"
             :autocomplete="field.autocomplete"
           />
 
           <!-- Campo de Select para Cargos -->
           <v-select
-            v-if="field.type === 'select'"
-            v-model="form[key]"
-            :items="field.items"
-            :label="field.label"
-            :rules="field.rules"
-            :required="field.required"
-            @update:modelValue="checkRole"
-          />
+              v-if="field.type === 'select'"
+              v-model="form[key]"
+              :items="field.items"
+              :label="field.label"
+              :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
+              :error="!!formErrors[key]"
+              :error-messages="formErrors[key] ? formErrors[key] : []"
+              :required="field.required"
+              @update:modelValue="checkRole"
+            />
         </template>
       </v-form>
 
@@ -48,7 +52,7 @@
       <!-- Ícone para editar permissões (visível apenas no modo de edição) -->
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn v-if="isEditing" icon v-bind="attrs"  @click="openRoleModal">
+          <v-btn v-if="form.nivel === 'Operador'" icon v-bind="attrs" @click="openRoleModal">
             <v-icon>mdi-lock</v-icon>
           </v-btn>
         </template>
@@ -75,7 +79,10 @@
       <v-btn text @click="$emit('cancel')">Cancelar</v-btn>
     </v-card-actions>
   </v-card>
+
+
 </template>
+
 
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue';
@@ -121,7 +128,15 @@ const emit = defineEmits(['cancel']);
 
 // Formulário reativo
 const form = reactive({ ...props.formData });
+console.log(form);
 const valid = ref(true);
+
+// Estado do Snackbar
+const snackbar = reactive({
+  show: false,
+  text: '',
+  timeout: 3000, // 3 segundos para o snackbar sumir
+});
 
 // Estado para o modal de roles
 const showRoleModal = ref(false);
@@ -141,7 +156,6 @@ const checkRole = (newRole) => {
 
 // Função para abrir o modal e carregar as permissões existentes
 const openRoleModal = () => {
-  // Apenas carregar permissões se o usuário já existir
   if (form.id) {
     axios.get(`/users/${form.id}/permissions`).then(response => {
       selectedActions.value = response.data.actions; 
@@ -171,28 +185,32 @@ watch(
 );
 
 // Enviar o formulário e as permissões associadas
+const formErrors = ref({});  // Armazenar os erros por campo
+
+// Enviar o formulário e tratar as permissões associadas
 const submitForm = () => {
+  
   const routeName = props.isEditing ? props.updateRoute : props.createRoute;
   const method = props.isEditing ? 'put' : 'post';
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
+  console.log(routeName);
+  formErrors.value = {};  // Limpar os erros ao submeter o formulário
 
-  const formData = {
-    ...form,
-    selectedActions: selectedActions.value, 
-    selectedPages: selectedPages.value      
-  };
-
-  useForm(formData).submit(method, route(routeName, routeParams), {
+  useForm(form).submit(method, route(routeName, routeParams), {
     onSuccess: () => {
-      emit('cancel'); 
-      router.visit(route(props.returnRoute)); 
+     
+      emit('cancel');
+      router.visit(route(props.returnRoute));
     },
-    onError: (e) => {
-      console.error('Erro ao submeter o formulário:', e);
+    onError: (errors) => {
+      formErrors.value = errors;  // Armazenar os erros vindos do backend
+     
     }
   });
 };
+
 </script>
+
 
 <style scoped>
 .v-card {

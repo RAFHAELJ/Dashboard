@@ -36,47 +36,79 @@ class RegiaoController extends Controller
     // Criar nova região
     public function store(Request $request)
     {
-        $request->validate([
+        // Validações
+        $validatedData = $request->validate([
             'cidade' => 'required|string|max:255',
             'bairros' => 'required|string|max:255',
         ]);
-
-        $regiao = $this->regiaoRepository->create($request->all());
-
-        if ($request->expectsJson()) {
-            return response()->json($regiao, 201);
+    
+        try {
+            // Criação da região
+            $regiao = $this->regiaoRepository->create($validatedData);
+    
+            if ($request->expectsJson()) {
+                return response()->json($regiao, 201); // Retorna como JSON caso seja esperado
+            }
+    
+            return redirect()->route('regioes.index')
+                ->with('success', 'Região criada com sucesso!');
+        } catch (\Exception $e) {
+            // Captura a exceção e redireciona com erros
+            return redirect()->back()->withErrors(['error' => 'Erro ao criar a região: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('regioes.index');
     }
+    
 
     // Editar uma região
     public function update(Request $request, $id)
     {
-        $request->validate([
+        // Validações
+        $validatedData = $request->validate([
             'cidade' => 'required|string|max:255',
-            'bairros' => 'required',
+            'bairros' => 'required|string|max:255',
         ]);
-
-        $regiao = $this->regiaoRepository->update($id, $request->all());
-
-        if ($request->expectsJson()) {
-            return response()->json($regiao, 200);
+    
+        try {
+            // Atualização da região
+            $regiao = $this->regiaoRepository->update($id, $validatedData);
+    
+            if ($request->expectsJson()) {
+                return response()->json($regiao, 200); // Retorna como JSON caso seja esperado
+            }
+    
+            return redirect()->route('regioes.index')
+                ->with('success', 'Região atualizada com sucesso!');
+        } catch (\Exception $e) {
+            // Captura a exceção e redireciona com erros
+            return redirect()->back()->withErrors(['error' => 'Erro ao atualizar a região: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('regioes.index');
     }
+    
 
     // Excluir uma região
     public function destroy($id)
     {
-        $this->regiaoRepository->delete($id);
-
-        if (request()->expectsJson()) {
-            return response()->json(null, 204);
+        try {
+            // Tenta deletar a região
+            $this->regiaoRepository->delete($id);
+    
+            if (request()->expectsJson()) {
+                return response()->json(null, 204); // Retorna status 204 (No Content) em caso de sucesso
+            }
+    
+            return redirect()->route('regioes.index')
+                ->with('success', 'Região deletada com sucesso!');
+        } catch (\Exception $e) {
+            // Captura a exceção e retorna uma mensagem de erro apropriada
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'error' => 'Erro ao deletar a região: ' . $e->getMessage()
+                ], 500); // Retorna status 500 (Internal Server Error)
+            }
+    
+            return redirect()->back()->withErrors(['error' => 'Erro ao deletar a região: ' . $e->getMessage()]);
         }
-
-        return redirect()->route('regioes.index');
     }
+    
 }
 
