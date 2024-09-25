@@ -2,12 +2,13 @@
   <Head title="FAQ" />
 
   <AuthenticatedLayout>
+    <template v-slot="{ canAccess }">
     <v-app>
       <v-container class="editor-container">
         <v-row>
           <v-col cols="12">
             <h1>Editar FAQ</h1>
-            <v-btn color="primary" @click="addNewFaq" class="mb-4">Adicionar Nova FAQ</v-btn>
+            <v-btn  v-if="canAccess('FAQ','gravar')" color="primary" @click="addNewFaq" class="mb-4">Adicionar Nova FAQ</v-btn>
 
             <!-- Seleção de FAQ por nome -->
             <v-select
@@ -52,11 +53,12 @@
               </v-col>
             </v-row>
 
-            <v-btn color="primary" type="submit" class="mt-4" @click="saveFaq">Salvar</v-btn>
+            <v-btn v-if="canAccess('FAQ','atualizar')" color="primary" type="submit" class="mt-4" @click="saveFaq">Salvar</v-btn>
           </v-col>
         </v-row>
       </v-container>
     </v-app>
+    </template>
   </AuthenticatedLayout>
 </template>
 

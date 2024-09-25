@@ -84,42 +84,45 @@ const handleDeleteItem = (item) => {
   <Head title="Lista de Usuários" />
 
   <AuthenticatedLayout>
-    <v-container fluid fill-height>
-      <DataList
-        :headers="headers"
-        :items="users"
-        :columnTitles="['ID', 'Nome', 'Email']"
-        searchPlaceholder="Pesquisar Usuários"
-        createButtonLabel="Adicionar Usuário"
-        @create="handleCreateItem"
-        @edit="handleEditItem"
-        @delete="handleDeleteItem"
-        :item-key="'id'"
-      />
-      <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
-        <UserForm
-  :formData="editUser"
-  :showCreateRegiao="true"
-  :fields="{
-    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
-    email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
-    nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
-    ...( !isEditing ? {
-        password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
-        password_confirmation: {label: 'Confirmar Senha',rules: [
-        (v) => !!v || 'A confirmação da senha é obrigatória'
-        
-      ],
-        required: true, type: 'password', autocomplete: 'new-password'  }} : {})
-  }"
-  :isEditing="isEditing"
-  title="Usuário"
-  createRoute="users.store"
-  updateRoute="users.update"
-  returnRoute="users.index"
-  @cancel="closeEditModal"
-/>
-      </v-dialog>
-    </v-container>
+    <template v-slot="{ canAccess }"> <!-- Recebe a função canAccess via slot -->
+      <v-container fluid fill-height>
+        <DataList
+          :headers="headers"
+          :items="users"
+          :columnTitles="['ID', 'Nome', 'Email']"
+          searchPlaceholder="Pesquisar Usuários"
+          createButtonLabel="Adicionar Usuário"
+          @create="handleCreateItem"
+          @edit="handleEditItem"
+          @delete="handleDeleteItem"
+          :item-key="'id'"
+          :canAccess="canAccess" 
+          createRoute="users"
+        />
+        <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
+          <UserForm
+            :formData="editUser"
+            :showCreateRegiao="true"
+            :fields="{
+              name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
+              email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
+              nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
+              ...( !isEditing ? {
+                  password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
+                  password_confirmation: {label: 'Confirmar Senha',rules: [
+                    (v) => !!v || 'A confirmação da senha é obrigatória'
+                  ], required: true, type: 'password', autocomplete: 'new-password'  }} : {})
+            }"
+            :isEditing="isEditing"
+            title="Usuário"
+            createRoute="users.store"
+            updateRoute="users.update"
+            returnRoute="users.index"
+            @cancel="closeEditModal"
+          />
+        </v-dialog>
+      </v-container>
+    </template>
   </AuthenticatedLayout>
 </template>
+

@@ -128,7 +128,7 @@ const emit = defineEmits(['cancel']);
 
 // Formulário reativo
 const form = reactive({ ...props.formData });
-console.log(form);
+
 const valid = ref(true);
 
 // Estado do Snackbar
@@ -166,7 +166,7 @@ const openRoleModal = () => {
 };
 
 // Salvar as roles e fechar o modal
-const handleSaveRoles = (data) => { 
+const handleSaveRoles = (data) => {   
   selectedActions.value = data.actions;
   selectedPages.value = data.pages;
   closeRoleModal();
@@ -193,7 +193,9 @@ const submitForm = () => {
   const routeName = props.isEditing ? props.updateRoute : props.createRoute;
   const method = props.isEditing ? 'put' : 'post';
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
-  console.log(routeName);
+  
+  form.selectedActions = selectedActions.value;
+  form.selectedPages = selectedPages.value;
   formErrors.value = {};  // Limpar os erros ao submeter o formulário
 
   useForm(form).submit(method, route(routeName, routeParams), {

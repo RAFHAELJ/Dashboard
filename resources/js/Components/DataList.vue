@@ -44,6 +44,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+   canAccess: { // Recebendo o canAccess diretamente via prop
+    type: Function,
+    required: true
+  },
+  createRoute: {
+    type: String,
+    required: true,
+  }
 });
 
 const search = ref('');
@@ -183,7 +191,7 @@ watch(() => props.items, (newItems) => {
             <div class="d-flex align-center">
               <!-- Botão de adicionar -->
               <AddButton
-                v-if="showCreateButton"
+                v-if="showCreateButton && canAccess(props.createRoute, 'gravar')"
                 :label="createButtonLabel"
                 @click="handleCreateItem"
                 class="me-2"
@@ -217,12 +225,14 @@ watch(() => props.items, (newItems) => {
             <!-- Ações de edição e exclusão -->
             <template v-slot:item.actions="{ item }">
               <v-btn
+               v-if="canAccess(props.createRoute, 'atualizar')"
                 variant="plain"
                 density="compact"
                 icon="mdi-pencil-outline"
                 @click="handleEditItem(item)"
               ></v-btn>
               <v-btn
+              v-if="canAccess(props.createRoute, 'excluir')"
                 variant="plain"
                 density="compact"
                 icon="mdi-trash-can-outline"

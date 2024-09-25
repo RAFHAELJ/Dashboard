@@ -18,6 +18,7 @@ class Permission extends Model
 
     public function pages()
     {
-        return $this->belongsToMany(Page::class, 'user_permissions')->withTimestamps();
+        return $this->belongsToMany(Page::class, 'user_permissions', 'permission_id', 'page_id')
+                    ->withTimestamps();
     }
 }

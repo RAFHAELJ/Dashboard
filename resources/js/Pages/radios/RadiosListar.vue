@@ -82,6 +82,7 @@
     <Head title="Radios" />
   
     <AuthenticatedLayout>
+      <template v-slot="{ canAccess }">
       <v-container fluid fill-height>
         <DataList
           :headers="headers"
@@ -93,6 +94,8 @@
           @edit="handleEditItem"
           @delete="handleDeleteItem"
           :item-key="'id'"
+          :canAccess="canAccess" 
+          createRoute="radios"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UserForm
@@ -115,6 +118,7 @@
         />
       </v-dialog>
       </v-container>
+      </template> 
     </AuthenticatedLayout>
   </template>
   

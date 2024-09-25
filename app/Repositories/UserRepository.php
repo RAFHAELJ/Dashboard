@@ -6,14 +6,16 @@ namespace App\Repositories;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Services\UserPermissionService;
 use App\Repositories\UserPermissionRepository;
 
 
 class UserRepository{
 
-    public function __construct(UserPermissionRepository $userPermissionRepository)
+    public function __construct(UserPermissionRepository $userPermissionRepository,UserPermissionService $userPermissionService)
     {
         $this->userPermissionRepository = $userPermissionRepository;
+        $this->userPermissionService = $userPermissionService;
     }
 
     public function all() {
@@ -34,12 +36,14 @@ class UserRepository{
 
     public function create(array $data)
     {
-       // dd($data);
+        
         $user = User::create($data);
 
         // Associar permissões (ações e páginas) se forem fornecidas
-        if (isset($data['selectedActions']) && isset($data['selectedPages'])) {
+        if ((isset($data['selectedActions'])&& !empty($data['selectedActions'])) && (isset($data['selectedPages']) && !empty($data['selectedPages']))) {
             $this->userPermissionRepository->updateUserPermissions($user, $data);
+        }else{
+            $this->userPermissionService->assignDefaultPermissions($user);
         }
 
         return $user;

@@ -9,41 +9,32 @@ class PagesSeeder extends Seeder
 {
     public function run()
     {
-        // Array com todas as páginas do sistema extraídas das rotas
+        // Array com todas as páginas do sistema ordenadas alfabeticamente pelo nome
         $pages = [
-            // Páginas Globais
-            'dashboard',
-            'radius',
-            'home',
-
-            // Páginas de Usuários
-            'users.index',
-            'users.show',
-            'users.create',
-            'users.edit',
-
-            // Páginas de Campanhas
-            'campanhas.index',
-            'campanhas.show',
-            'campanhas.create',
-
-            // Páginas de FAQ
-            'faq.index',
-            'faq.show',
-
-            // Páginas de Regiões
-            'regioes.index',
-            'regioes.show',
-
-            // Outras Páginas
-            'profile.edit',
-            'login_customizations.index',
+            ['name' => 'Campanhas Menu', 'slug' => 'campanhas'],
+            ['name' => 'Configurar radios', 'slug' => 'configurarRadios'],
+            ['name' => 'Dashboard', 'slug' => 'dashboard'],
+            ['name' => 'FAQ', 'slug' => 'faq'],
+            ['name' => 'Home', 'slug' => 'home'],
+            ['name' => 'Incluir/listar Radio', 'slug' => 'incluirRadios'],
+            ['name' => 'Login Customizations Index', 'slug' => 'login_customizations'],
+            ['name' => 'Logs', 'slug' => 'logs'],
+            ['name' => 'Mapa Radios', 'slug' => 'mapaRadios'],
+            ['name' => 'Radius', 'slug' => 'radius'],
+            ['name' => 'Radios Menu', 'slug' => 'radios'],
+            ['name' => 'Rastrear Radio', 'slug' => 'rastrearRadio'],
+            ['name' => 'Regiões Menu', 'slug' => 'regioes'],
+            ['name' => 'Relatorio Radios', 'slug' => 'relatorioRadios'],
+            ['name' => 'Usuarios Dash', 'slug' => 'usuariosDash'],
+            ['name' => 'Usuarios Menu', 'slug' => 'users'],
+            ['name' => 'Usuarios Radio', 'slug' => 'usuariosRadio'],
         ];
 
-        // Inserir as páginas no banco de dados
+        // Inserir as páginas no banco de dados usando um loop
         foreach ($pages as $page) {
             Page::create([
-                'name' => $page,
+                'name' => $page['name'],
+                'slug' => $page['slug'],
             ]);
         }
     }

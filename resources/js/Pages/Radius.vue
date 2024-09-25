@@ -3,13 +3,18 @@
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
+      <template v-slot="{ canAccess }">
       <v-container  fluid fill-height>
          <!-- Botão para adicionar servidores -->
-         <v-btn @click="dialog = true" color="primary" class="mb-4 d-flex align-left justify-left">
+         <v-btn 
+         v-if="canAccess('Dashboard','gravar')"
+         @click="dialog = true" 
+         color="primary" 
+         class="mb-4 d-flex align-left justify-left">
           Adicionar Servidor
         </v-btn>
         <!-- Cards de Servidores -->
-        <v-row class="align-start">
+        <v-row class="align-start" v-if="canAccess('Dashboard','ler')">
           <v-col v-for="server in servers" :key="server.id" cols="12" sm="6" md="4">
             <v-card class="server-card" :elevation="server.online ? 12 : 2">
               <v-card-title>
@@ -52,6 +57,7 @@
           </v-card>
         </v-dialog>
       </v-container>
+      </template>
     </AuthenticatedLayout>
   </div>
 </template>

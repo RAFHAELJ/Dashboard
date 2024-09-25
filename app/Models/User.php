@@ -55,11 +55,22 @@ class User extends Authenticatable
 
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class, 'user_permissions')->withPivot('page_id')->withTimestamps();
+        return $this->belongsToMany(Permission::class, 'user_permissions')
+                    ->withPivot('page_id')
+                    ->with('pages')  // Carrega as páginas relacionadas
+                    ->withTimestamps();
     }
 
     public function pages()
     {
         return $this->belongsToMany(Page::class, 'user_permissions')->withPivot('permission_id')->withTimestamps();
     }
+    public function hasPermissionForPage(Page $page, $action)
+{
+    $permissions = $this->permissions()
+                        ->wherePivot('page_id', $page->id)
+                        ->get();
+
+    return $permissions->contains('name', $action);
+}
 }

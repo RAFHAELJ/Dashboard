@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Home');
     })->name('home');*/
 
-    Route::get('/', [CardController::class, 'index'])->name('home');
+    Route::get('/', [CardController::class, 'index'])->middleware('check-page-access:ler')->name('home');
 
     Route::get('/edit-page/{id}', [PageController::class, 'edit'])->name('edit.page');
     Route::post('/update-page/{id}', [PageController::class, 'update'])->name('update.page');
@@ -61,69 +61,72 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/actions', [UserPermissionController::class, 'getActions']);
     Route::get('/pages', [UserPermissionController::class, 'getPages']);
+
+    Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
+    Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
+    Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
     
 
 
-    Route::prefix('radios')->group(function () {        
+    Route::prefix('radios')->middleware('check-page-access:ler')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
         Route::get('/track', [RadioController::class, 'track'])->name('radios.track');     
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
         Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');
-        Route::post('/', [RadioController::class, 'store'])->name('radios.store');  
-        Route::post('/track', [RadioController::class, 'track'])->name('radios.track');        
-        Route::put('/{id}', [RadioController::class, 'update'])->name('radios.update');       
-        Route::delete('/{id}', [RadioController::class, 'destroy'])->name('radios.destroy');
+        Route::post('/', [RadioController::class, 'store'])->middleware('check-page-access:gravar')->name('radios.store');  
+        Route::post('/track', [RadioController::class, 'track'])->middleware('check-page-access:gravar')->name('radios.track');        
+        Route::put('/{id}', [RadioController::class, 'update'])->middleware('check-page-access:atualizar')->name('radios.update');       
+        Route::delete('/{id}', [RadioController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radios.destroy');
         
     });
-    Route::prefix('users')->group(function () {
+ 
+   Route::prefix('users')->middleware('check-page-access:ler')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/count', [UserController::class, 'count'])->name('users.count');
-        Route::get('/new', [UserController::class, 'new'])->name('users.create');
+        Route::get('/new', [UserController::class, 'new'])->middleware('check-page-access:gravar')->name('users.create');
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
-        Route::post('/', [UserController::class, 'store'])->name('users.store');
-        Route::put('/{id}', [UserController::class, 'update'])->name('users.update');
-        Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.destroy');        
+        Route::post('/', [UserController::class, 'store'])->middleware('check-page-access:gravar')->name('users.store');
+        Route::put('/{id}', [UserController::class, 'update'])->middleware('check-page-access:atualizar')->name('users.update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('check-page-access:excluir')->name('users.destroy');       
 
-        Route::get('/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
-        Route::get('/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
-        Route::post('/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
+        
 
     });
-    Route::prefix('usuarios')->group(function () {
+    Route::prefix('usuarios')->middleware('check-page-access:ler')->group(function () {
         Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::get('/new', [UsuarioController::class, 'new'])->name('usuarios.create');
         Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
-        Route::post('/', [UsuarioController::class, 'store'])->name('usuarios.store');
-        Route::put('/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
-        Route::delete('/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+        Route::post('/', [UsuarioController::class, 'store'])->middleware('check-page-access:gravar')->name('usuarios.store');
+        Route::put('/{id}', [UsuarioController::class, 'update'])->middleware('check-page-access:atualizar')->name('usuarios.update');
+        Route::delete('/{id}', [UsuarioController::class, 'destroy'])->middleware('check-page-access:excluir')->name('usuarios.destroy');
     });
 
-    Route::prefix('campanhas')->group(function () {
+    Route::prefix('campanhas')->middleware('check-page-access:ler')->group(function () {
         Route::get('/', [CampanhaController::class, 'index'])->name('campanhas.index');
         Route::get('/adicionar', [CampanhaController::class, 'new'])->name('campanhas.create');
         Route::get('/{id}', [CampanhaController::class, 'show'])->name('campanhas.show');
-        Route::post('/', [CampanhaController::class, 'store'])->name('campanhas.store');
-        Route::put('/{id}', [CampanhaController::class, 'update'])->name('campanhas.update');
-        Route::delete('/{id}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');
+        Route::post('/', [CampanhaController::class, 'store'])->middleware('check-page-access:gravar')->name('campanhas.store');
+        Route::put('/{id}', [CampanhaController::class, 'update'])->middleware('check-page-access:atualizar')->name('campanhas.update');
+        Route::delete('/{id}', [CampanhaController::class, 'destroy'])->middleware('check-page-access:excluir')->name('campanhas.destroy');
     });
 
-    Route::prefix('faq')->group(function (){
+    Route::prefix('faq')->middleware('check-page-access:ler')->group(function (){
         Route::get('/', [FaqController::class, 'index'])->name('faq.index');
         Route::get('/{id}', [FaqController::class, 'show'])->name('faq.show');
-        Route::post('/store', [FaqController::class, 'store'])->name('faq.store');
-        Route::put('/{id}', [FaqController::class, 'update'])->name('faq.update');
+        Route::post('/store', [FaqController::class, 'store'])->middleware('check-page-access:gravar')->name('faq.store');
+        Route::put('/{id}', [FaqController::class, 'update'])->middleware('check-page-access:atualizar')->name('faq.update');
     });
-    Route::prefix('regioes')->group(function (){
+    Route::prefix('regioes')->middleware('check-page-access:ler')->group(function (){
         Route::get('/', [RegiaoController::class, 'index'])->name('regioes.index');
         Route::get('/{id}', [RegiaoController::class, 'show'])->name('regioes.show');
-        Route::post('/store', [RegiaoController::class, 'store'])->name('regioes.store');
-        Route::put('/{id}', [RegiaoController::class, 'update'])->name('regioes.update');
-        Route::delete('/{id}', [RegiaoController::class, 'destroy'])->name('regioes.destroy');
+        Route::post('/store', [RegiaoController::class, 'store'])->middleware('check-page-access:gravar')->name('regioes.store');
+        Route::put('/{id}', [RegiaoController::class, 'update'])->middleware('check-page-access:atualizar')->name('regioes.update');
+        Route::delete('/{id}', [RegiaoController::class, 'destroy'])->middleware('check-page-access:excluir')->name('regioes.destroy');
     });
     Route::resource('cards', CardController::class);
     Route::resource('notes', NoteController::class);
-    Route::resource('login_customizations', LoginCustomizationController::class);
+    Route::resource('login_customizations', LoginCustomizationController::class)->middleware('check-page-access:ler');
     //Route::resource('regioes', RegiaoController::class);
 
 });

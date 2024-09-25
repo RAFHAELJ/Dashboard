@@ -124,6 +124,7 @@ const filteredCampanhas = computed(() => {
   <Head title="Campanhas" />
 
   <AuthenticatedLayout>
+    <template v-slot="{ canAccess }">
     <v-container class="page-background" fluid fill-height>
       <!-- Filtros e Botão de Adicionar na Mesma Linha -->
       <v-row class="align-center">
@@ -160,6 +161,7 @@ const filteredCampanhas = computed(() => {
         </v-col>
         <v-col cols="12" md="2" class="py-1 d-flex justify-end align-center">
           <v-btn
+            v-if="canAccess('campanhas','gravar')"
             @click="handleCreateItem"
             density="comfortable"
             color="primary"
@@ -175,7 +177,7 @@ const filteredCampanhas = computed(() => {
       <!-- Listagem de Campanhas em Formato de Card -->
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3" v-for="campanha in filteredCampanhas" :key="campanha.id">
-          <v-card class="card-campanha" hover>
+          <v-card class="card-campanha" hover v-if="canAccess('campanhas','ler')">
             <v-card-title>{{ campanha.nome }}</v-card-title>
             <v-card-text>
               <p><strong>Começo:</strong> {{ campanha.comeco }}</p>
@@ -201,10 +203,14 @@ const filteredCampanhas = computed(() => {
             </v-card-text>
 
             <v-card-actions>
-              <v-btn icon @click="handleEditItem(campanha)">
+              <v-btn 
+              v-if="canAccess('campanhas','atualizar')"
+              icon @click="handleEditItem(campanha)">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-btn icon @click="handleDeleteItem(campanha)">
+              <v-btn 
+              v-if="canAccess('campanhas','excluir')"
+              icon @click="handleDeleteItem(campanha)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-card-actions>
@@ -235,6 +241,7 @@ const filteredCampanhas = computed(() => {
         />
       </v-dialog>
     </v-container>
+    </template>
   </AuthenticatedLayout>
 </template>
 

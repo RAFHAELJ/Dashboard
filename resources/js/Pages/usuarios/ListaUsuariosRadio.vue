@@ -77,6 +77,7 @@ const handleDeleteItem = (item) => {
   <Head title=" Usuários" />
 
   <AuthenticatedLayout>
+    <template v-slot="{ canAccess }"> 
     <v-container fluid fill-height>
       <DataList
         :headers="headers"
@@ -88,6 +89,8 @@ const handleDeleteItem = (item) => {
         @edit="handleEditItem"
         @delete="handleDeleteItem"
         :item-key="'RadAcctId'"
+        :canAccess="canAccess" 
+          createRoute="usuarios"
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UsuariosForm
@@ -99,5 +102,6 @@ const handleDeleteItem = (item) => {
 
       </v-dialog>
     </v-container>
+    </template>
   </AuthenticatedLayout>
 </template>

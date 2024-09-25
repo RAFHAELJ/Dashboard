@@ -17,7 +17,7 @@ class UserPermissionRepository
     // Buscar todas as páginas
     public function getPages()
     {
-        return Page::all();
+        return Page::orderBy('name', 'asc')->get();
     }
 
     // Atualizar permissões associadas a um usuário

@@ -69,6 +69,11 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'perPageLimit' => \App\Http\Middleware\PerPageLimit::class,
+        'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
 
+    ];
+    protected $routeMiddleware = [
+        // Outros middlewares...
+        'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
     ];
 }
