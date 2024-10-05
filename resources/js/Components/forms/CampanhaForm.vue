@@ -310,7 +310,7 @@ watch(
   }
   
 );
-console.log("Form Data:", form);
+
 const onFileChange = (file) => {
   console.log("Arquivo selecionado:", file);
 };
@@ -318,7 +318,7 @@ const onFileChange = (file) => {
 const submitForm = async () => {
   
   const isValid = dynamicForm.value.validate();
-  console.log("isValid:", isValid);
+ 
   if (!isValid) {
     snackbar.text = 'Por favor, preencha todos os campos obrigatórios corretamente.';
     snackbar.show = true;

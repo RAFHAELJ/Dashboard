@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\LoginCustomizationRequest;
 use App\Repositories\LoginCustomizationRepository;
-
-
+use App\Traits\HandlesFileUpload;
 class LoginCustomizationController extends Controller
 {
     protected $repository;
@@ -18,37 +18,78 @@ class LoginCustomizationController extends Controller
     }
 
     // Método para exibir a tela com Inertia.js
-    public function index()
+    public function index(Request $request)
     {
+       
+        // Buscar os dados da tabela de customizações
         $customizations = $this->repository->getAll();
-
-        // Retornando com Inertia o componente Vue
-        return Inertia::render('LoginCustomizations', [
+        
+        // Verificar se a solicitação quer JSON (via Axios ou API)
+        if ($request->wantsJson()) {
+            //Log::info($customizations);
+            // Retornar uma resposta JSON
+            return response()->json([
+                'customizations' => $customizations
+            ]);
+        }
+    
+        // Retornar uma view usando Inertia.js se não for uma solicitação JSON
+        return Inertia::render('loginLayout/ListaHotSpot', [
             'customizations' => $customizations
         ]);
     }
+    
 
-    public function store(Request $request)
+    public function create()
     {
-        $data = $request->validate([
-            'top_image' => 'nullable|string',
-            'background_type' => 'required|string',
-            'background_value' => 'nullable|string',
-            'login_button_background' => 'nullable|string',
-            'login_button_color' => 'nullable|string',
-            'login_button_shape' => 'nullable|string',
-            'login_button_text' => 'nullable|string',
-            'social_logins' => 'nullable|array',
-            'login_method' => 'nullable|array',
-            'password_method' => 'nullable|array',
-            'registration_fields' => 'nullable|array',
-            'faq' => 'nullable|boolean',
-        ]);
+        return Inertia::render('loginLayout/LoginCustomizations');
+    }
+
+    public function store(LoginCustomizationRequest $request)
+    {
+        //dd($request->all());
+        // Aqui o $request já estará validado
+        $data = $request->validated();
+        if ($request->hasFile('imagem')) {
+            $imagemPath = $request->hasFile('imagem') ? $this->uploadFile($request->file('imagem'), 'imagens') : null;
+        }else if($request->hasFile('backgroundImage')){
+            $backgroundImage = $request->hasFile('backgroundImage') ? $this->uploadFile($request->file('backgroundImage'), 'imagens') : null;
+        }
+        
 
         // Criando a customização de login
         $this->repository->create($data);
 
-        // Retornando com sucesso via Inertia e preservando o estado da página
-        return redirect()->route('login_customizations.index')->with('success', 'Login customization created successfully!');
+        return response()->json(['message' => 'Login customization updated successfully!']);
+
+    }
+
+    public function edit($id)
+    {
+        //dd($id);
+        $customization = $this->repository->find($id);
+
+        return Inertia::render('loginLayout/LoginCustomizations', [
+            'customization' => $customization
+        ]);
+    }
+
+    public function update(LoginCustomizationRequest $request, $id)
+    {
+        
+        $data = $request->validated();
+
+        $this->repository->update($id, $data);
+
+          return response()->json(['message' => 'Login customization updated successfully!']);
+
+    }
+
+    public function destroy($id)
+    {
+        $this->repository->delete($id);
+
+        return redirect()->route('login_customizations.index')
+                         ->with('success', 'Login customization deleted successfully!');
     }
 }

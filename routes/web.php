@@ -36,6 +36,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/hotspot', function () {
+    return Inertia::render('HotSpot');
+});
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -124,9 +128,18 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [RegiaoController::class, 'update'])->middleware('check-page-access:atualizar')->name('regioes.update');
         Route::delete('/{id}', [RegiaoController::class, 'destroy'])->middleware('check-page-access:excluir')->name('regioes.destroy');
     });
+    Route::prefix('login_customizations')->middleware('check-page-access:ler')->group(function () {     
+        Route::get('/', [LoginCustomizationController::class, 'index'])->name('login_customizations.index');  
+        Route::get('/create', [LoginCustomizationController::class, 'create'])->name('login_customizations.create');      
+        Route::post('/', [LoginCustomizationController::class, 'store'])->middleware('check-page-access:gravar')->name('login_customizations.store');        
+        Route::get('/{id}/edit', [LoginCustomizationController::class, 'edit'])->name('login_customizations.edit');       
+        Route::put('/{id}', [LoginCustomizationController::class, 'update'])->middleware('check-page-access:atualizar')->name('login_customizations.update');      
+        Route::delete('/{id}', [LoginCustomizationController::class, 'destroy'])->middleware('check-page-access:excluir')->name('login_customizations.destroy');       
+        Route::get('/{id}', [LoginCustomizationController::class, 'show'])->name('login_customizations.show');
+    });
     Route::resource('cards', CardController::class);
     Route::resource('notes', NoteController::class);
-    Route::resource('login_customizations', LoginCustomizationController::class)->middleware('check-page-access:ler');
+    //Route::resource('login_customizations', LoginCustomizationController::class)->middleware('check-page-access:ler');
     //Route::resource('regioes', RegiaoController::class);
 
 });

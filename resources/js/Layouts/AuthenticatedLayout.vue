@@ -174,12 +174,26 @@ export default {
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-bullhorn" title="Campanhas"></v-list-item>
           </template>
+      
+          <v-list-item v-if="canAccess('login_customizations', 'ler')" title="Lista Hotspot" @click="navigateTo('/login_customizations')"></v-list-item>
+          <v-list-item v-if="canAccess('login_customizations', 'gravar')" title="Personaliza Hotspot" @click="navigateTo('/login_customizations/create')"></v-list-item>
+
           <v-list-item v-if="canAccess('campanhas', 'gravar')" title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item>
           <v-list-item v-if="canAccess('campanhas', 'ler')" title="Listar Campanhas" @click="navigateTo('/campanhas/')"></v-list-item>
         </v-list-group>
 
+                <!-- Personalizar Hotspot -->
+                <v-list-group v-if="canAccess('Personalizar Hotspot')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-router-wireless-settings" title="Personalizar Hotspot"></v-list-item>
+          </template>
+          
+          <v-list-item v-if="canAccess('login_customizations', 'ler')" title="Lista Hotspot" @click="navigateTo('/login_customizations')"></v-list-item>
+          <v-list-item v-if="canAccess('login_customizations', 'gravar')" title="Personaliza Hotspot" @click="navigateTo('/login_customizations/create')"></v-list-item>
+
+        </v-list-group>
+
         <!-- Radius, FAQ, and Logs -->
-        <v-list-item v-if="canAccess('login_customizations', 'ler')" title="Personaliza Hotspot" prepend-icon="mdi-router-wireless-settings" @click="navigateTo('/login_customizations')"></v-list-item>
         <v-list-item v-if="canAccess('radius', 'ler')" title="Radius" prepend-icon="mdi-server" @click="navigateTo('/radius')"></v-list-item>
         <v-list-item v-if="canAccess('faq', 'ler')" title="FAQ" prepend-icon="mdi-help" @click="navigateTo('/faq')"></v-list-item>
         <v-list-item v-if="canAccess('logs', 'ler')" title="Logs" prepend-icon="mdi-archive" @click="navigateTo('/logs')"></v-list-item>

@@ -9,9 +9,23 @@ class LoginCustomization extends Model
 {
     protected $table = 'login_customizations';
     protected $fillable = [
-        'top_image', 'background_type', 'background_value', 'login_button_background',
-        'login_button_color', 'login_button_shape', 'login_button_text', 'social_logins',
-        'login_method', 'password_method', 'registration_fields', 'faq'
+        'layout_name',
+        'top_type',
+        'top_value',
+        'background_type',
+        'background_value',
+        'login_button_text',
+        'login_button_color',
+        'login_button_shape',
+        'login_method' ,
+        'password_method',
+        'input_width',
+        'input_height' ,
+        'input_color',
+        'background_image',
+        'elements' ,
+        'region' ,
+        'username' ,
     ];
 
     protected $casts = [
