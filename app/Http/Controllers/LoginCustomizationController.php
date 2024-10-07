@@ -10,6 +10,7 @@ use App\Repositories\LoginCustomizationRepository;
 use App\Traits\HandlesFileUpload;
 class LoginCustomizationController extends Controller
 {
+    use HandlesFileUpload;
     protected $repository;
 
     public function __construct(LoginCustomizationRepository $repository)
@@ -47,21 +48,25 @@ class LoginCustomizationController extends Controller
 
     public function store(LoginCustomizationRequest $request)
     {
-        //dd($request->all());
-        // Aqui o $request já estará validado
+        // Valida os dados
+       
         $data = $request->validated();
+      // dd($data);
+        // Verifica se há arquivos para upload
         if ($request->hasFile('imagem')) {
-            $imagemPath = $request->hasFile('imagem') ? $this->uploadFile($request->file('imagem'), 'imagens') : null;
-        }else if($request->hasFile('backgroundImage')){
-            $backgroundImage = $request->hasFile('backgroundImage') ? $this->uploadFile($request->file('backgroundImage'), 'imagens') : null;
+            // Faz o upload da imagem de topo
+            $data['elements'][0]['image'] = $this->uploadFile($request->file('imagem'), 'imagens');
+        }
+       // dd($data);
+        if ($request->hasFile('backgroundImage')) {
+            // Faz o upload da imagem de fundo
+            $data['background_image'] = $this->uploadFile($request->file('backgroundImage'), 'imagens');
         }
         
-
-        // Criando a customização de login
+        // Cria a customização de login com os dados atualizados
         $this->repository->create($data);
-
-        return response()->json(['message' => 'Login customization updated successfully!']);
-
+    
+        return response()->json(['message' => 'Login customization created successfully!']);
     }
 
     public function edit($id)
@@ -77,12 +82,31 @@ class LoginCustomizationController extends Controller
     public function update(LoginCustomizationRequest $request, $id)
     {
         
+        // Valida os dados
+        //dd($request->all());
         $data = $request->validated();
-
+    //dd()
+        // Verifica se há arquivos para upload
+        if ($request->hasFile('elements[0].image')) {
+            // Faz o upload da nova imagem de topo
+            $data['elements'][0]['image'] = $this->uploadFile($request->file('elements[0].image'), 'imagens');
+        }
+    
+        if ($request->hasFile('backgroundImage')) {
+            // Faz o upload da nova imagem de fundo
+            $data['background_image'] = $this->uploadFile($request->file('backgroundImage'), 'imagens');
+        }
+    
+         // Verifica se há arquivos para upload
+         if ($request->hasFile('imagem')) {
+            // Faz o upload da imagem de topo
+            $data['image'] = $this->uploadFile($request->file('imagem'), 'imagens');
+        }
+       
+        // Atualiza a customização de login
         $this->repository->update($id, $data);
-
-          return response()->json(['message' => 'Login customization updated successfully!']);
-
+    
+        return response()->json(['message' => 'Login customization updated successfully!']);
     }
 
     public function destroy($id)

@@ -33,6 +33,8 @@ class LoginCustomization extends Model
         'login_method' => 'array',
         'password_method' => 'array',
         'registration_fields' => 'array',
+        'region' => 'integer',
+        
     ];
 }
 

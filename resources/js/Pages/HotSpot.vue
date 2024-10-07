@@ -10,12 +10,12 @@
                   <div v-for="(element, index) in screenData?.elements" :key="element.id" :style="elementStyle(element, index)" class="draggable">
                     <!-- Topo da página -->
                     <template v-if="element.type === 'topCard' && element.image">
-                      <v-img :src="element.image" :max-height="element.height + 'px'" :max-width="element.width + 'px'"></v-img>
+                      <v-img :src="`/storage/${element.image}`" :max-height="element.height + 'px'" :max-width="element.width + 'px'"></v-img>
                     </template>
   
                     <!-- Botão -->
                     <v-btn v-if="element.type === 'button'" @click="handleLogin" :style="buttonStyle(element)">
-                      {{ element.text || screenData?.login_button_text || 'Login' }}
+                      {{  screenData?.login_button_text || 'Login' }}
                     </v-btn>
   
                     <!-- Links de texto -->
@@ -76,7 +76,7 @@ export default {
     backgroundStyles() {
       return {
         backgroundImage: this.screenData?.background_type === 'Imagem' && this.screenData?.background_value
-          ? `url(${this.screenData.backgroundImage})`
+          ? `url(/storage/${this.screenData.background_image})`
           : 'none',
         backgroundColor: this.screenData?.background_type === 'Cor' && this.screenData?.background_value
           ? this.screenData?.background_value
@@ -137,16 +137,15 @@ export default {
     },
     buttonStyle(element) {
       return {
-        background: element.color || this.screenData?.login_button_color,
+        background: element.backgroundColor,
         borderRadius: element.shape + 'px',
-        boxShadow: '0 ' + element.elevation + 'px ' + element.elevation + 'px rgba(0,0,0,0.2)',
-        opacity: element.opacity,
+        boxShadow: '0 ' + element.elevation + 'px ' + element.elevation + 'px rgba(0,0,0,0.2)',        
         color: this.screenData?.text_color
       };
     },
     linkStyle(element) {
       return {
-        color: this.screenData?.text_color,
+        color: element.color ||this.screenData?.textColorButon,
         fontSize: '14px',
         textDecoration: 'underline',
         cursor: 'pointer',

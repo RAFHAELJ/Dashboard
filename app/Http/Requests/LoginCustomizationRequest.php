@@ -14,6 +14,7 @@ class LoginCustomizationRequest extends FormRequest
      */
     public function authorize()
     {
+       
         return true; // Aqui você pode adicionar lógica de autorização se necessário
     }
 
@@ -40,10 +41,28 @@ class LoginCustomizationRequest extends FormRequest
             'input_color' => 'nullable|string',
             'background_image' => 'nullable|string',
             'elements' => 'nullable|array',
-            'region' => 'nullable|string|max:255',
+            'region' => 'nullable|integer|max:255',
             'username' => 'nullable|string|max:255',
         ];
     }
+    protected function prepareForValidation()
+{
+    $elements = $this->input('elements', []);
+    foreach ($elements as &$element) {
+        $element['id'] = (int) $element['id'];
+        $element['top'] = (float) $element['top'];
+        $element['left'] = (float) $element['left'];
+        $element['width'] = (float) $element['width'];
+        $element['height'] = (float) $element['height'];
+        $element['shape'] = (int) $element['shape'];
+        $element['opacity'] = (float) $element['opacity'];
+        $element['elevation'] = (int) $element['elevation'];
+       
+    }
+
+    $this->merge(['elements' => $elements]);
+}
+
 
     /**
      * Custom messages for validation errors.
