@@ -175,8 +175,6 @@ export default {
             <v-list-item v-bind="props" prepend-icon="mdi-bullhorn" title="Campanhas"></v-list-item>
           </template>
       
-          <v-list-item v-if="canAccess('login_customizations', 'ler')" title="Lista Hotspot" @click="navigateTo('/login_customizations')"></v-list-item>
-          <v-list-item v-if="canAccess('login_customizations', 'gravar')" title="Personaliza Hotspot" @click="navigateTo('/login_customizations/create')"></v-list-item>
 
           <v-list-item v-if="canAccess('campanhas', 'gravar')" title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item>
           <v-list-item v-if="canAccess('campanhas', 'ler')" title="Listar Campanhas" @click="navigateTo('/campanhas/')"></v-list-item>
