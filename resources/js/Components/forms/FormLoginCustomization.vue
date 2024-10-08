@@ -92,7 +92,7 @@
       .post('/login_customizations', screenData, {
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          
         },
       })
       .then(() => {

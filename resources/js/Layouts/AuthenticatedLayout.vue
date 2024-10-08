@@ -181,7 +181,7 @@ export default {
         </v-list-group>
 
                 <!-- Personalizar Hotspot -->
-                <v-list-group v-if="canAccess('Personalizar Hotspot')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
+                <v-list-group v-if="canAccess('hotspot')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-router-wireless-settings" title="Personalizar Hotspot"></v-list-item>
           </template>
@@ -191,8 +191,27 @@ export default {
 
         </v-list-group>
 
+        <v-list-group v-if="canAccess('configuracoes')" v-model="menuStates.configuracoes" value="Configuracoes">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-cog" title="Configuracoes"></v-list-item>
+          </template>
+          <v-list-item v-if="canAccess('database', 'ler')" title="Database" @click="navigateTo('/database')"></v-list-item>
+          <v-list-item v-if="canAccess('controladora', 'ler')" title="Controladora" @click="navigateTo('/controladora')"></v-list-item>
+          <v-list-item v-if="canAccess('regioes', 'ler')" title="Lista Regiões" @click="navigateTo('/regioes/')"></v-list-item>
+
+        </v-list-group>
+
+        <v-list-group v-if="canAccess('radius')" v-model="menuStates.radius" value="Radius">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props"prepend-icon="mdi-server" title="Radius"></v-list-item>
+          </template>
+          <v-list-item v-if="canAccess('radius', 'ler')" title="Lista Radius"  @click="navigateTo('/radius/lista')"></v-list-item>
+          <v-list-item v-if="canAccess('radius', 'ler')" title="Adciona Nas"  @click="navigateTo('/radius/')"></v-list-item>
+
+        </v-list-group>
+
         <!-- Radius, FAQ, and Logs -->
-        <v-list-item v-if="canAccess('radius', 'ler')" title="Radius" prepend-icon="mdi-server" @click="navigateTo('/radius')"></v-list-item>
+        
         <v-list-item v-if="canAccess('faq', 'ler')" title="FAQ" prepend-icon="mdi-help" @click="navigateTo('/faq')"></v-list-item>
         <v-list-item v-if="canAccess('logs', 'ler')" title="Logs" prepend-icon="mdi-archive" @click="navigateTo('/logs')"></v-list-item>
       </v-list>

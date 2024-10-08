@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
@@ -41,16 +42,10 @@ class UserController extends Controller
         
         return Inertia::render('usuarios/NovoUsuarioDashboard');
     }
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:6|confirmed',
-                'nivel' => 'required',
-                'regiao' => 'required',
-            ]);
+          
     
             $user = $this->userRepository->create([
                 'name' => $request->name,
@@ -83,14 +78,10 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, User $id)
+    public function update(UserRequest $request, User $id)
     {
         try {
-            $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|string|email|max:255',
-                'regiao' => 'sometimes|required',
-            ]);
+          
     
             $userResp = $this->userRepository->update($request, $id);
             if ($userResp) {

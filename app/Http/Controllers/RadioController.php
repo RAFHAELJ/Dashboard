@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Http\Requests\RadioRequest;
 use App\Repositories\RadioRepository;
 
 class RadioController extends Controller {
@@ -39,21 +40,14 @@ class RadioController extends Controller {
         ]);
     }
 
-    public function store(Request $request) {
+    public function store(RadioRequest $request) {
         
         // Validações
-        $validatedData = $request->validate([
-            'radio' => 'required|string|max:255',
-            'mac' => 'required|string',
-            'geo' => 'required|string|max:255',
-            'endereco' => 'required|string|max:255',
-            'info' => 'required|string|max:255',
-            'regiao'=>'required',
-        ]);
+     
        
         try {
             // Criação do rádio no repositório
-            $radio = $this->radioRepository->create($validatedData);
+            $radio = $this->radioRepository->create($request->all());
            
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio criado com sucesso!');
@@ -71,21 +65,13 @@ class RadioController extends Controller {
         ]);
     }
 
-    public function update(Request $request, $id) {
+    public function update(RadioRequest $request, $id) {
 
-        // Validações
-        $validatedData = $request->validate([
-            'radio' => 'required|string|max:255',
-            'mac' => 'required|string',
-            'geo' => 'required|string|max:255',
-            'endereco' => 'required|string|max:255',
-            'info' => 'required|string|max:255',
-            'regiao'=>'required',
-        ]);
+     
     
         try {
             // Atualização do rádio no repositório
-            $radio = $this->radioRepository->update($id, $validatedData);
+            $radio = $this->radioRepository->update($id, $request->all());
     
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio atualizado com sucesso!');

@@ -5,7 +5,26 @@ import { Head, usePage } from '@inertiajs/vue3';
 
 const { props } = usePage();
 const mapInitialized = ref(false);
+const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'; // Substitua pela sua chave de API
 
+// Função para carregar o script do Google Maps
+const loadGoogleMapsScript = (callback) => {
+  if (typeof google !== 'undefined' && google.maps) {
+    // Google Maps já carregado
+    callback();
+    return;
+  }
+
+  // Cria o script da API do Google Maps
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}`;
+  script.async = true;
+  script.defer = true;
+  script.onload = callback;
+  document.head.appendChild(script);
+};
+
+// Função para inicializar o mapa
 const initMap = () => {
   if (!props || !props.data || !props.data.data) {
     console.error("Dados dos rádios não estão disponíveis.");
@@ -31,19 +50,22 @@ const initMap = () => {
   mapInitialized.value = true;
 };
 
+// Carrega o script do Google Maps e inicializa o mapa ao montar o componente
 onMounted(() => {
-  // Adicione uma verificação para garantir que o script do Google Maps esteja carregado
-  if (typeof google !== 'undefined' && google.maps) {
-    initMap();
-  } else {
-    console.error("Google Maps não está carregado.");
-  }
+  loadGoogleMapsScript(() => {
+    if (typeof google !== 'undefined' && google.maps) {
+      initMap();
+    } else {
+      console.error("Google Maps não está carregado.");
+    }
+  });
 });
 
 const acessadoshj = props.data?.acessadoshj || 0;
 const acessadosontem = props.data?.acessadosontem || 0;
 const naoacessados = props.data?.naoacessados || 0;
 </script>
+
 
 <template>
   <AuthenticatedLayout>

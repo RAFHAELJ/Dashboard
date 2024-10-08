@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\FaqRepository;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Http\Requests\FaqRequest;
+use App\Repositories\FaqRepository;
 
 class FaqController extends Controller
 {
@@ -31,12 +32,9 @@ class FaqController extends Controller
             return response()->json($faq);     
     
         
-    }public function store(Request $request)
+    }public function store(FaqRequest $request)
     {
-        $request->validate([
-            'nome' => 'required|string',
-            'texto' => 'required|string',
-        ]);
+     
     
         $created = $this->faqRepository->store($request->only('nome', 'texto'));
     
@@ -47,13 +45,10 @@ class FaqController extends Controller
         return back()->withErrors(['message' => 'Erro ao Criar o FAQ.']);
     }    
 
-    public function update(Request $request, $id)
+    public function update(FaqRequest $request, $id)
     {
         
-        $request->validate([
-            'texto' => 'required|string',
-            'nome' => 'required|string'
-        ]);
+     
        
         $updated = $this->faqRepository->updateFaq($id, $request->only('nome', 'texto'));
 

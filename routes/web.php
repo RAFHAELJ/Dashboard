@@ -9,10 +9,12 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RadioController;
+use App\Http\Controllers\RadiusController;
 use App\Http\Controllers\RegiaoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CampanhaController;
+use App\Http\Controllers\AccessDataController;
 use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
 
@@ -44,9 +46,9 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/radius', function () {
+/*Route::get('/radius', function () {
     return Inertia::render('Radius');
-})->middleware(['auth', 'verified'])->name('radius');
+})->middleware(['auth', 'verified'])->name('radius');*/
 
 
 Route::middleware('auth')->group(function () {
@@ -69,7 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
-    
+    Route::resource('accessData', AccessDataController::class);
 
 
     Route::prefix('radios')->middleware('check-page-access:ler')->group(function () {        
@@ -84,6 +86,35 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [RadioController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radios.destroy');
         
     });
+
+    Route::prefix('radius')->middleware('check-page-access:ler')->group(function () {        
+        Route::get('/', [RadiusController::class, 'index'])->name('radius.index');
+        Route::get('/lista', [RadiusController::class, 'lista'])->name('radius.lista');
+        Route::get('/{id}', [RadiusController::class, 'show'])->name('radius.show');
+        Route::post('/', [RadiusController::class, 'store'])->middleware('check-page-access:gravar')->name('radius.store');  
+        Route::put('/{id}', [RadiusController::class, 'update'])->middleware('check-page-access:atualizar')->name('radius.update');       
+        Route::delete('/{id}', [RadiusController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radius.destroy');
+        
+    });
+
+    
+
+    Route::prefix('controladora')->middleware('check-page-access:ler')->group(function () {        
+        Route::get('/', [AccessDataController::class, 'indexControllers'])->name('controladora.index');
+        Route::get('/{id}', [AccessDataController::class, 'show'])->name('controladora.show');
+        Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('controladora.store');  
+        Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('controladora.update');       
+        Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('controladora.destroy');
+    });
+    
+    Route::prefix('database')->middleware('check-page-access:ler')->group(function () {        
+        Route::get('/', [AccessDataController::class, 'indexDatabases'])->name('database.index');
+        Route::get('/{id}', [AccessDataController::class, 'show'])->name('database.show');
+        Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('database.store');  
+        Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('database.update');       
+        Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('database.destroy');
+    });
+    
  
    Route::prefix('users')->middleware('check-page-access:ler')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');

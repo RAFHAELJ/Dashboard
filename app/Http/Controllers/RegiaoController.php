@@ -27,7 +27,7 @@ class RegiaoController extends Controller
             return response()->json($regioes);
         }    
         // Se não for uma requisição JSON, renderize a página normalmente com Inertia
-        return Inertia::render('Regioes/Index', [
+        return Inertia::render('configuracao/Index', [
             'regioes' => $regioes
         ]);
     }

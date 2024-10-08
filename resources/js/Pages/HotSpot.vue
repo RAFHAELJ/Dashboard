@@ -1,8 +1,8 @@
 <template>
     <v-app>
       <v-container class="no-padding no-margin" fluid >
-        <v-row class="no-padding no-margin fill-height d-flex justify-center align-center">
-          <v-col cols="12" class="preview-column no-padding no-margin">
+        <v-row class="no-padding no-margin fill-height d-flex justify-center align-center"  align="center">
+          <v-col cols="12" class="preview-column no-padding no-margin" >
             <v-card class="preview-card" :style="previewStyles">
               <div v-if="screenData" class="preview-background" :style="backgroundStyles">
                 <form>
@@ -61,8 +61,8 @@ export default {
     return {
       screenData: null,  // Inicializa como nulo até que os dados sejam carregados
       previewStyles: {
-        width: '375px',
-        height: '667px',
+        width: '412px',
+        height: '915px',
         border: '1px solid #ccc',
         position: 'relative', // Garanta que o container principal seja relative
         overflow: 'hidden',
@@ -103,7 +103,7 @@ export default {
     fetchData() {
     axios.get('/login_customizations')
       .then(response => {
-        let customization = response.data.customizations[0]; // Pegue a primeira customização, ajuste se necessário
+        let customization = response.data.customizations[3]; // Pegue a primeira customização, ajuste se necessário
 
         // Convertendo campos de string JSON para arrays, se necessário
         if (typeof customization.login_method === 'string') {
@@ -267,6 +267,20 @@ input {
 /* Remover margem lateral no mobile e preencher toda a largura */
 @media (max-width: 600px) {
   .preview-card {
+    width: 80vw;
+    height: 60vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .preview-background {
+    border-radius: 0;
+  }
+}
+@media (max-width: 940px) {
+  .preview-card {
     width: 100vw;
     height: 100vh;
     max-width: none;
@@ -279,6 +293,7 @@ input {
     border-radius: 0;
   }
 }
+
 
 /* Para telas maiores, o preview é centralizado */
 @media (min-width: 768px) {
