@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\AccessDataRequest;
 use App\Repositories\AccessDataRepository;
+use App\Traits\UsesDynamicDatabaseConnection;
 
 class AccessDataController extends Controller
 {
+    use UsesDynamicDatabaseConnection;
+    
     protected $accessDataRepository;
 
     public function __construct(AccessDataRepository $accessDataRepository)
@@ -148,4 +152,25 @@ class AccessDataController extends Controller
             ], 500);
         }
     }
+
+    // RadiusController.php
+public function updateRegionConnection(Request $request)
+{
+    
+    $user = Auth::user();
+    
+    // Verifica se o usuário é administrador
+    if ($user->isAdmin()) {
+        $region = $request->input('regiao');        
+        
+        $this->setRadiusConnection($user, $region);
+        
+        // Armazena a nova região na sessão para futuras requisições
+        session(['regiao' => $region]);
+        return response()->json(['message' => 'Conexão alterada com sucesso.'], 200);
+    }
+
+    return response()->json(['error' => 'Acesso não autorizado.'], 403);
+}
+
 }

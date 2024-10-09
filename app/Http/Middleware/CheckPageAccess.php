@@ -24,8 +24,9 @@ class CheckPageAccess
         $pageSlug = explode('.', $request->route()->getName())[0];  
 
         // Busca o objeto da página com base no slug
+        
         $page = Page::where('slug', $pageSlug)->first();
-       
+        
         if (!$page) {
             abort(404, 'Página não encontrada,,.');
         }

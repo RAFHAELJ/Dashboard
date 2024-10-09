@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Nas extends Model
 {
     protected $table = 'nas';
-    protected $connection = 'radius'; // Nome da conexão que você configurou
+    protected $connection = 'dynamic_radius'; // Nome da conexão que você configurou
     public $timestamps = false;
 
     protected $fillable = [

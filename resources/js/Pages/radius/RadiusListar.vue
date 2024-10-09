@@ -105,7 +105,7 @@
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <RadiusForm
-          :showCreateRegiao="true"
+          :showCreateRegiao="false"
           :formData="editradius"
           :fields="{
             nasname: { label: 'Nome curto nas', rules: [(v) => !!v || ' é obrigatório'], required: true },

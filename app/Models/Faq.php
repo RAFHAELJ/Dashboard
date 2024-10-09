@@ -9,6 +9,7 @@ class Faq extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
     protected $table = 'faq';
     protected $fillable = ['texto','nome'];
 

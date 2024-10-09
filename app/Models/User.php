@@ -17,6 +17,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $connection = 'mysql';
     protected $fillable = [
         'name',
         'email',
@@ -72,5 +73,9 @@ class User extends Authenticatable
                         ->get();
 
     return $permissions->contains('name', $action);
+}
+public function isAdmin()
+{
+    return $this->nivel === 'Administrador';
 }
 }

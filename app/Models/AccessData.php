@@ -9,6 +9,7 @@ class AccessData extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
     protected $table = 'access_data';
 
     protected $fillable = [

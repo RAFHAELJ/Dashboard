@@ -7,7 +7,9 @@
     :rules="rules"
     item-title="cidade" 
     item-value="id"
-    required
+    density="compact"
+      
+    
   ></v-select>
 </template>
 

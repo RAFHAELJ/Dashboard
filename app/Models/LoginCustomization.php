@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoginCustomization extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'login_customizations';
     protected $fillable = [
         'layout_name',

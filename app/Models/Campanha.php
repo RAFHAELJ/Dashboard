@@ -9,6 +9,7 @@ class Campanha extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
     protected $fillable = [
         'nome',
         'comeco',

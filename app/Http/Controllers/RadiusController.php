@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\RadiusRequest;
+use Illuminate\Support\Facades\Auth;
 use App\Repositories\RadiusRepository;
 
 class RadiusController extends Controller {
@@ -14,7 +15,7 @@ class RadiusController extends Controller {
         $this->radiusRepository = $radiusRepository;
     }
     public function index()
-    {
+    { 
         $radius = $this->radiusRepository->all();
     
         // Verifica se a requisição quer um JSON (via fetch, axios, etc.)
@@ -61,7 +62,7 @@ class RadiusController extends Controller {
 
     public function update(RadiusRequest $request, $id) {
 
-     
+     //dd($request->all());
     
         try {
             // Atualização do rádio no repositório

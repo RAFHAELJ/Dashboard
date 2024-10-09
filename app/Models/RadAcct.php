@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class RadAcct extends Model
 {
     protected $table = 'radacct';
-    protected $connection = 'radius'; // Nome da conexão que você configurou
+    protected $connection = 'dynamic_radius'; 
     public $timestamps = false; // Se a tabela não usa timestamps
 }

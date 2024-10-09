@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\FaqController;
+//use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
@@ -17,7 +18,7 @@ use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\AccessDataController;
 use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
-
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -71,10 +72,21 @@ Route::middleware('auth')->group(function () {
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
+    Route::post('/update-region-connection', [AccessDataController::class, 'updateRegionConnection'])->name('update.region.connection');
     Route::resource('accessData', AccessDataController::class);
 
+   /* Route::post('/set-user-session/regiao', function (Request $request) {
+        // Use o objeto $request para acessar a sessãod        
+        session()->put('regiao', $request->input('regiao'));
+        
+        return response()->json(['success' => true]);
+    })->name('set.user.session.regiao');*/
 
-    Route::prefix('radios')->middleware('check-page-access:ler')->group(function () {        
+   
+
+
+
+    Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
         Route::get('/track', [RadioController::class, 'track'])->name('radios.track');     
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
@@ -87,7 +99,7 @@ Route::middleware('auth')->group(function () {
         
     });
 
-    Route::prefix('radius')->middleware('check-page-access:ler')->group(function () {        
+    Route::prefix('radius')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
         Route::get('/', [RadiusController::class, 'index'])->name('radius.index');
         Route::get('/lista', [RadiusController::class, 'lista'])->name('radius.lista');
         Route::get('/{id}', [RadiusController::class, 'show'])->name('radius.show');

@@ -1,16 +1,46 @@
 <script setup>
 import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link , usePage} from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import RegioesSelect from '@/Components/RegioesSelect.vue';
 
 
-// Obtém as permissões compartilhadas no Inertia
+
 const page = usePage();
 const permissions = page.props.permissions || {};
+const isAdmin = ref(page.props.auth.user.nivel === 'Administrador');
+const userRegiao = page.props.auth.user.regiao; 
+
+const selectedRegiao = ref(parseInt(localStorage.getItem('user_regiao')) || userRegiao);
+
+const updateRegiao = (newRegiao) => {
+  const storedRegiao = parseInt(localStorage.getItem('user_regiao'));
+  
+  if (storedRegiao === parseInt(newRegiao)) {    
+    return;
+  }
+
+  selectedRegiao.value = parseInt(newRegiao);
+  
+  localStorage.setItem('user_regiao', selectedRegiao.value);
+
+  // Envia o valor para o backend para armazenar na sessão do servidor
+  axios.post(route('update.region.connection'), { regiao: selectedRegiao.value })
+    .then(() => {
+      //window.location.reload();      
+    })
+    .catch((error) => {
+      console.error('Erro ao salvar a região na sessão:', error);
+    });
+};
+
+// Se `localStorage` estiver vazio, salva o valor `userRegiao` como padrão
+
+if (!localStorage.getItem('user_regiao')) {   
+  updateRegiao(userRegiao)
+}
+
+
 
 
 // Função para verificar se o usuário pode acessar uma página e uma ação
@@ -46,6 +76,12 @@ const canAccess = (pageSlug, action = null) => {
   // Se não houver permissões para a página ou a ação específica, retorna false
   return false;
 };
+/*onMounted(() => {
+  const storedRegiao = localStorage.getItem('user_regiao');
+  if (storedRegiao) {
+    selectedRegiao.value = storedRegiao;
+  }
+});*/
 
 
 
@@ -71,6 +107,7 @@ export default {
       this.$inertia.visit(route);
     },
     logout() {
+      localStorage.removeItem('user_regiao'); // Remove a região armazenada
       this.$inertia.post(route('logout'));
     },
     
@@ -78,6 +115,12 @@ export default {
   }
   
 };
+/*onMounted(() => {
+  const storedRegiao = localStorage.getItem('user_regiao');
+  if (storedRegiao) {
+    selectedRegiao.value = storedRegiao;
+  }
+});*/
 </script>
 
 <template>
@@ -94,9 +137,21 @@ export default {
 
       <v-app-bar-title class="text-center">Sistema de Radio</v-app-bar-title>
 
-      <template v-slot:append>
+      <template v-slot:append>       
+        <!-- Adicionando RegioesSelect com v-model para capturar a região selecionada -->
+        <template v-if="isAdmin" >
+          <RegioesSelect
+            v-model="selectedRegiao"
+            label="Selecione a Região"
+            :rules="[v => !!v || 'Região é obrigatória']"
+            @update:modelValue="updateRegiao"
+            :style="{marginTop: '20px' }"
+          />
+        </template>
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
+           
+            
             <v-btn v-bind="props">
               <v-avatar size="32" color="primary">
                 <template v-if="$page.props.auth.user.image">
@@ -223,6 +278,4 @@ export default {
   </v-app>
 </template>
 
-  <style>
 
-</style>

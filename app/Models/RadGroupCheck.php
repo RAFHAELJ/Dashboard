@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class RadGroupCheck extends Model
 {
     protected $table = 'radgroupcheck';
-    protected $connection = 'radius'; // Nome da conexão que você configurou
+    protected $connection = 'dynamic_radius'; // Nome da conexão que você configurou
     public $timestamps = false;
 }

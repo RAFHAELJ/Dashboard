@@ -9,6 +9,7 @@ class Card extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
     protected $fillable = [
         'title',
         'content',

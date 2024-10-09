@@ -22,7 +22,6 @@ class RadiusRepository   {
     }
 
     public function update($id, array $data) {
-       // dd($data);
         $radius = Nas::find($id);
         $radius->update($data);
         return $radius;
