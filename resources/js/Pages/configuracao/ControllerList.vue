@@ -25,7 +25,7 @@ const search = ref('');
 const headers = [
   { text: 'ID', value: 'id', sortable: true, title: 'ID', key: 'id' }, 
   { text: 'Nome', value: 'nome', sortable: true, title: 'Nome', key: 'nome' },
-  { text: 'IP', value: 'ip', sortable: true, title: 'IP', key: 'ip' },
+  { text: 'IP/Host', value: 'ip', sortable: true, title: 'IP/Host', key: 'ip' },
   { text: 'Porta', value: 'porta', sortable: true, title: 'Porta', key: 'porta' }, 
   { text: 'Senha', value: 'senha', sortable: true, title: 'Senha', key: 'senha' },
   { text: 'Info', value: 'info', sortable: true, title: 'Info', key: 'info' },
@@ -116,7 +116,7 @@ const savecontroladora = async () => {
             :formData="editcontroladora"
             :fields="{
               nome: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
-              ip: { label: 'IP', rules: [(v) => !!v || 'IP é obrigatório'], required: true, type: 'text' },
+              ip: { label: 'IP/Host', rules: [(v) => !!v || 'IP é obrigatório'], required: true, type: 'text' },
               porta: { label: 'Porta', rules: [(v) => !!v || 'Porta é obrigatória'], required: true, type: 'text' },              
               senha: { label: 'Senha', rules: [(v) => !!v || 'Senha é obrigatória'], required: true, type: 'password' },              
               info: { label: 'Informações', rules: [(v) => !!v || 'Informações são obrigatórias'], required: true }

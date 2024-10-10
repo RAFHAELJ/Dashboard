@@ -45,6 +45,7 @@ if (!localStorage.getItem('user_regiao')) {
 
 // Função para verificar se o usuário pode acessar uma página e uma ação
 const canAccess = (pageSlug, action = null) => {
+  
   // Verifica se as permissões são um array e contém 'all' (Administrador)
   if (Array.isArray(permissions) && permissions.includes('all')) {
     return true;
@@ -253,6 +254,15 @@ export default {
           <v-list-item v-if="canAccess('database', 'ler')" title="Database" @click="navigateTo('/database')"></v-list-item>
           <v-list-item v-if="canAccess('controladora', 'ler')" title="Controladora" @click="navigateTo('/controladora')"></v-list-item>
           <v-list-item v-if="canAccess('regioes', 'ler')" title="Lista Regiões" @click="navigateTo('/regioes/')"></v-list-item>
+
+        </v-list-group>
+
+        <v-list-group v-if="canAccess('Controladoras')" v-model="menuStates.ConfiguracoesControladora" value="Controladoras">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-cog" title="Controladoras"></v-list-item>
+          </template>
+          <v-list-item v-if="canAccess('listaControladoras', 'ler')" title="Config Controladoras" @click="navigateTo('/controladora/controladora')"></v-list-item>
+          
 
         </v-list-group>
 

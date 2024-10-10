@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { onMounted, ref } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
+import MarkerClusterer from "@google/markerclustererplus";
 
 const { props } = usePage();
 const mapInitialized = ref(false);
@@ -10,14 +11,12 @@ const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'; // Substitua
 // Função para carregar o script do Google Maps
 const loadGoogleMapsScript = (callback) => {
   if (typeof google !== 'undefined' && google.maps) {
-    // Google Maps já carregado
     callback();
     return;
   }
 
-  // Cria o script da API do Google Maps
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`;
   script.async = true;
   script.defer = true;
   script.onload = callback;
@@ -31,20 +30,24 @@ const initMap = () => {
     return;
   }
 
+  const mapCenter = props.data.center || { lat: -25.4284, lng: -49.2733 };
   const map = new google.maps.Map(document.getElementById('map'), {
     zoom: 10,
-    center: { lat: -23.55052, lng: -46.633308 } // Coordenadas de São Paulo como exemplo
+    center: mapCenter
   });
 
-  props.data.data.forEach((radio) => {
+  // Criação de marcadores e cluster de marcadores
+  const markers = props.data.data.map((radio) => {
     const [lat, lng] = radio.geo.split(',').map(Number);
-
-    new google.maps.Marker({
+    return new google.maps.Marker({
       position: { lat, lng },
-      map: map,
-      icon: radio.img, // Use a URL da imagem para o ícone do marcador
-      title: `Radio: ${radio.mac}` // Opcional: Exibe o MAC como título do marcador
+      icon: radio.img,
+      title: `Radio: ${radio.mac}`
     });
+  });
+
+  new MarkerClusterer(map, markers, {
+    imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
   });
 
   mapInitialized.value = true;
@@ -56,7 +59,7 @@ onMounted(() => {
     if (typeof google !== 'undefined' && google.maps) {
       initMap();
     } else {
-      console.error("Google Maps não está carregado.");
+      console.error("Google Maps não foi carregado corretamente.");
     }
   });
 });

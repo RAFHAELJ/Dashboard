@@ -14,17 +14,31 @@
       <v-form ref="dynamicForm" v-model="valid">
         <template v-for="(field, key) in fields" :key="key">
           <!-- Campos de texto -->
-          <v-text-field
-            v-if="field.type !== 'select'"
-            v-model="form[key]"
-            :label="field.label"
-            :type="field.type || 'text'"
-            :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"  
-            :error="!!formErrors[key]"
-            :error-messages="formErrors[key] ? formErrors[key] : []"
-            :required="field.required"
-            :autocomplete="field.autocomplete"
-          />
+          <template v-if="field.mask">
+              <v-text-field
+                v-model="form[key]"
+                :label="field.label"
+                :type="field.type || 'text'"
+                :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
+                :error="!!formErrors[key]"
+                :error-messages="formErrors[key] ? formErrors[key] : []"
+                :required="field.required"
+                :autocomplete="field.autocomplete"
+                v-mask="field.mask"
+              />
+            </template>
+            <template v-else>
+              <v-text-field
+                v-model="form[key]"
+                :label="field.label"
+                :type="field.type || 'text'"
+                :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
+                :error="!!formErrors[key]"
+                :error-messages="formErrors[key] ? formErrors[key] : []"
+                :required="field.required"
+                :autocomplete="field.autocomplete"
+              />
+            </template>
 
           <!-- Campo de Select para Cargos -->
           <v-select

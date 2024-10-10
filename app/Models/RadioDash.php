@@ -1,33 +1,27 @@
 <?php
 
+// app/Models/Radio.php
 namespace App\Models;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Campanha extends Model
+class RadioDash extends Model
 {
     use HasFactory;
 
     protected $connection = 'mysql';
+    protected $table = 'radios';
     protected $fillable = [
-        'nome',
-        'comeco',
-        'fim',
-        'publico',
-        'idade',
-        'tipo',
-        'radios',
-        'duracao',
-        'imagem',        
-        'video',
-        'capa',
-        'tempo',
-        'url',
-        'regiao'
+        'radio', 'mac', 'geo', 'endereco', 'info', 'regiao'
     ];
+
+    public function regiao()
+    {
+        return $this->belongsTo(Regiao::class, 'regiao');
+    }
 
     protected static function booted()
     {

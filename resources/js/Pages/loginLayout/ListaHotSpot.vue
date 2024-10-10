@@ -83,19 +83,7 @@ onMounted(() => {
               class="search-field"
             />
           </v-col>
-          <v-col cols="12" md="6" class="py-1 d-flex justify-end align-center">
-            <v-btn
-              v-if="canAccess('login_configurations','gravar')"
-              @click="handleCreateItem"
-              density="comfortable"
-              color="primary"
-              class="add-button"
-              block
-            >
-              <v-icon start>mdi-plus</v-icon>
-              Adicionar Configuração
-            </v-btn>
-          </v-col>
+         
         </v-row>
 
         <!-- Listagem de Login Configurations em Formato de Card -->

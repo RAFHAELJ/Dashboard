@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Radio;
 use App\Models\RadAcct;
 use Carbon\CarbonPeriod;
+use App\Models\RadioDash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class RadioRepository  {
 
     public function all() {
         
-        return Radio::with('regiao')->paginate();
+        return RadioDash::with('regiao')->paginate();
     }
 
     public function radioRelatorio(Request $request)
@@ -43,31 +44,31 @@ class RadioRepository  {
 
     public function find($id) {
         // Usar findOrFail para lidar com registros inexistentes
-        return Radio::findOrFail($id);
+        return RadioDash::findOrFail($id);
     }
 
     public function create(array $data) {
         //dd($data);
         // Criar e retornar o registro
-        return Radio::create($data);
+        return RadioDash::create($data);
     }
 
     public function update($id, array $data) {
         // Encontrar e atualizar o registro
-        $radio = Radio::findOrFail($id);
+        $radio = RadioDash::findOrFail($id);
         $radio->update($data);
         return $radio;
     }
 
     public function delete($id) {
         // Verificar se o registro existe antes de tentar deletá-lo
-        $radio = Radio::findOrFail($id);
+        $radio = RadioDash::findOrFail($id);
         return $radio->delete();
     }
 
     public function search($term) {
         // Implementar uma busca com paginação
-        return Radio::where('name', 'like', "%{$term}%")
+        return RadioDash::where('name', 'like', "%{$term}%")
                     ->orWhere('description', 'like', "%{$term}%")
                     ->paginate();
     }
@@ -75,26 +76,26 @@ class RadioRepository  {
     
     public function getGeoRadio()
     {
-        $radios = Radio::all();
-        
+        $radios = RadioDash::all(['id', 'mac', 'geo']);
         if ($radios->isEmpty()) {
             return [
                 'success' => false,
                 'message' => 'Nenhum dado'
             ];
         }
-    
+   // \dd($radios);
         $newData = [];
         $acessadosHj = 0;
         $acessadosOntem = 0;
         $naoAcessados = 0;
         $hoje = Carbon::today()->format('Y-m-d');
         $ontem = Carbon::yesterday()->format('Y-m-d');
+        $latitudes = [];
+        $longitudes = [];
     
         foreach ($radios as $radio) {
             $imagem = 'http://maps.google.com/mapfiles/ms/icons/white-dot.png';
             $mac = $radio->mac;
-    
             $acessosHj = RadAcct::where('calledstationid', $mac)
                 ->where('acctstarttime', 'like', "$hoje%")
                 ->count();
@@ -106,7 +107,6 @@ class RadioRepository  {
                 $acessosOntem = RadAcct::where('calledstationid', $mac)
                     ->where('acctstarttime', 'like', "$ontem%")
                     ->count();
-    
                 if ($acessosOntem > 0) {
                     $imagem = 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png';
                     $acessadosOntem++;
@@ -116,21 +116,36 @@ class RadioRepository  {
                 }
             }
     
+            $latLong = explode(',', $radio->geo);
+           // dd($latLong);
+            $latitudes[] = $latLong[0];
+            $longitudes[] = $latLong[1];
+    
             $newData[] = [
                 'id' => $radio->id,
                 'mac' => $radio->mac,
                 'acessos' => $acessosHj,
-                'img' => $imagem
+                'img' => $imagem,
+                'geo' => $radio->geo,
             ];
         }
+    
+        // Centralize o mapa com base na média das coordenadas dos rádios
+        $latCenter = array_sum($latitudes) / count($latitudes);
+        $lngCenter = array_sum($longitudes) / count($longitudes);
     
         return [
             'acessadoshj' => $acessadosHj,
             'acessadosontem' => $acessadosOntem,
             'naoacessados' => $naoAcessados,
-            'data' => $newData
+            'data' => $newData,
+            'center' => [
+                'lat' => $latCenter,
+                'lng' => $lngCenter,
+            ],
         ];
     }
+    
 
     public function updateMarker($id, $geo)
     {

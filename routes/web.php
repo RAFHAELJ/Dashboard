@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('controladora')->middleware('check-page-access:ler')->group(function () {        
         Route::get('/', [AccessDataController::class, 'indexControllers'])->name('controladora.index');
+        Route::get('/controladora', [AccessDataController::class, 'index'])->name('controladora.indexControladora');
         Route::get('/{id}', [AccessDataController::class, 'show'])->name('controladora.show');
         Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('controladora.store');  
         Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('controladora.update');       
@@ -141,7 +142,7 @@ Route::middleware('auth')->group(function () {
 
     });
     Route::prefix('usuarios')->middleware('check-page-access:ler')->group(function () {
-        Route::get('/', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/', [UsuarioController::class, 'index'])->middleware('set-dynamic-db')->name('usuarios.index');
         Route::get('/new', [UsuarioController::class, 'new'])->name('usuarios.create');
         Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
         Route::post('/', [UsuarioController::class, 'store'])->middleware('check-page-access:gravar')->name('usuarios.store');

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LoginCustomization extends Model
 {
@@ -37,5 +39,13 @@ class LoginCustomization extends Model
         'region' => 'integer',
         
     ];
+    protected static function booted()
+    {
+        static::addGlobalScope('regiao', function (Builder $builder) {
+            if (Auth::check() && !Auth::user()->isAdmin()) {
+                $builder->where('regiao', Auth::user()->regiao);
+            }
+        });
+    }
 }
 

@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 class Radio extends Model
 {
     use HasFactory;
+     
 
+    protected $connection = 'dynamic_radius';
+    protected $table = 'radios';
     protected $fillable = [
         'radio', 'mac', 'geo', 'endereco', 'info', 'regiao'
     ];
 
-    public function regiao()
-    {
-        return $this->belongsTo(Regiao::class, 'regiao');
-    }
+  
 }

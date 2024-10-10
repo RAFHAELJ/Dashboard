@@ -705,7 +705,7 @@ const saveScreenAsJson = () => {
     data: formData, // Enviar o FormData
     headers: {
       'Content-Type': 'multipart/form-data',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // CSRF Token
+      
     }
   })
   .then(response => {

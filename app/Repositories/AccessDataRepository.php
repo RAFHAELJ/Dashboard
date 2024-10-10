@@ -15,6 +15,7 @@ class AccessDataRepository
 
     public function all()
     {
+       
         return $this->model->paginate(15);
     }
 

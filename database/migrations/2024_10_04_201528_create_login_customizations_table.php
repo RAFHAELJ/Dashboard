@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('input_color'); // Cor dos campos de input
             $table->string('background_image')->nullable(); // Caminho da imagem de fundo
             $table->json('elements'); // Dados dos elementos da página (JSON)
-            $table->string('region'); // Região associada ao layout
+            $table->string('region')->unique(); // Região associada ao layout
             $table->string('username')->nullable(); // Nome do usuário associado
             $table->timestamps(); // Criação e atualização
         });

@@ -22,22 +22,24 @@ class AccessDataController extends Controller
 
     public function index()
     {
-        $accessData = $this->accessDataRepository->all();
-
+       // dd(Auth::user());
+        $accessData = $this->accessDataRepository->findByType('controller');
+//\dd($accessData);
         if (request()->wantsJson()) {
             return response()->json($accessData);
         }
 
-        return Inertia::render('configuracao/AccessDataList', [
+        return Inertia::render('configuracao/ControladorasConfig', [
             'accessData' => $accessData,
         ]);
     }
+
 
     // Lista apenas controladoras
     public function indexControllers()
     {
         $controllers = $this->accessDataRepository->findByType('controller');
-
+       
         if (request()->wantsJson()) {
             return response()->json($controllers);
         }

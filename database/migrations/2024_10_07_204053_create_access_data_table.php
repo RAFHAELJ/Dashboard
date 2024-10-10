@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->enum('type', ['controller', 'database']);
             $table->string('nome')->nullable();
-            $table->string('ip', 15)->nullable();
+            $table->string('ip', 255)->nullable();
             $table->integer('porta')->nullable();
             $table->string('senha')->nullable();
             $table->string('db_host')->nullable();

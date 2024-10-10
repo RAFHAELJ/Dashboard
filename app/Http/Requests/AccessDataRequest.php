@@ -19,7 +19,7 @@ class AccessDataRequest extends FormRequest
             'nome' => 'required|string',
             
             // Campos específicos para 'controller'
-            'ip' => 'required_if:type,controller|nullable|ip',
+            'ip' => 'required_if:type,controller|nullable|string',
             'porta' => 'required_if:type,controller|nullable|integer',
             'senha' => 'required_if:type,controller|nullable|string',
             

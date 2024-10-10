@@ -19,7 +19,7 @@ class UserRepository{
     }
 
     public function all() {
-        $users = User::with('regiao')->paginate();       
+        $users = User::byRegiao()->with('regiao')->paginate();       
         return $users;
         
     }
@@ -31,7 +31,7 @@ class UserRepository{
 
        
 
-        return User::find($id);
+        return User::byRegiao()->find($id);
     }
 
     public function create(array $data)
