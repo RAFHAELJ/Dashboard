@@ -97,10 +97,9 @@ class AccessDataController extends Controller
                     ->with('success', 'Configuração de controladora criada com sucesso!');
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao criar dados de acesso: ' . $e->getMessage()
-            ], 500);
+            return Inertia::render('Error', [
+                'error' => 'Erro ao criar dados de acesso: ' . $e->getMessage() . '..'
+            ]);
         }
     }
 
@@ -126,10 +125,9 @@ class AccessDataController extends Controller
                     ->with('success', 'Configuração de controladora criada com sucesso!');
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao atualizar dados de acesso: ' . $e->getMessage()
-            ], 500);
+            return Inertia::render('Error', [
+                'error' => 'Erro ao atualizar dados de acesso: ' . $e->getMessage() . '..'
+            ]);
         }
     }
 
@@ -148,10 +146,9 @@ class AccessDataController extends Controller
             return redirect()->route('accessData.index')
                 ->with('success', 'Dados de acesso deletados com sucesso!');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao deletar dados de acesso: ' . $e->getMessage()
-            ], 500);
+            return Inertia::render('Error', [
+                'error' => 'Falha ao deletar dados de acesso: ' . $e->getMessage() . '..'
+            ]);
         }
     }
 

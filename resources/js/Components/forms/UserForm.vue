@@ -53,7 +53,14 @@
               @update:modelValue="checkRole"
             />
         </template>
-      </v-form>
+      
+
+      <ControladoraSelect
+        v-if="showCreateControladora"
+        v-model="form.controladora"
+        label="Selecione uma Controladora"
+        :rules="[v => !!v || 'A seleção de uma controladora é obrigatória']"
+      />
 
       <!-- Selecione uma Região -->
       <regioes-select
@@ -62,7 +69,7 @@
         label="Selecione uma região"
         :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
       />
-
+    </v-form>
       <!-- Ícone para editar permissões (visível apenas no modo de edição) -->
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -104,6 +111,7 @@ import { useForm, router } from '@inertiajs/vue3';
 import RegioesSelect from '../RegioesSelect.vue';
 import RolesModal from '../RolesModal.vue';
 import axios from 'axios';
+import ControladoraSelect from '../ControladoraSelect.vue';
 
 const props = defineProps({
   formData: {
@@ -115,6 +123,10 @@ const props = defineProps({
     required: true,
   },
   showCreateRegiao: {
+    type: Boolean,
+    default: false,
+  },
+  showCreateControladora: {
     type: Boolean,
     default: false,
   },

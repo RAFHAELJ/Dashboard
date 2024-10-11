@@ -15,12 +15,16 @@ class RadioDash extends Model
     protected $connection = 'mysql';
     protected $table = 'radios';
     protected $fillable = [
-        'radio', 'mac', 'geo', 'endereco', 'info', 'regiao'
+        'radio', 'mac', 'geo', 'endereco', 'info', 'regiao','controladora'
     ];
 
     public function regiao()
     {
         return $this->belongsTo(Regiao::class, 'regiao');
+    }
+    public function controladora()
+    {
+        return $this->belongsTo(AccessData::class, 'controladora');
     }
 
     protected static function booted()

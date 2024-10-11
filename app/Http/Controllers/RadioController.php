@@ -77,7 +77,9 @@ class RadioController extends Controller {
                 ->with('success', 'Rádio atualizado com sucesso!');
         } catch (\Exception $e) {
             // Captura a exceção e redireciona com erro
-            return redirect()->back()->withErrors(['error' => 'Erro ao atualizar rádio: ' . $e->getMessage()]);
+            return Inertia::render('Error', [
+                'error' => 'Erro ao atualizar rádio: ' . $e->getMessage()
+            ]);
         }
     }
     

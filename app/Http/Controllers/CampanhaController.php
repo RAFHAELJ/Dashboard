@@ -147,8 +147,8 @@ class CampanhaController extends Controller
             return redirect()->route('campanhas.index')->with('success', 'Campanha deletada com sucesso!');
         } else {
             
-            return Inertia::render('Errors/404', [
-                'message' => 'Campanha não encontrada'
+            return Inertia::render('Error', [
+                'error' => 'Hotspot nao encontrado'
             ]);
         }
     }

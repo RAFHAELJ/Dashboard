@@ -51,6 +51,14 @@ const props = defineProps({
   createRoute: {
     type: String,
     required: true,
+  },
+   showLink: {
+    type: Boolean,
+    default: false
+  },
+  showControladoraLink: { 
+    type: Boolean,
+    default: false
   }
 });
 
@@ -164,6 +172,21 @@ const handleExportCSV = () => {
 watch(() => props.items, (newItems) => {
   console.log('Itens paginados atualizados:', newItems);
 });
+
+const openControladora = (controladora) => {
+  if (!controladora.ip) return;
+
+  const isIPAddress = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(controladora.ip);
+
+  const url = isIPAddress && controladora.porta
+    ? `http://${controladora.ip}:${controladora.porta}`
+    : `http://${controladora.ip}`;
+
+  window.open(url, '_blank');
+};
+
+
+
 </script>
 
 <template>
@@ -221,6 +244,22 @@ watch(() => props.items, (newItems) => {
                 {{ title }}
               </v-col>
             </template>
+
+            <template v-slot:item.controladora.nome="{ item }" v-if="showControladoraLink">
+              <td>
+                <span
+                  v-if=" item.controladora"
+                  style="color: blue; cursor: pointer"
+                  @click="openControladora(item.controladora)"
+                  class="controladora-link"
+                >
+                  {{ item.controladora.nome }}
+                </span>
+                <span v-else>
+                  Não disponível
+                </span>
+              </td>
+            </template>           
 
             <!-- Ações de edição e exclusão -->
             <template v-slot:item.actions="{ item }">

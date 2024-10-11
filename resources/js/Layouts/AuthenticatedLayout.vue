@@ -26,7 +26,8 @@ const updateRegiao = (newRegiao) => {
 
   // Envia o valor para o backend para armazenar na sessão do servidor
   axios.post(route('update.region.connection'), { regiao: selectedRegiao.value })
-    .then(() => {
+    .then((e) => {
+      
       //window.location.reload();      
     })
     .catch((error) => {

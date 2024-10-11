@@ -8,6 +8,7 @@ class RadioRequest extends FormRequest
 {
     public function authorize()
     {
+        //\dd($this->all());
         return true;
     }
 
@@ -19,6 +20,7 @@ class RadioRequest extends FormRequest
             'geo' => 'required|string|max:255',
             'endereco' => 'required|string|max:255',
             'info' => 'required|string|max:255',
+            'controladora' => 'required|integer',
             'regiao' => 'required',
         ];
     }

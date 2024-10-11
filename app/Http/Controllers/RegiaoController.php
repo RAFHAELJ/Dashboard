@@ -54,7 +54,9 @@ class RegiaoController extends Controller
                 ->with('success', 'Região criada com sucesso!');
         } catch (\Exception $e) {
             // Captura a exceção e redireciona com erros
-            return redirect()->back()->withErrors(['error' => 'Erro ao criar a região: ' . $e->getMessage()]);
+            return Inertia::render('Error', [
+                'error' => 'Erro ao criar a região: ' . $e->getMessage()
+            ]);
         }
     }
     
@@ -80,7 +82,9 @@ class RegiaoController extends Controller
                 ->with('success', 'Região atualizada com sucesso!');
         } catch (\Exception $e) {
             // Captura a exceção e redireciona com erros
-            return redirect()->back()->withErrors(['error' => 'Erro ao atualizar a região: ' . $e->getMessage()]);
+            return Inertia::render('Error', [
+                'error' => 'erro ao atualizar a região: ' . $e->getMessage()
+            ]);
         }
     }
     
@@ -101,9 +105,9 @@ class RegiaoController extends Controller
         } catch (\Exception $e) {
             // Captura a exceção e retorna uma mensagem de erro apropriada
             if (request()->expectsJson()) {
-                return response()->json([
+                return Inertia::render('Error', [
                     'error' => 'Erro ao deletar a região: ' . $e->getMessage()
-                ], 500); // Retorna status 500 (Internal Server Error)
+                ]);
             }
     
             return redirect()->back()->withErrors(['error' => 'Erro ao deletar a região: ' . $e->getMessage()]);

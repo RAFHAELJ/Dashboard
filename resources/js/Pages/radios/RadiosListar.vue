@@ -1,6 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref,  } from 'vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DataList from '@/Components/DataList.vue';
@@ -8,7 +7,6 @@ import UserForm from '@/Components/forms/UserForm.vue';
 
 const { props } = usePage();
 const radios = ref(props.radios || []);
-const controladoras = ref([]); // Armazena as controladoras
 const isEditModalOpen = ref(false);
 const isEditing = ref(false);
 const editRadios = ref({
@@ -30,7 +28,9 @@ const headers = [
   { text: 'Geo', value: 'geo', sortable: true, title: 'Geo', key: 'geo'  },
   { text: 'Endereço', value: 'endereco', sortable: true, title: 'Endereço', key: 'endereco' },
   { text: 'Info', value: 'info', sortable: true, title: 'Info', key: 'info' },
+  { text: 'Controladora', value: 'controladora.nome', sortable: true, title: 'Controladora', key: 'controladora.nome' },
   { text: 'Regiao', value: 'regiao.cidade', sortable: true, title: 'Regiao', key: 'regiao.cidade' },
+
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 
@@ -77,22 +77,8 @@ const handleDeleteItem = (item) => {
   deleteRadios(item.id);
 };
 
-// Função para buscar controladoras
 
-const fetchControladoras = async () => {
-  try {
-    const response = await axios.get('/controladora/controladora');
-    controladoras.value = response.data.data; // Armazena o resultado no array controladoras
-    console.log('Controladoras:', controladoras.value);
-  } catch (error) {
-    console.error('Erro ao buscar controladoras:', error);
-  }
-};
 
-// Chama a função fetchControladoras quando o componente é montado
-onMounted(() => {
-  fetchControladoras();
-});
 
 </script>
 
@@ -114,10 +100,13 @@ onMounted(() => {
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="radios"
+          :showControladoraLink="true"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
+
           <UserForm
             :showCreateRegiao="true"
+            :showCreateControladora="true"
             :formData="editRadios"
             :fields="{
               radio: { label: 'Nome Radio', rules: [(v) => !!v || 'RADIO é obrigatório'], required: true },
