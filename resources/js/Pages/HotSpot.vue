@@ -103,7 +103,7 @@ export default {
     fetchData() {
     axios.get('/login_customizations')
       .then(response => {
-        let customization = response.data.customizations[3]; // Pegue a primeira customização, ajuste se necessário
+        let customization = response.data.customizations[0]; // Pegue a primeira customização, ajuste se necessário
 
         // Convertendo campos de string JSON para arrays, se necessário
         if (typeof customization.login_method === 'string') {

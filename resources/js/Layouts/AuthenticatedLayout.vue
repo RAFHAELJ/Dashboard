@@ -1,16 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { Link , usePage} from '@inertiajs/vue3';
-import { onMounted } from 'vue';
 import RegioesSelect from '@/Components/RegioesSelect.vue';
-
-
 
 const page = usePage();
 const permissions = page.props.permissions || {};
 const isAdmin = ref(page.props.auth.user.nivel === 'Administrador');
 const userRegiao = page.props.auth.user.regiao; 
-
 const selectedRegiao = ref(parseInt(localStorage.getItem('user_regiao')) || userRegiao);
 
 const updateRegiao = (newRegiao) => {
@@ -40,9 +36,6 @@ const updateRegiao = (newRegiao) => {
 if (!localStorage.getItem('user_regiao')) {   
   updateRegiao(userRegiao)
 }
-
-
-
 
 // Função para verificar se o usuário pode acessar uma página e uma ação
 const canAccess = (pageSlug, action = null) => {
@@ -78,14 +71,6 @@ const canAccess = (pageSlug, action = null) => {
   // Se não houver permissões para a página ou a ação específica, retorna false
   return false;
 };
-/*onMounted(() => {
-  const storedRegiao = localStorage.getItem('user_regiao');
-  if (storedRegiao) {
-    selectedRegiao.value = storedRegiao;
-  }
-});*/
-
-
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -117,12 +102,7 @@ export default {
   }
   
 };
-/*onMounted(() => {
-  const storedRegiao = localStorage.getItem('user_regiao');
-  if (storedRegiao) {
-    selectedRegiao.value = storedRegiao;
-  }
-});*/
+
 </script>
 
 <template>
@@ -137,7 +117,7 @@ export default {
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
       </template>
 
-      <v-app-bar-title class="text-center">Sistema de Radio</v-app-bar-title>
+      <v-app-bar-title class="text-center">WNI Dashboard</v-app-bar-title>
 
       <template v-slot:append>       
         <!-- Adicionando RegioesSelect com v-model para capturar a região selecionada -->
@@ -185,7 +165,7 @@ export default {
             <!-- Exibe o item Home se o usuário tiver permissão -->
             <v-list-item
               v-if="canAccess('home')"
-              prepend-avatar="/images/sam-banner.png"
+              prepend-avatar="/images/logowni.png"
               title="Home"
               @click="navigateTo('/')"
             ></v-list-item>
@@ -204,7 +184,7 @@ export default {
           
           <v-list-item v-if="canAccess('radios', 'ler')" title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item>
           <v-list-item v-if="canAccess('mapaRadios', 'ler')" title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
-          <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Adicionar/Listar Radios" @click="navigateTo('/radios/')"></v-list-item>
+          <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Controle Radios" @click="navigateTo('/radios/')"></v-list-item>
           <v-list-item v-if="canAccess('configurarRadios', 'atualizar')" title="Configurar Radios" @click="navigateTo('/radios/configurar')"></v-list-item>
           <v-list-item v-if="canAccess('rastrearRadio', 'rastrear')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
         </v-list-group>

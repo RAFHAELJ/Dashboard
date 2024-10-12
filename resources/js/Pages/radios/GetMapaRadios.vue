@@ -69,42 +69,49 @@ const acessadosontem = props.data?.acessadosontem || 0;
 const naoacessados = props.data?.naoacessados || 0;
 </script>
 
-
 <template>
   <AuthenticatedLayout>
     <v-container class="bg-light-gray" fluid>
-      <v-row class="mb-4">
-        <v-col cols="12" md="8">
-          <v-card class="pa-4 mb-4">
-            <v-card-title class="text-h5">Mapa dos Rádios</v-card-title>
-            <v-card-text>
-              <div id="map"></div> <!-- Mapa será renderizado aqui -->
+      <v-row class="mb-4 justify-center">
+        <!-- Cards de Status -->
+        <v-col cols="12" md="4" lg="2">
+          <v-card class="bg-green text-center status-card mb-4">
+            <v-card-title class="white--text">Acessados Hoje</v-card-title>
+            <v-card-text class="d-flex flex-column align-center justify-center py-2">
+              <v-icon color="white" size="36" class="mb-1">mdi-check-circle</v-icon>
+              <span class="white--text display-2">{{ acessadoshj }}</span>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <v-col cols="12" md="4">
-          <v-card class="bg-green text-center mb-4">
-            <v-card-title class="white--text">Acessados Hoje</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-4">
-              <v-icon color="white" class="rounded-circle mb-2">mdi-check-circle</v-icon>
-              <span class="white--text display-2">{{ acessadoshj }}</span>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="bg-orange text-center mb-4">
+        <v-col cols="12" md="4" lg="2">
+          <v-card class="bg-orange text-center status-card mb-4">
             <v-card-title class="white--text">Acessados Ontem</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-4">
-              <v-icon color="white" class="rounded-circle mb-2">mdi-help-circle</v-icon>
+            <v-card-text class="d-flex flex-column align-center justify-center py-2">
+              <v-icon color="white" size="36" class="mb-1">mdi-help-circle</v-icon>
               <span class="white--text display-2">{{ acessadosontem }}</span>
             </v-card-text>
           </v-card>
+        </v-col>
 
-          <v-card class="bg-red text-center mb-4">
+        <v-col cols="12" md="4" lg="2">
+          <v-card class="bg-red text-center status-card mb-4">
             <v-card-title class="white--text">Não Acessados Há 3 Dias</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-4">
-              <v-icon color="white" class="rounded-circle mb-2">mdi-cancel</v-icon>
+            <v-card-text class="d-flex flex-column align-center justify-center py-2">
+              <v-icon color="white" size="36" class="mb-1">mdi-cancel</v-icon>
               <span class="white--text display-2">{{ naoacessados }}</span>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Mapa -->
+      <v-row>
+        <v-col cols="12">
+          <v-card class="pa-1">
+            <v-card-title class="text-h5">Mapa dos Rádios</v-card-title>
+            <v-card-text>
+              <div id="map"></div> <!-- Mapa será renderizado aqui -->
             </v-card-text>
           </v-card>
         </v-col>
@@ -117,6 +124,16 @@ const naoacessados = props.data?.naoacessados || 0;
 .bg-light-gray {
   background-color: #f5f5f5;
   min-height: 100vh;
+}
+
+.status-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.status-card:hover {
+  transform: translateY(-4px);
 }
 
 .bg-green {
@@ -133,13 +150,8 @@ const naoacessados = props.data?.naoacessados || 0;
 
 #map {
   width: 100%;
-  height: 500px; /* Ajuste a altura conforme necessário */
+  height: 500px;
   border-radius: 8px;
-}
-
-.rounded-circle {
-  padding: 10px;
-  border-radius: 50%;
 }
 
 .d-flex {
@@ -158,9 +170,9 @@ const naoacessados = props.data?.naoacessados || 0;
   justify-content: center;
 }
 
-.py-4 {
-  padding-top: 16px;
-  padding-bottom: 16px;
+.py-2 {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .mb-4 {
@@ -176,7 +188,7 @@ const naoacessados = props.data?.naoacessados || 0;
 }
 
 .display-2 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 

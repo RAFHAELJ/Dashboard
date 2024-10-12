@@ -9,4 +9,9 @@ class RadAcct extends Model
     protected $table = 'radacct';
     protected $connection = 'dynamic_radius'; 
     public $timestamps = false; // Se a tabela não usa timestamps
+    protected $fillable = [
+        'calledstationid',
+        'callingstationid',
+        'AcctStartTime'
+    ];
 }
