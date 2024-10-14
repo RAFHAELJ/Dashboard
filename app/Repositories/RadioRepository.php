@@ -79,7 +79,7 @@ class RadioRepository  {
     
     public function getGeoRadio()
     {
-        return Cache::remember('geo_radio_data', 300, function () {
+        return Cache::remember('geo_radio_data', 1, function () {
             $radios = RadioDash::all(['id', 'mac', 'geo']);
             
             if ($radios->isEmpty()) {
@@ -114,7 +114,7 @@ class RadioRepository  {
             $acessadosHj = 0;
             $acessadosOntem = 0;
             $naoAcessados = 0;
-  
+
             // Ajuste na contagem de acessos por período
             foreach ($radios as $radio) {
                 $mac = $radio->mac;
@@ -129,24 +129,23 @@ class RadioRepository  {
                 $acessosHoje = $acessosPorMac->filter(function ($acesso) use ($hoje) {
                     return Carbon::parse($acesso['acctstarttime'])->isSameDay($hoje);
                 })->count();
+
+                  // Filtrar os acessos para ontem
+                  $acessosOntem = $acessosPorMac->filter(function ($acesso) use ($ontem) {
+                    return Carbon::parse($acesso['acctstarttime'])->isSameDay($ontem);
+                })->count();
+
                // dd($acessosHoje);
                 if ($acessosHoje > 0) {
                     $imagem = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
                     $acessadosHj += $acessosHoje;
-                } else {
-                    // Filtrar os acessos para ontem
-                    $acessosOntem = $acessosPorMac->filter(function ($acesso) use ($ontem) {
-                        return Carbon::parse($acesso['acctstarttime'])->isSameDay($ontem);
-                    })->count();
-                    
-                    if ($acessosOntem > 0) {
-                        $imagem = 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png';
+                } else if ($acessosOntem > 0) {
+                    $imagem = 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png';
                         $acessadosOntem += $acessosOntem;
-                    } else {
-                        // Considerar acessos que não ocorreram nos últimos 3 dias
-                        $imagem = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-                        $naoAcessados++;
-                    }
+                }else  { 
+                    $imagem = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                    $naoAcessados++;
+                   
                 }
             
                 $latLong = explode(',', $radio->geo);
@@ -170,7 +169,7 @@ class RadioRepository  {
             return [
                 'acessadoshj' => $acessadosHj,
                 'acessadosontem' => $acessadosOntem,
-                'naoacessados' => $naoAcessados - $acessadosOntem - $acessadosHj,
+                'naoacessados' => $naoAcessados - $acessadosHj - $acessadosOntem,
                 'data' => $newData,
                 'center' => [
                     'lat' => $latCenter,

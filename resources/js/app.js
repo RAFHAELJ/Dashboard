@@ -23,6 +23,8 @@ import * as directives from 'vuetify/directives'
 
 import ChartCard from './Components/ChartCard.vue';
 
+
+
 const appName = 'Nome da Sua Aplicação';
 const vuetify = createVuetify({
     components,

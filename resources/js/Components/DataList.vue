@@ -193,7 +193,7 @@ const openControladora = (controladora) => {
   <v-container fluid fill-height>
     <v-row>
       <v-col cols="12">
-        <v-card flat class="rounded-lg shadow">
+        <v-card flat class="rounded-lg shadow" elevation="5">
           <v-card-title class="d-flex align-center justify-between flex-wrap pe-2">
             <!-- Campo de busca à esquerda -->
             <v-text-field
@@ -295,6 +295,8 @@ const openControladora = (controladora) => {
 </template>
 
 <style scoped>
+
+
 .v-card {
   background-color: #f8f9fa;
 }

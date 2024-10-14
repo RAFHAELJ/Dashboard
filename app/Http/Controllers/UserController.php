@@ -95,6 +95,24 @@ class UserController extends Controller
             return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
     }
+
+    public function showChangePasswordForm()
+    {
+        return inertia('Auth/ChangePassword');
+    }
+
+    public function updatePassword(Request $request)
+    {\dd($request->all());
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $userResp = $this->userRepository->updatePassword($request);
+
+        
+
+        return redirect()->route('dashboard')->with('status', 'Senha atualizada com sucesso!');
+    }
     
 
     public function destroy($id)
@@ -108,4 +126,6 @@ class UserController extends Controller
             ]);
         }
     }
+
+
 }

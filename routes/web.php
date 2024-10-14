@@ -71,6 +71,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
+    Route::get('users/trocar-senha', [UserController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('password.update');
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
     Route::post('/update-region-connection', [AccessDataController::class, 'updateRegionConnection'])->name('update.region.connection');
     Route::resource('accessData', AccessDataController::class);
@@ -134,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/count', [UserController::class, 'count'])->name('users.count');
         Route::get('/new', [UserController::class, 'new'])->middleware('check-page-access:gravar')->name('users.create');
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
+        
         Route::post('/', [UserController::class, 'store'])->middleware('check-page-access:gravar')->name('users.store');
         Route::put('/{id}', [UserController::class, 'update'])->middleware('check-page-access:atualizar')->name('users.update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('check-page-access:excluir')->name('users.destroy');       

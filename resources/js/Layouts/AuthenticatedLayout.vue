@@ -32,7 +32,6 @@ const updateRegiao = (newRegiao) => {
 };
 
 // Se `localStorage` estiver vazio, salva o valor `userRegiao` como padrão
-
 if (!localStorage.getItem('user_regiao')) {   
   updateRegiao(userRegiao)
 }
@@ -110,14 +109,15 @@ export default {
     <v-app-bar
       scroll-behavior="elevate" 
       elevation=5
-      color="grey-lighten-3"
+      color="black lighten-2"
       density="compact"
     >
       <template v-slot:prepend>
+        <img src="/images/logo.svg" alt="Logo" class="w-13 h-10">
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
       </template>
 
-      <v-app-bar-title class="text-center">WNI Dashboard</v-app-bar-title>
+      <v-app-bar-title class="text-center">WNIDashboard</v-app-bar-title>
 
       <template v-slot:append>       
         <!-- Adicionando RegioesSelect com v-model para capturar a região selecionada -->
@@ -152,12 +152,15 @@ export default {
             <v-list-item @click="logout">
               <v-list-item-title>Log Out</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="navigateTo(route('password.change'))">
+              <v-list-item-title>Trocar Senha</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer expand-on-hover rail mobile-breakpoint="3">
+    <v-navigation-drawer expand-on-hover rail mobile-breakpoint="3" elevation=5 >
           
       <v-card elevation="2">
         <v-card-actions>
@@ -185,7 +188,6 @@ export default {
           <v-list-item v-if="canAccess('radios', 'ler')" title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item>
           <v-list-item v-if="canAccess('mapaRadios', 'ler')" title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
           <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Controle Radios" @click="navigateTo('/radios/')"></v-list-item>
-          <v-list-item v-if="canAccess('configurarRadios', 'atualizar')" title="Configurar Radios" @click="navigateTo('/radios/configurar')"></v-list-item>
           <v-list-item v-if="canAccess('rastrearRadio', 'rastrear')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
         </v-list-group>
 
@@ -263,7 +265,7 @@ export default {
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="d-flex align-top justify-top" style="min-height: 300px;">
+    <v-main class="d-flex align-top justify-top" style="min-height: 300px; background-color: #f4f4f9 ">
       <slot :canAccess="canAccess" />
     </v-main>
   </v-app>

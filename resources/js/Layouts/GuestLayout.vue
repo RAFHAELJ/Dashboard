@@ -4,10 +4,10 @@ import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 custom-blue-background">
         <div>
             <Link href="/">
-                <ApplicationLogo class="w-20 h-20 fill-current text-gray-500" />
+                <img src="/images/logo.svg" alt="Logo" class="w-40 h-40">
             </Link>
         </div>
 
@@ -18,3 +18,9 @@ import { Link } from '@inertiajs/vue3';
         </div>
     </div>
 </template>
+
+<style scoped>
+.custom-blue-background {
+    background-color: #3490dc; /* Exemplo de um tom de azul */
+}
+</style>

@@ -66,6 +66,16 @@ class UserRepository{
         return $user;
     }
 
+    public function updatePassword(Request $request)
+    {      
+
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return $user;
+    }
+
     public function delete($id) {
         return User::destroy($id);
     }
