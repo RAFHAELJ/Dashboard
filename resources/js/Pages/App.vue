@@ -8,7 +8,7 @@
       </nav>
       <div :class="['sidebar', { 'sidebar-hidden': isSidebarHidden, 'sidebar-mobile-open': isMobileSidebarOpen }]">
         <div class="logo text-center my-4">
-          <img src="../../../images/sam-banner.png" alt="Logo" class="rounded-circle" width="80" height="80">
+          
         </div>
         <ul class="nav flex-column">
           <li class="nav-item">
