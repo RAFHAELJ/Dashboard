@@ -3,12 +3,13 @@
 // app/Repositories/UsuarioRepository.php
 namespace App\Repositories;
 
+use App\Models\RadAcct;
 use App\Models\Usuario;
 
-class UsuarioRepository implements UsuarioRepositoryInterface {
+class UsuarioRepository  {
 
-    public function all() {
-        return Usuario::all();
+    public function all(){        
+        return RadAcct::paginate();
     }
 
     public function find($id) {

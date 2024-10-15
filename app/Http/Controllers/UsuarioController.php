@@ -19,6 +19,7 @@ class UsuarioController extends Controller
     {
         
         $usuarios = $this->userRepository->all();
+        
         return Inertia::render('usuarios/ListaUsuariosRadio', [
             'usuarios' => $usuarios
         ]);

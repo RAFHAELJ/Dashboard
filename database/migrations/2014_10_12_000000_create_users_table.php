@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('nivel')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->integer('regiao');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -1,6 +1,5 @@
 <template>
   <Head title="Home" />
-
   <AuthenticatedLayout>
     <v-container fluid>
       <v-row class="draggable-cards">
@@ -33,7 +32,7 @@
 
       <v-row>
         <Draggable
-          v-model="notes"y
+          v-model="notes"
           tag="v-row"
           class="d-flex align-items-stretch"
           :itemKey="getItemKey"
@@ -49,8 +48,8 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head,router } from '@inertiajs/vue3';
-import { ref, reactive, onMounted } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import { ref, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import Draggable from 'vuedraggable';
@@ -63,7 +62,6 @@ const cards = ref(props.cards || []);
 const notes = ref([]);
 const cardDialog = ref(false);
 
-
 const fetchCardContent = async (card) => {
   const iconMap = {
     users: 'mdi-account',
@@ -71,28 +69,41 @@ const fetchCardContent = async (card) => {
     radio: 'mdi-radio-tower',
     radius: 'mdi-server',
     log: 'mdi-archive',
-    default: 'mdi-information', // Ícone padrão
+    default: 'mdi-information',
   };
 
   try {
     const response = await axios.get(card.url);
-    const urlParam = card.url.split('/')[0]; // Obtém o primeiro parâmetro da URL
-
-    // Mapeia o ícone com base no primeiro parâmetro da URL
+    const urlParam = card.url.split('/')[0];
     card.icon = iconMap[urlParam] || iconMap.default;
 
     if (card.type === 'Texto') {
-      card.content = response.data; // Supondo que o dado relevante esteja na propriedade 'total'
+      card.content = response.data; 
     } else if (card.type === 'Gráfico') {
-      card.chartOptions = response.data.chartOptions;
+      //console.log(card)
+      card.chartOptions = {
+        title: { text: 'Exemplo de Gráfico' },
+        tooltip: {},
+        xAxis: {
+          type: 'category',
+          data: ['Jan', 'Feb', 'Mar', 'Apr', 'May']
+        },
+        yAxis: { type: 'value' },
+        series: [
+          {
+            name: 'Vendas',
+            type: 'bar',
+            data: [5, 20, 36, 10, 10]
+          }
+        ]
+      };
     }
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
     card.content = 'Erro ao carregar';
-    card.icon = iconMap.default; // Define o ícone padrão em caso de erro
+    card.icon = iconMap.default;
   }
 };
-
 
 const initializeCards = async () => {
   for (const card of cards.value) {
@@ -111,7 +122,6 @@ const closeDialog = () => {
   cardDialog.value = false;
 };
 const saveCard = async () => {
-  
   cardDialog.value = false;
   window.location.reload();
 };
@@ -121,16 +131,14 @@ const addNote = () => {
 };
 
 const removeCard = (cardId) => {
-  
-    if (confirm('Tem certeza que deseja deletar este Painel?')) {
-      try {
-         router.delete(route('cards.destroy', cardId));
-        cards.value = cards.value.filter((card) => card.id !== cardId);
-      } catch (error) {
-        console.error('Erro ao deletar Painel:', error);
-      }
-   
+  if (confirm('Tem certeza que deseja deletar este Painel?')) {
+    try {
+      router.delete(route('cards.destroy', cardId));
+      cards.value = cards.value.filter((card) => card.id !== cardId);
+    } catch (error) {
+      console.error('Erro ao deletar Painel:', error);
     }
+  }
 };
 
 const removeNote = (noteId) => {
@@ -138,7 +146,7 @@ const removeNote = (noteId) => {
 };
 
 const getItemKey = (item) => {
-  return item.id; // Utiliza a propriedade 'id' como chave única
+  return item.id;
 };
 </script>
 

@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
+// Usando a conexão 'radius'
+//$radiusData = DB::connection('radius')->table('radios')->get();
 class UserController extends Controller
 {
     protected $userRepository;
+    
 
     public function __construct(UserRepository $userRepository)
     {
@@ -38,22 +42,27 @@ class UserController extends Controller
         
         return Inertia::render('usuarios/NovoUsuarioDashboard');
     }
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|min:6',
-        ]);
-
-        $user = $this->userRepository->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
+        try {
+          
+    
+            $user = $this->userRepository->create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'regiao' => $request->regiao,
+                'nivel' => $request->nivel,
+                'selectedActions' => $request->selectedActions,
+                'selectedPages' => $request->selectedPages
+            ]);
+    
+            return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
+        }
     }
+    
 
     public function show($id)
     {
@@ -69,23 +78,42 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $id)
     {
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' ,
-            
-        ]);        
-
-        $userResp = $this->userRepository->update($request, $user);
-        if ($userResp) {
-            return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
-        } else {
-            return Inertia::render('Errors/404', [
-                'message' => 'Usuário não encontrado'
-            ]);
+        try {
+          
+    
+            $userResp = $this->userRepository->update($request, $id);
+            if ($userResp) {
+                return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
+            } else {
+                return Inertia::render('Errors/404', [
+                    'message' => 'Usuário não encontrado'
+                ]);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
         }
     }
+
+    public function showChangePasswordForm()
+    {
+        return inertia('Auth/ChangePassword');
+    }
+
+    public function updatePassword(Request $request)
+    {\dd($request->all());
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $userResp = $this->userRepository->updatePassword($request);
+
+        
+
+        return redirect()->route('dashboard')->with('status', 'Senha atualizada com sucesso!');
+    }
+    
 
     public function destroy($id)
     {
@@ -98,4 +126,6 @@ class UserController extends Controller
             ]);
         }
     }
+
+
 }

@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('geo');
             $table->string('endereco');
             $table->string('info');
-            $table->string('regiao');
+            $table->integer('controladora');
+            $table->integer('regiao');
             $table->timestamps();
         });
     }

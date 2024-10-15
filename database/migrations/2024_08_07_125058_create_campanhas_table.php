@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('nome');
             $table->date('comeco');
             $table->date('fim');
-            $table->json('radios');
+            $table->longText('radios');
             $table->string('publico');
-            $table->integer('idade');
+            $table->string('idade');
             $table->string('tipo');
             $table->string('video')->nullable();
             $table->string('capa')->nullable();
             $table->string('imagem')->nullable();
+            $table->string('regiao')->nullable();
             $table->integer('tempo');
             $table->string('url');
             $table->integer('duracao');
