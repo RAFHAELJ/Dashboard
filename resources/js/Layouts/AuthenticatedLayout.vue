@@ -112,6 +112,7 @@ export default {
       color="#2f2f2f"
       
     >
+    
       <template v-slot:prepend>
         <img src="/images/logo.svg" alt="Logo" class="w-20 h-20">
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
@@ -160,17 +161,24 @@ export default {
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer expand-on-hover rail mobile-breakpoint="3" elevation=5 >
+    <v-navigation-drawer 
+     expand-on-hover 
+     rail 
+     mobile-breakpoint="3" 
+     elevation=5  
+      
+     :width="300">
           
       <v-card elevation="2">
         <v-card-actions>
-          <v-list>
+          <v-list  nav density="compact">
             <!-- Exibe o item Home se o usuário tiver permissão -->
             <v-list-item
               v-if="canAccess('home')"
-              prepend-avatar="/images/logowni.png"
+              prepend-icon="mdi-home"
               title="Home"
               @click="navigateTo('/')"
+              nav
             ></v-list-item>
           </v-list>
         </v-card-actions>
