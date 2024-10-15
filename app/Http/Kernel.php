@@ -21,6 +21,9 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\PerPageLimit::class,
+       
+
     ];
 
     /**
@@ -38,6 +41,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+           // \App\Http\Middleware\SetDynamicDatabaseConnection::class,
         ],
 
         'api' => [
@@ -66,5 +70,13 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'perPageLimit' => \App\Http\Middleware\PerPageLimit::class,
+        'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
+        'set-dynamic-db' => \App\Http\Middleware\SetDynamicDatabaseConnection::class,
+
+    ];
+    protected $routeMiddleware = [
+        // Outros middlewares...
+        'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
     ];
 }

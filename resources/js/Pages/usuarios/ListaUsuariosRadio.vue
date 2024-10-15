@@ -17,19 +17,24 @@ const editUsuarios = ref({
 const search = ref('');
 
 const headers = [
-  { text: 'ID', value: 'id' },
-  { text: 'Nome', value: 'name' },
-  { text: 'Email', value: 'email' },
-  { text: 'CPF', value: 'cpf' },
-  { text: 'MAC', value: 'mac' },
-  { text: 'Ações', value: 'actions', sortable: false },
+
+  { text: 'ID', value: 'RadAcctId',sortable: true,title:'ID',key:'RadAcctId' },
+  { text: 'Nome', value: 'UserName',sortable: true,title:'Nome',key:'UserName'},
+  { text: 'Endereço IP', value: 'NASIPAddress',sortable: true,title:'Endereço IP',key:'NASIPAddress' },  
+  { text: 'MAC', value: 'CalledStationId',sortable: true,title:'MAC',key:'CalledStationId' },
+  //{ text: 'Ações', value: 'actions', sortable: false },
 ];
 
-const deleteUsuarios = async (id) => {
+const deleteUsuarios = async (RadAcctId) => {
   if (confirm('Tem certeza que deseja deletar este usuário?')) {
-    try {
-      await router.delete(route('usuarios.destroy', id));
-      usuarios.value = usuarios.value.filter(usuario => usuario.id !== id);
+    try {      
+      const userArray = usuarios.value.data ? usuarios.value.data : [];
+      await router.delete(route('usuarios.destroy', RadAcctId));      
+      
+      usuarios.value.data = userArray.filter(usuario => usuario.RadAcctId !== RadAcctId);
+     
+      window.location.reload(); 
+      
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);
     }
@@ -43,7 +48,7 @@ const handleViewItem = (item) => {
 const handleCreateItem = () => {
   isEditing.value = false;
   editUsuarios.value = {
-    id: null,
+    RadAcctId: null,
     name: '',
     email: '',
     cpf: '',
@@ -64,7 +69,7 @@ const closeEditModal = () => {
 };
 
 const handleDeleteItem = (item) => {
-  deleteUsuarios(item.id);
+  deleteUsuarios(item.RadAcctId);
 };
 </script>
 
@@ -72,16 +77,20 @@ const handleDeleteItem = (item) => {
   <Head title=" Usuários" />
 
   <AuthenticatedLayout>
+    <template v-slot="{ canAccess }"> 
     <v-container fluid fill-height>
       <DataList
         :headers="headers"
         :items="usuarios"
         searchPlaceholder="Pesquisar Usuários Radio"
         createButtonLabel="Add Usuarios Radio"
+        :showCreateButton = false
         @create="handleCreateItem"
         @edit="handleEditItem"
         @delete="handleDeleteItem"
-        :item-key="'id'"
+        :item-key="'RadAcctId'"
+        :canAccess="canAccess" 
+          createRoute="usuarios"
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UsuariosForm
@@ -93,5 +102,6 @@ const handleDeleteItem = (item) => {
 
       </v-dialog>
     </v-container>
+    </template>
   </AuthenticatedLayout>
 </template>

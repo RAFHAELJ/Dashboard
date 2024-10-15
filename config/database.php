@@ -62,6 +62,20 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+        'radius' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_RADIUS', '127.0.0.1'),
+            'port' => env('DB_PORT_RADIUS', '3306'),
+            'database' => env('DB_DATABASE_RADIUS', 'forge'),
+            'username' => env('DB_USERNAME_RADIUS', 'forge'),
+            'password' => env('DB_PASSWORD_RADIUS', ''),
+            'unix_socket' => env('DB_SOCKET_RADIUS', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
 
         'pgsql' => [
             'driver' => 'pgsql',

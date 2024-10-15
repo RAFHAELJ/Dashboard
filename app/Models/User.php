@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -17,11 +19,15 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $connection = 'mysql';
     protected $fillable = [
         'name',
         'email',
         'password',
         'nivel',
+        'regiao',
+
+    
         
     ];
 
@@ -44,4 +50,40 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function regiao()
+    {
+        return $this->belongsTo(Regiao::class, 'regiao');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'user_permissions')
+                    ->withPivot('page_id')
+                    ->with('pages')  // Carrega as páginas relacionadas
+                    ->withTimestamps();
+    }
+
+    public function pages()
+    {
+        return $this->belongsToMany(Page::class, 'user_permissions')->withPivot('permission_id')->withTimestamps();
+    }
+    public function hasPermissionForPage(Page $page, $action)
+{
+    $permissions = $this->permissions()
+                        ->wherePivot('page_id', $page->id)
+                        ->get();
+
+    return $permissions->contains('name', $action);
+}
+public function isAdmin()
+{
+    return $this->nivel === 'Administrador';
+}
+public function scopeByRegiao($query)
+{
+    if (Auth::check() && !Auth::user()->isAdmin()) {
+        $query->where('regiao', Auth::user()->regiao);
+    }
+}
 }

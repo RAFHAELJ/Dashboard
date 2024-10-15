@@ -9,7 +9,7 @@ use App\Models\Campanha;
 class CampanhaRepository{
 
     public function all() {
-        return Campanha::all();
+        return Campanha::paginate();
     }
 
     public function find($id) {
@@ -21,14 +21,12 @@ class CampanhaRepository{
         return Campanha::create($data);
     }
 
-    public function update(Request $request, Campanha $user) {
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-          
-        ]);
-        return $user;
+    public function update(array $data,Campanha $campanha)
+    {
+        $campanha->update($data);
+        return $campanha;
     }
+    
 
     public function delete($id) {
         return Campanha::destroy($id);

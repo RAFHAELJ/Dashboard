@@ -13,6 +13,10 @@ const editUser = ref({
   id: null,
   name: '',
   email: '',
+  password: '',
+  password_confirmation: '',
+  regiao: '',
+  nivel: '',
 });
 const search = ref('');
 
@@ -20,23 +24,27 @@ const headers = [
   { text: 'ID', value: 'id' , sortable: true,title:'ID',key:'id'},
   { text: 'Nome', value: 'name', sortable: true,title:'Nome',key:'name' },
   { text: 'Email', value: 'email' , sortable: true,title:'Email',key:'email'},
+  { text: 'Regiao', value: 'regiao.cidade' , sortable: true,title:'Regiao',key:'regiao.cidade'},
+  { text: 'Nivel', value: 'nivel' , sortable: true,title:'Nivel',key:'Nivel'},
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 
 const deleteUser = async (id) => {
   if (confirm('Tem certeza que deseja deletar este usuário?')) {
-    try {
-      await router.delete(route('users.destroy', id));
-      users.value = users.value.filter(user => user.id !== id);
+    try {      
+      const userArray = users.value.data ? users.value.data : [];
+      await router.delete(route('users.destroy', id));      
+      
+      users.value.data = userArray.filter(user => user.id !== id);
+     
+      window.location.reload(); 
+      
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);
     }
   }
 };
 
-const handleViewItem = (item) => {
-  console.log('Visualizar item:', item);
-};
 
 const handleCreateItem = () => {
   isEditing.value = false;
@@ -44,14 +52,22 @@ const handleCreateItem = () => {
     id: null,
     name: '',
     email: '',
-    password: ''
+    password: '',
+    password_confirmation: '',
+    regiao: '',
+    nivel: '',
+    
   };
   isEditModalOpen.value = true;
 };
 
 const handleEditItem = (item) => {
   isEditing.value = true;
-  editUser.value = { ...item };
+  editUser.value = { 
+    ...item, 
+    password: '', // Inicializando o campo password vazio
+    password_confirmation: '' // Inicializando o campo password_confirmation vazio
+  };
   isEditModalOpen.value = true;
 };
 
@@ -68,34 +84,45 @@ const handleDeleteItem = (item) => {
   <Head title="Lista de Usuários" />
 
   <AuthenticatedLayout>
-    <v-container fluid fill-height>
-      <DataList
-        :headers="headers"
-        :items="users"
-        :columnTitles="['ID', 'Nome', 'Email']"
-        searchPlaceholder="Pesquisar Usuários"
-        createButtonLabel="Adicionar Usuário"
-        @create="handleCreateItem"
-        @edit="handleEditItem"
-        @delete="handleDeleteItem"
-        :item-key="'id'"
-      />
-      <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
-        <UserForm
-  :formData="editUser"
-  :fields="{
-    name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true },
-    email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true },
-    password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: !isEditing, type: 'password' },
-    password_confirmation: { label: 'Confirmar Senha', rules: [(v) => v === form.password || 'As senhas não coincidem'], required: !isEditing, type: 'password' }
-  }"
-  :isEditing="isEditing"
-  title="Usuário"
-  createRoute="users.store"
-  updateRoute="users.update"
-  @cancel="closeEditModal"
-/>
-      </v-dialog>
-    </v-container>
+    <template v-slot="{ canAccess }"> <!-- Recebe a função canAccess via slot -->
+      <v-container fluid fill-height>
+        <DataList
+          :headers="headers"
+          :items="users"
+          :columnTitles="['ID', 'Nome', 'Email']"
+          searchPlaceholder="Pesquisar Usuários"
+          createButtonLabel="Adicionar Usuário"
+          @create="handleCreateItem"
+          @edit="handleEditItem"
+          @delete="handleDeleteItem"
+          :item-key="'id'"
+          :canAccess="canAccess" 
+          createRoute="users"
+        />
+        <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
+          <UserForm
+            :formData="editUser"
+            :showCreateRegiao="true"
+            :fields="{
+              name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
+              email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
+              nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
+              ...( !isEditing ? {
+                  password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
+                  password_confirmation: {label: 'Confirmar Senha',rules: [
+                    (v) => !!v || 'A confirmação da senha é obrigatória'
+                  ], required: true, type: 'password', autocomplete: 'new-password'  }} : {})
+            }"
+            :isEditing="isEditing"
+            title="Usuário"
+            createRoute="users.store"
+            updateRoute="users.update"
+            returnRoute="users.index"
+            @cancel="closeEditModal"
+          />
+        </v-dialog>
+      </v-container>
+    </template>
   </AuthenticatedLayout>
 </template>
+

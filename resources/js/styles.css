@@ -3,6 +3,7 @@
     display: flex;
     min-height: 100vh;
     flex-direction: column;
+    background-color: #343a40;
 }
 
 .company-name {
@@ -18,7 +19,7 @@
 }
 
 .navbar-custom {
-    background-color: #f8f9fa;
+    background-color: #327ac2;
     padding: 1rem;
     display: flex;
     align-items: center;
@@ -44,7 +45,7 @@
 
 .sidebar ul {
     list-style-type: none;
-    padding-left: 0;
+    padding-left: 2;
 }
 
 .sidebar .nav-link {

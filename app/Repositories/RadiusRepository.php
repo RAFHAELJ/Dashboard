@@ -3,29 +3,32 @@
 // app/Repositories/RadiusRepository.php
 namespace App\Repositories;
 
-use App\Models\Radius;
+use App\Models\Nas;
 
-class RadiusRepository implements RadiusRepositoryInterface {
+class RadiusRepository   {
 
     public function all() {
-        return Radius::all();
+        return Nas::paginate();
     }
 
     public function find($id) {
-        return Radius::find($id);
+        return Nas::find($id);
     }
 
     public function create(array $data) {
-        return Radius::create($data);
+
+        //\dd($data);
+        return Nas::create($data);
     }
 
     public function update($id, array $data) {
-        $radius = Radius::find($id);
+       // dd($data);
+        $radius = Nas::find($id);
         $radius->update($data);
         return $radius;
     }
 
     public function delete($id) {
-        return Radius::destroy($id);
+        return Nas::destroy($id);
     }
 }
