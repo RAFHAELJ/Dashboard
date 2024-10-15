@@ -109,11 +109,11 @@ export default {
     <v-app-bar
       scroll-behavior="elevate" 
       elevation=5
-      color="black lighten-2"
-      density="compact"
+      color="#2f2f2f"
+      
     >
       <template v-slot:prepend>
-        <img src="/images/logo.svg" alt="Logo" class="w-13 h-10">
+        <img src="/images/logo.svg" alt="Logo" class="w-20 h-20">
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
       </template>
 
@@ -185,7 +185,7 @@ export default {
             <v-list-item v-bind="props" prepend-icon="mdi-radio-tower" title="Radios"></v-list-item>
           </template>
           
-          <v-list-item v-if="canAccess('radios', 'ler')" title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item>
+          <!--v-list-item v-if="canAccess('radios', 'ler')" title="Relatorio de Radios" @click="navigateTo('/radios/RelatoriosRadios')"></v-list-item-->
           <v-list-item v-if="canAccess('mapaRadios', 'ler')" title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
           <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Controle Radios" @click="navigateTo('/radios/')"></v-list-item>
           <v-list-item v-if="canAccess('rastrearRadio', 'rastrear')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
@@ -201,12 +201,12 @@ export default {
         </v-list-group>
 
         <!-- Regioes Menu -->
-        <v-list-group v-if="canAccess('regioes')" v-model="menuStates.usuarios" value="Regiões">
+        <!--v-list-group v-if="canAccess('regioes')" v-model="menuStates.usuarios" value="Regiões">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-city" title="Regiões"></v-list-item>
           </template> 
           <v-list-item v-if="canAccess('regioes', 'ler')" title="Lista Regiões" @click="navigateTo('/regioes/')"></v-list-item>
-        </v-list-group>
+        </v-list-group -->
 
         <!-- Campanhas Menu -->
         <v-list-group v-if="canAccess('campanhas')" v-model="menuStates.campanhas" value="Campanhas">

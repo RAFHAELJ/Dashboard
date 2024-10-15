@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 custom-blue-background">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 ">
         <div>
             <Link href="/">
                 <img src="/images/logo.svg" alt="Logo" class="w-40 h-40">
@@ -21,6 +21,6 @@ import { Link } from '@inertiajs/vue3';
 
 <style scoped>
 .custom-blue-background {
-    background-color: #3490dc; /* Exemplo de um tom de azul */
+    background-color: rgb(242, 222, 222); /* Exemplo de um tom de azul */
 }
 </style>

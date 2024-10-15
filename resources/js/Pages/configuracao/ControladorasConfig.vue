@@ -6,16 +6,16 @@
       <template v-slot="{ canAccess }">
         <v-container fluid fill-height>
           <v-app-bar app color="primary" dark>
-          <v-toolbar-title>Tela para ajustes e controle das controladoras</v-toolbar-title>
+          <v-toolbar-title>Cofigurar Controladoras</v-toolbar-title>
         </v-app-bar>
         
 
           <!-- Cards de Servidores -->
           <v-row class="align-start" v-if="canAccess('Dashboard','ler')">
-            <v-col v-for="server in accessData.data" :key="server.id" cols="12" sm="6" md="4">
+            <v-col v-for="server in accessData.data" :key="server.id" cols="12" sm="3" md="3">
               <v-card 
                 class="server-card" 
-                :elevation="server.online ? 12 : 2"
+                :elevation="10"
                 @click="redirectToHost(server)"
                 style="cursor: pointer;">
                 <v-card-title>
@@ -23,13 +23,17 @@
                   <span class="ms-2">{{ server.nome }}</span>
                 </v-card-title>
                 <v-card-subtitle>
-                  IP: {{ server.ip }}
+                  IP: {{ server.ip }}                  
+                </v-card-subtitle>
+                <v-card-subtitle>                  
+                  Região: {{ server.regiao.cidade }}
+                </v-card-subtitle>
+                <v-card-subtitle>                  
+                  Senha: {{ server.senha }}
                 </v-card-subtitle>
                 <v-card-text>
-                  Local: {{ server.local }}
-                  <v-chip :color="server.online ? 'green' : 'red'" class="ml-2">
-                    {{ server.online ? 'Online' : 'Offline' }}
-                  </v-chip>
+                  Iformações: {{ server.info }}
+                 
                 </v-card-text>
               </v-card>
             </v-col>
@@ -42,26 +46,6 @@
             @input="fetchServers"
           ></v-pagination>
 
-          <!-- Diálogo para adicionar servidor -->
-          <v-dialog v-model="dialog" max-width="500px">
-            <v-card>
-              <v-card-title>
-                <span class="headline">Adicionar Servidor</span>
-              </v-card-title>
-              <v-card-text>
-                <v-form>
-                  <v-text-field v-model="newServer.nome" label="Nome" required></v-text-field>
-                  <v-text-field v-model="newServer.ip" label="IP" required></v-text-field>
-                  <v-text-field v-model="newServer.local" label="Local" required></v-text-field>
-                  <v-textarea v-model="newServer.description" label="Descrição"></v-textarea>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn @click="saveServer" color="primary">Salvar</v-btn>
-                <v-btn @click="dialog = false" color="secondary">Cancelar</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
         </v-container>
       </template>
     </AuthenticatedLayout>
@@ -135,7 +119,10 @@ const fetchServers = (page) => {
 .server-card:hover {
   transform: perspective(1000px) rotateY(10deg) rotateX(10deg);
 }
+.server-card{
+  width: 300px;
+}
 .v-container {
-  background: rgb(182, 183, 183);
+  background: rgb(230, 233, 233);
 }
 </style>

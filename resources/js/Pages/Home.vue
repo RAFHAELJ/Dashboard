@@ -80,6 +80,7 @@ const fetchCardContent = async (card) => {
     if (card.type === 'Texto') {
       card.content = response.data; 
     } else if (card.type === 'Gráfico') {
+      //console.log(card)
       card.chartOptions = {
         title: { text: 'Exemplo de Gráfico' },
         tooltip: {},

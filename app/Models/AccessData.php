@@ -43,4 +43,8 @@ class AccessData extends Model
     {
         return $this->hasMany(RadioDash::class, 'id');
     }
+    public function regiao()
+    {
+        return $this->belongsTo(Regiao::class, 'regiao');
+    }
 }

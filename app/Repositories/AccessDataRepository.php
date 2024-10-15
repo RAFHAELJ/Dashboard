@@ -21,7 +21,7 @@ class AccessDataRepository
 
     public function findByType($type)
     {
-        return $this->model->where('type', $type)->paginate(15);
+        return $this->model->where('type', $type)->with('regiao')->paginate(15);
     }
 
     public function create(array $data)

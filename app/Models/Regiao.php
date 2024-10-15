@@ -25,5 +25,10 @@ class Regiao extends Model
     {
         return $this->hasMany(Radio::class, 'regiao');
     }
+
+    public function controladoras()
+    {
+        return $this->hasMany(Controladora::class, 'regiao');
+    }
 }
 
