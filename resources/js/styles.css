@@ -75,9 +75,33 @@
         background-color: #343a40;
     }
 
+    .add-card-button,
+    .add-note-button {
+      margin-bottom: 10px;
+    }
+    .search-field {
+        width: 100%;
+        margin-top: 10px;
+      }
+
     .content {
         margin-left: 0;
         padding: 1rem;
         width: 100%;
     }
+
+    .d-flex {
+      flex-direction: column;
+      margin-top: 15px;
+    }
+    .preview-container {
+        justify-content: center;
+      }
+    
+      .preview-card {
+        margin: auto;
+        width: 375px;
+        height: 667px;
+        border-radius: 0%;
+      }
 }

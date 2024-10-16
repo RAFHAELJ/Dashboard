@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\LogRepository;
 use App\Http\Requests\AccessDataRequest;
 use App\Repositories\AccessDataRepository;
 use App\Traits\UsesDynamicDatabaseConnection;
@@ -15,9 +16,10 @@ class AccessDataController extends Controller
     
     protected $accessDataRepository;
 
-    public function __construct(AccessDataRepository $accessDataRepository)
+    public function __construct(AccessDataRepository $accessDataRepository,LogRepository $logRepository)
     {
         $this->accessDataRepository = $accessDataRepository;
+        $this->logRepository = $logRepository;
     }
 
     public function index()
@@ -76,10 +78,16 @@ class AccessDataController extends Controller
 
     public function store(AccessDataRequest $request)
     {
-      // dd($request->all());
+     
         try {
+            
            // $data = $request->validated();
             $accessData = $this->accessDataRepository->create($request->all());
+            if ($request->input('type') === 'database') {
+                $this->logRepository->createLog(auth()->id(), "Adcionado Nova base de dados {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'controller') {
+                $this->logRepository->createLog(auth()->id(), "Adcionado Nova controladora {$request->nome} ", $request->regiao);
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -106,8 +114,15 @@ class AccessDataController extends Controller
     public function update(AccessDataRequest $request, $id)
     {
         try {
+            
+
             $data = $request->validated();
             $accessData = $this->accessDataRepository->update($id, $data);
+            if ($request->input('type') === 'database') {
+                $this->logRepository->createLog(auth()->id(), "Atualização de base de dados {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'controller') {
+                $this->logRepository->createLog(auth()->id(), "Atualização de controladora {$request->nome} ", $request->regiao);
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -134,7 +149,11 @@ class AccessDataController extends Controller
     public function destroy($id)
     {
         try {
+           
+              
+           
             $this->accessDataRepository->delete($id);
+            $this->logRepository->createLog(auth()->id(), "Deletado acesso {$id}");
 
             if (request()->wantsJson()) {
                 return response()->json([

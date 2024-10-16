@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use App\Models\Campanha;
 use Illuminate\Http\Request;
 use App\Traits\HandlesFileUpload;
+use App\Repositories\LogRepository;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\CampanhaRequest;
 use Illuminate\Support\Facades\Storage;
@@ -17,9 +19,10 @@ class CampanhaController extends Controller
 
     protected $campanhaRepository;
 
-    public function __construct(CampanhaRepository $campanhaRepository)
+    public function __construct(CampanhaRepository $campanhaRepository,LogRepository $logRepository)
     {
         $this->campanhaRepository = $campanhaRepository;
+        $this->logRepository = $logRepository;
     }
 
     public function index()
@@ -62,6 +65,8 @@ class CampanhaController extends Controller
             'url' => $request->url,
             'regiao' => $request->regiao
         ]);
+        $this->logRepository->createLog(auth()->id(), "Adicionado Campanha {$request->nome} ", $request->regiao);
+
 
         return redirect()->route('campanhas.index')->with('success', 'Campanha criada com sucesso!');
     }
@@ -115,6 +120,8 @@ class CampanhaController extends Controller
             'regiao' => $request->regiao
         ], $campanha);
 
+        $this->logRepository->createLog(auth()->id(), "Atualização Campanha {$request->nome} ", $request->regiao, $request->nome);
+
         return redirect()->route('campanhas.index')->with('success', 'Campanha atualizada com sucesso!');
     }
     
@@ -142,7 +149,7 @@ class CampanhaController extends Controller
         
         $deleted = $this->campanhaRepository->delete($id);
         
-        
+        $this->logRepository->createLog(auth()->id(), "Apagado Campanha {$request->nome} ",null,$id);
         if ($deleted) {
             return redirect()->route('campanhas.index')->with('success', 'Campanha deletada com sucesso!');
         } else {

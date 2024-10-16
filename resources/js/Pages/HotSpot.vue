@@ -276,7 +276,7 @@ input {
   }
 
   .preview-background {
-    border-radius: 0;
+    border-radius: none;
   }
 }
 @media (max-width: 940px) {
@@ -287,6 +287,7 @@ input {
     max-height: none;
     border-radius: 0;
     box-shadow: none;
+    border-radius: none;
   }
 
   .preview-background {
@@ -296,16 +297,6 @@ input {
 
 
 /* Para telas maiores, o preview é centralizado */
-@media (min-width: 768px) {
-  .preview-container {
-    justify-content: center;
-  }
 
-  .preview-card {
-    margin: auto;
-    width: 375px;
-    height: 667px;
-  }
-}
 
 </style>

@@ -7,6 +7,7 @@ use App\Models\Radio;
 use App\Models\RadAcct;
 use Carbon\CarbonPeriod;
 use App\Models\RadioDash;
+use App\Models\MacHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -55,11 +56,26 @@ class RadioRepository  {
     }
 
     public function update($id, array $data) {
-        // Encontrar e atualizar o registro
         $radio = RadioDash::findOrFail($id);
+    
+        // Verifica se o MAC foi alterado
+        if ($radio->mac !== $data['mac']) {
+            // Cria o histórico de troca de MAC
+            MacHistory::create([
+                'nome' => $radio->radio,
+                'radio_id' => $radio->id,
+                'mac_antigo' => $radio->mac,
+                'mac_novo' => $data['mac']
+            ]);
+        }
+        
+    
         $radio->update($data);
         return $radio;
     }
+    public function getMacHistory($radioId) {
+    return MacHistory::where('radio_id', $radioId)->orderBy('created_at', 'desc')->get();
+}
 
     public function delete($id) {
         // Verificar se o registro existe antes de tentar deletá-lo

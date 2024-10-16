@@ -1,10 +1,12 @@
 <?php
 
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
-use App\Http\Controllers\FaqController;
 //use Illuminate\Support\Facades\Request;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
@@ -18,7 +20,6 @@ use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\AccessDataController;
 use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
-use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -76,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
     Route::post('/update-region-connection', [AccessDataController::class, 'updateRegionConnection'])->name('update.region.connection');
     Route::resource('accessData', AccessDataController::class);
+    Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
    /* Route::post('/set-user-session/regiao', function (Request $request) {
         // Use o objeto $request para acessar a sessãod        
@@ -90,7 +92,8 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
-        Route::get('/track', [RadioController::class, 'track'])->name('radios.track');     
+        Route::get('/track', [RadioController::class, 'track'])->name('radios.track');  
+        Route::get('/{id}/machistory', [RadioController::class, 'macHistory'])->name('radios.machistory');   
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
         Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');

@@ -168,10 +168,5 @@ const getItemKey = (item) => {
   right: 16px;
 }
 
-@media (max-width: 768px) {
-  .add-card-button,
-  .add-note-button {
-    margin-bottom: 10px;
-  }
-}
+
 </style>

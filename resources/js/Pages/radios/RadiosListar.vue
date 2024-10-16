@@ -4,7 +4,11 @@ import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DataList from '@/Components/DataList.vue';
 import UserForm from '@/Components/forms/UserForm.vue';
+import MacHistoryModal from '@/Components/MacHistoryModal.vue';
 
+
+const isHistoryModalOpen = ref(false);
+const macHistory = ref([]);
 const { props } = usePage();
 const radios = ref(props.radios || []);
 const isEditModalOpen = ref(false);
@@ -20,6 +24,17 @@ const editRadios = ref({
 });
 
 const search = ref('');
+
+const openHistoryModal = async (id) => {
+  try {
+    // Carregar o histórico de MACs via API
+    const response = await axios.get(route('radios.machistory', id));
+    macHistory.value = response.data;
+    isHistoryModalOpen.value = true;
+  } catch (error) {
+    console.error('Erro ao buscar histórico de MAC:', error);
+  }
+};
 
 const headers = [
   { text: 'ID', value: 'id', sortable: true, title: 'ID', key: 'id' }, 
@@ -101,6 +116,12 @@ const handleDeleteItem = (item) => {
           :canAccess="canAccess" 
           createRoute="radios"
           :showControladoraLink="true"
+          :onCustomAction="openHistoryModal"
+        />
+        <!-- Adicione o modal de histórico de MACs -->
+        <MacHistoryModal
+          v-model:isOpen="isHistoryModalOpen"
+          :macHistory="macHistory"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
 
@@ -127,6 +148,10 @@ const handleDeleteItem = (item) => {
 
         </v-dialog>
       </v-container>
+     
+
+
     </template> 
+    
   </AuthenticatedLayout>
 </template>

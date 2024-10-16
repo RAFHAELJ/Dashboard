@@ -288,16 +288,6 @@
     }
   }
   
-  @media (min-width: 768px) {
-    .preview-container {
-      justify-content: center;
-    }
-  
-    .preview-card {
-      margin: auto;
-      width: 375px;
-      height: 667px;
-    }
-  }
+
   </style>
   

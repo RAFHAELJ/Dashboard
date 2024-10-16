@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
+use App\Repositories\LogRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,9 +18,10 @@ class UserController extends Controller
     protected $userRepository;
     
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository,LogRepository $logRepository)
     {
         $this->userRepository = $userRepository;
+        $this->logRepository = $logRepository;
     }
 
     public function index()
@@ -56,7 +59,8 @@ class UserController extends Controller
                 'selectedActions' => $request->selectedActions,
                 'selectedPages' => $request->selectedPages
             ]);
-    
+            
+            $this->logRepository->createLog(auth()->id(), "Adcionado Novo Usuário {$request->name} ", $request->regiao);
             return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->validator->errors())->withInput();
@@ -84,6 +88,7 @@ class UserController extends Controller
           
     
             $userResp = $this->userRepository->update($request, $id);
+            $this->logRepository->createLog(auth()->id(), "Atualizado Usuário {$request->name} ", $request->regiao);
             if ($userResp) {
                 return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
             } else {
@@ -108,6 +113,7 @@ class UserController extends Controller
         ]);
 
         $userResp = $this->userRepository->updatePassword($request);
+        $this->logRepository->createLog(auth()->id(), 'Atualizado Senha', $request->regiao);
 
         
 
@@ -118,6 +124,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = $this->userRepository->delete($id);
+        $this->logRepository->createLog(auth()->id(), "Apagado Usuário {$id} ");
         if ($user) {
             return redirect()->route('users.index')->with('success', 'Usuário deletado com sucesso!');
         } else {
