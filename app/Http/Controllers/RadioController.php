@@ -7,15 +7,33 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\RadioRequest;
 use App\Repositories\LogRepository;
+use App\Services\CsvExportService;
 use App\Repositories\RadioRepository;
 
 class RadioController extends Controller {
     protected $radioRepository;
+    protected $csvExportService;
+    protected $logRepository;
 
-    public function __construct(RadioRepository $radioRepository, LogRepository $logRepository)
+    public function __construct(RadioRepository $radioRepository, LogRepository $logRepository, CsvExportService $csvExportService)
     {
         $this->radioRepository = $radioRepository;
         $this->logRepository = $logRepository;
+        $this->csvExportService = $csvExportService;
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->input('startD');
+        $endDate = $request->input('endD');
+        $username = $request->input('username');
+        $mac = $request->input('mac');
+        $region = $request->input('region');
+
+        $data = $this->radioRepository->getAllTrackedUsers($startDate, $endDate, $username, $mac, $region);
+
+        $headers = ['ID', 'Nome', 'Início', 'Fim', 'Duração', 'Entrada', 'Saída', 'MAC', 'Usuário'];
+        return $this->csvExportService->downloadCsv('report', $headers, $data);
     }
     public function index()
     {
@@ -140,4 +158,12 @@ class RadioController extends Controller {
             'users' => $usersFinal
         ]);
     }
+
+    public function radiosInfo()
+{
+    $info = $this->radioRepository->getRadiosInfo();
+
+        return response()->json(['success' => true, 'message' => 'Logged', 'data' => $info]);
+   
+}
 }

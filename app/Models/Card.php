@@ -19,6 +19,8 @@ class Card extends Model
         'type',
         'chartOptions',
         'page',
+        'user_id',
+        'format',
     ];
 
     protected $casts = [

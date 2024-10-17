@@ -6,10 +6,15 @@
         <span class="ms-2">{{ card.title }}</span>
       </v-card-title>
       <v-card-subtitle class="text-h4">
-        <!-- Renderiza o conteúdo do gráfico ou texto baseado no tipo do card -->
-        <div v-if="card.type === 'Texto'">{{ card.content }}</div>
+        <!-- Mostrar indicador de loading se estiver carregando -->
+        <div v-if="card.loading">
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </div>
+
+        <!-- Renderizar o conteúdo ou gráfico após o carregamento -->
+        <div v-else-if="card.type === 'Texto'">{{ card.content }}</div>
         <div v-else-if="card.type === 'Gráfico'">
-          <v-chart :option="card.chartOptions" autoresize></v-chart>
+          <v-chart :option="card.chartOptions" autoresize style="height: 300px; width: 100%;"></v-chart>
         </div>
       </v-card-subtitle>
       <v-card-actions>
@@ -21,16 +26,19 @@
   </v-col>
 </template>
 
+
+
+
 <script setup>
 import { defineProps } from 'vue';
 import VChart from 'vue-echarts';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { LineChart, BarChart } from 'echarts/charts';
-import { TooltipComponent, GridComponent, TitleComponent } from 'echarts/components';
+import { LineChart, BarChart,PieChart } from 'echarts/charts';
+import { TooltipComponent, GridComponent, TitleComponent ,LegendComponent } from 'echarts/components';
 
 // Registra componentes e renderizadores do ECharts
-echarts.use([CanvasRenderer, LineChart, BarChart, TooltipComponent, GridComponent, TitleComponent]);
+echarts.use([CanvasRenderer, LineChart, BarChart, TooltipComponent, GridComponent, TitleComponent,LegendComponent,PieChart ]);
 
 const props = defineProps({
   card: Object,
@@ -41,6 +49,7 @@ const props = defineProps({
 function handleResize() {
   // Lógica adicional para redimensionar se necessário
 }
+
 </script>
 
 <style scoped>
@@ -48,7 +57,5 @@ function handleResize() {
   transition: transform 0.3s ease;
 }
 
-.d-card:hover {
-  transform: perspective(1000px) rotateY(15deg) rotateX(15deg);
-}
+
 </style>

@@ -10,6 +10,7 @@ use App\Http\Requests\UserRequest;
 use App\Repositories\LogRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 // Usando a conexão 'radius'
 //$radiusData = DB::connection('radius')->table('radios')->get();
@@ -34,11 +35,43 @@ class UserController extends Controller
     }
     public function count()
     {
-        
-        $usersCount = $this->userRepository->count();
-        return $usersCount;
-        
+        // Defina um tempo de expiração para o cache (em minutos)
+        $cacheTime = 10;
+    
+        // Cache para a contagem de usuários por região
+        $usersByRegion = Cache::remember('users_by_region', $cacheTime, function () {
+            return $this->userRepository->countUsersByRegion();
+        });
+    
+        // Cache para a contagem de usuários por nível
+        $usersByLevel = Cache::remember('users_by_level', $cacheTime, function () {
+            return $this->userRepository->countUsersByLevel();
+        });
+    
+        // Formatar os dados para retorno
+        $formattedRegionData = $usersByRegion->map(function ($item) {
+            return [
+                'name' => optional($item->regioes)->cidade ?? 'Desconhecido', 
+                'value' => $item->user_count
+            ];
+        });
+    
+        $formattedLevelData = $usersByLevel->map(function ($item) {
+            return [
+                'name' => $item->nivel,
+                'value' => $item->user_count
+            ];
+        });
+    
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'users_by_region' => $formattedRegionData,
+                'users_by_level' => $formattedLevelData
+            ]
+        ]);
     }
+    
     
     public function new()
     {        

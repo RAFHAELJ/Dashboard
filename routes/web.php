@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\AccessDataController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
 /*
@@ -48,18 +49,16 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-/*Route::get('/radius', function () {
-    return Inertia::render('Radius');
-})->middleware(['auth', 'verified'])->name('radius');*/
 
 
 Route::middleware('auth')->group(function () {
 
-   /* Route::get('/', function () {
-        return Inertia::render('Home');
-    })->name('home');*/
+
 
     Route::get('/', [CardController::class, 'index'])->middleware('check-page-access:ler')->name('home');
+
+    Route::get('/export', [RadioController::class, 'export'])->middleware('set-dynamic-db')->name('radios.export');
+    Route::get('radios/getRadiosInfo', [RadioController::class, 'radiosInfo'])->middleware('set-dynamic-db')->name('radios.getRadiosInfo');
 
     Route::get('/edit-page/{id}', [PageController::class, 'edit'])->name('edit.page');
     Route::post('/update-page/{id}', [PageController::class, 'update'])->name('update.page');
@@ -89,6 +88,12 @@ Route::middleware('auth')->group(function () {
    
 
 
+    Route::prefix('statistics')->middleware('set-dynamic-db')->group(function () {
+        Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index');
+        Route::get('/access', [StatisticsController::class, 'accessStatistics'])->name('statistics.access');
+        Route::get('/storage', [StatisticsController::class, 'storageUsage'])->name('statistics.storage');
+    });
+
 
     Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
@@ -96,7 +101,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/machistory', [RadioController::class, 'macHistory'])->name('radios.machistory');   
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
-        Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');
+        Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');        
         Route::post('/', [RadioController::class, 'store'])->middleware('check-page-access:gravar')->name('radios.store');  
         Route::post('/track', [RadioController::class, 'track'])->middleware('check-page-access:gravar')->name('radios.track');        
         Route::put('/{id}', [RadioController::class, 'update'])->middleware('check-page-access:atualizar')->name('radios.update');       
@@ -127,6 +132,7 @@ Route::middleware('auth')->group(function () {
     
     Route::prefix('database')->middleware('check-page-access:ler')->group(function () {        
         Route::get('/', [AccessDataController::class, 'indexDatabases'])->name('database.index');
+        Route::get('/showStatistics', [AccessDataController::class, 'showStatistics'])->name('database.showStatistics');
         Route::get('/{id}', [AccessDataController::class, 'show'])->name('database.show');
         Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('database.store');  
         Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('database.update');       
@@ -187,10 +193,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [LoginCustomizationController::class, 'destroy'])->middleware('check-page-access:excluir')->name('login_customizations.destroy');       
         Route::get('/{id}', [LoginCustomizationController::class, 'show'])->name('login_customizations.show');
     });
+    Route::delete('/cards/{id}', [CardController::class, 'destroy'])->name('cards.destroy');
     Route::resource('cards', CardController::class);
     Route::resource('notes', NoteController::class);
-    //Route::resource('login_customizations', LoginCustomizationController::class)->middleware('check-page-access:ler');
-    //Route::resource('regioes', RegiaoController::class);
+
 
 });
 
