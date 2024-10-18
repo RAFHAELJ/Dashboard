@@ -103,7 +103,7 @@ class LoginCustomizationController extends Controller
         }       
         
         $this->repository->update($id, $data);
-        $this->logRepository->createLog(auth()->id(), 'Editou Configuração de Login', $customization->regiao);
+        $this->logRepository->createLog(auth()->id(), 'Editou Configuração de Login');
         return response()->json(['message' => 'Login customization updated successfully!']);
     }
 

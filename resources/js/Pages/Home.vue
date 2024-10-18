@@ -33,6 +33,7 @@
       
       <!-- Cards Dinâmicos -->
       <v-row class="draggable-cards">
+        <v-col cols="12" sm="8" md="4" lg="12"  >
         <Draggable
           v-model="cards"
           tag="v-row"
@@ -43,6 +44,7 @@
             <CardComponent :card="element" :isDragging="isDragging" @remove="removeCard" />
           </template>
         </Draggable>
+        </v-col>
       </v-row>
       
       <!-- Botão para adicionar cards -->

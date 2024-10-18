@@ -21,6 +21,7 @@ use App\Http\Controllers\AccessDataController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserPermissionController;
 use App\Http\Controllers\LoginCustomizationController;
+use App\Http\Controllers\Hotspot\HotspotController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -48,6 +49,12 @@ Route::get('/hotspot', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::prefix('hotspot/{region}')->group(function () {
+    Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
+    Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
+    Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
+});
 
 
 

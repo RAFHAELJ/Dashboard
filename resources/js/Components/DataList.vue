@@ -184,7 +184,7 @@ const openControladora = (controladora) => {
 
   const url = isIPAddress && controladora.porta
     ? `http://${controladora.ip}:${controladora.porta}`
-    : `http://${controladora.ip}`;
+    : `https://${controladora.ip}`;
 
   window.open(url, '_blank');
 };

@@ -97,7 +97,7 @@ class RadioRepository  {
     public function getGeoRadio()
     {
         return Cache::remember('geo_radio_data', 1, function () {
-            $radios = RadioDash::all(['id', 'mac', 'geo']);
+            $radios = Radio::all(['id', 'mac', 'geo']);
             
             if ($radios->isEmpty()) {
                 return [
@@ -186,7 +186,7 @@ class RadioRepository  {
             return [
                 'acessadoshj' => $acessadosHj,
                 'acessadosontem' => $acessadosOntem,
-                'naoacessados' => $naoAcessados - $acessadosHj - $acessadosOntem,
+                'naoacessados' => $naoAcessados ,
                 'data' => $newData,
                 'center' => [
                     'lat' => $latCenter,
@@ -295,24 +295,7 @@ class RadioRepository  {
     public function getTotalAcessosHoje()
     {
         return RadAcct::whereDate('acctstarttime', Carbon::today())->count();
-    }
-
-    // StorageController.php
-
-
-
-    public function getStorageInfo()
-    {
-        $totalSpace = disk_total_space(storage_path()); 
-        $usedSpace = $totalSpace - disk_free_space(storage_path());
-        $usedPercentage = ($usedSpace / $totalSpace) * 100;
-
-        return response()->json([
-            'total' => $totalSpace,
-            'used' => $usedSpace,
-            'used_percentage' => $usedPercentage,
-        ]);
-    }
+    } 
 
 
 
