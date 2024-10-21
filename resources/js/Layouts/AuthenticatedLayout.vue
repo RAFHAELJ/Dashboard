@@ -90,7 +90,7 @@
         <!-- Personalizar Hotspot -->
         <v-list-group v-if="canAccess('hotspot')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
           <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" prepend-icon="mdi-router-wireless-settings" title="Personalizar Hotspot"></v-list-item>
+            <v-list-item v-bind="props" prepend-icon="mdi-cellphone-settings" title="Personalizar Hotspot"></v-list-item>
           </template>
           <v-list-item v-if="canAccess('login_customizations', 'ler')" title="Lista Hotspot" @click="navigateTo('/login_customizations')"></v-list-item>
           <v-list-item v-if="canAccess('login_customizations', 'gravar')" title="Personaliza Hotspot" @click="navigateTo('/login_customizations/create')"></v-list-item>
@@ -109,7 +109,7 @@
         <!-- Controladoras Menu -->
         <v-list-group v-if="canAccess('Controladoras')" v-model="menuStates.ConfiguracoesControladora" value="Controladoras">
           <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" prepend-icon="mdi-cog" title="Controladoras"></v-list-item>
+            <v-list-item v-bind="props" prepend-icon="mdi-router-wireless-settings" title="Controladoras"></v-list-item>
           </template>
           <v-list-item v-if="canAccess('listaControladoras', 'ler')" title="Config Controladoras" @click="navigateTo('/controladora/controladora')"></v-list-item>
         </v-list-group>

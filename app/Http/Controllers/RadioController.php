@@ -61,6 +61,17 @@ class RadioController extends Controller {
             'filters' => $request->all(), 
         ]);
     }
+    public function rastrearRadiosUso(Request $request)
+    {
+        
+        $radios = $this->radioRepository->rastrearRadiosUso($request);
+    
+        
+        return Inertia::render('radios/RastrearRadiosUso', [
+            'radios' => $radios,
+            'filters' => $request->all(), 
+        ]);
+    }
     public function macHistory($id)
 {
     $history = $this->radioRepository->getMacHistory($id);

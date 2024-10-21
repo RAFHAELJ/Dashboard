@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/machistory', [RadioController::class, 'macHistory'])->name('radios.machistory');   
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
+        Route::get('/rastrearRadiosUso', [RadioController::class, 'rastrearRadiosUso'])->name('radios.rastrearRadiosUso');
         Route::get('/{id}', [RadioController::class, 'show'])->name('radios.show');        
         Route::post('/', [RadioController::class, 'store'])->middleware('check-page-access:gravar')->name('radios.store');  
         Route::post('/track', [RadioController::class, 'track'])->middleware('check-page-access:gravar')->name('radios.track');        

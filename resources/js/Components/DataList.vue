@@ -270,7 +270,7 @@ const openControladora = (controladora) => {
                 <!-- Botão para abrir o modal de histórico de MACs -->
                 <v-btn
                   v-if="props.onCustomAction"
-                  icon="mdi-history"
+                  icon="mdi-information-slab-circle-outline"
                   variant="plain"
                   density="compact"
                   @click="props.onCustomAction(item)"

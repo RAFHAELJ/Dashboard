@@ -72,46 +72,44 @@ const naoacessados = props.data?.naoacessados || 0;
 <template>
   <AuthenticatedLayout>
     <v-container class="bg-light-gray" fluid>
-      <v-row class="mb-4 justify-center">
-        <!-- Cards de Status -->
-        <v-col cols="12" md="4" lg="2">
-          <v-card class="bg-green text-center status-card mb-4">
-            <v-card-title class="white--text">Acessados Hoje</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-2">
-              <v-icon color="white" size="36" class="mb-1">mdi-check-circle</v-icon>
-              <span class="white--text display-2">{{ acessadoshj }}</span>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4" lg="2">
-          <v-card class="bg-orange text-center status-card mb-4">
-            <v-card-title class="white--text">Acessados Ontem</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-2">
-              <v-icon color="white" size="36" class="mb-1">mdi-help-circle</v-icon>
-              <span class="white--text display-2">{{ acessadosontem }}</span>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4" lg="2">
-          <v-card class="bg-red text-center status-card mb-4">
-            <v-card-title class="white--text">Não Acessados Há 3 Dias</v-card-title>
-            <v-card-text class="d-flex flex-column align-center justify-center py-2">
-              <v-icon color="white" size="36" class="mb-1">mdi-cancel</v-icon>
-              <span class="white--text display-2">{{ naoacessados }}</span>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Mapa -->
+      <!-- Cards de Status e Mapa -->
       <v-row>
         <v-col cols="12">
           <v-card class="pa-1">
-            <v-card-title class="text-h5">Mapa dos Rádios</v-card-title>
+            <v-row class="mb-2 justify-center">
+              <v-col cols="12" md="2" lg="2">
+                <v-card class="text-center status-card mb-2" elevation="2">
+                  <v-card-title class="text-caption py-1">Acessados Hoje</v-card-title>
+                  <v-card-text class="d-flex flex-column align-center justify-center py-1">
+                    <v-icon color="#4caf50" size="21" class="mb-1">mdi-check-circle</v-icon>
+                    <span class="text-h6">{{ acessadoshj }}</span>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+
+              <v-col cols="12" md="3" lg="2">
+                <v-card class="text-center status-card mb-2" elevation="2">
+                  <v-card-title class="text-caption py-1">Acessados Ontem</v-card-title>
+                  <v-card-text class="d-flex flex-column align-center justify-center py-1">
+                    <v-icon color="#ff9800" size="21" class="mb-1">mdi-help-circle</v-icon>
+                    <span class="text-h6">{{ acessadosontem }}</span>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+
+              <v-col cols="12" md="3" lg="2">
+                <v-card class="text-center status-card mb-2" elevation="2">
+                  <v-card-title class="text-caption py-1">Não Acessados Há 3 Dias</v-card-title>
+                  <v-card-text class="d-flex flex-column align-center justify-center py-1">
+                    <v-icon color="#f44336" size="21" class="mb-1">mdi-cancel</v-icon>
+                    <span class="text-h6">{{ naoacessados }}</span>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
             <v-card-text>
-              <div id="map"></div> <!-- Mapa será renderizado aqui -->
+              <div id="map" style="height: calc(100vh - 300px);"></div> <!-- Mapa ocupará toda a tela -->
             </v-card-text>
           </v-card>
         </v-col>
@@ -123,34 +121,23 @@ const naoacessados = props.data?.naoacessados || 0;
 <style scoped>
 .bg-light-gray {
   background-color: #f5f5f5;
-  min-height: 100vh;
 }
 
 .status-card {
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
+  background-color: #ffffff; /* Fundo branco */
+  min-height: 70px; /* Deixa o card mais retangular */
 }
 
 .status-card:hover {
   transform: translateY(-4px);
 }
 
-.bg-green {
-  background-color: #4caf50;
-}
-
-.bg-orange {
-  background-color: #ff9800;
-}
-
-.bg-red {
-  background-color: #f44336;
-}
-
 #map {
   width: 100%;
-  height: 500px;
+  height: 80%;
   border-radius: 8px;
 }
 
@@ -170,30 +157,18 @@ const naoacessados = props.data?.naoacessados || 0;
   justify-content: center;
 }
 
-.py-2 {
-  padding-top: 8px;
-  padding-bottom: 8px;
+.mb-2 {
+  margin-bottom: 8px;
 }
 
-.mb-4 {
-  margin-bottom: 16px;
-}
-
-.white--text {
-  color: #ffffff;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.display-2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.text-h5 {
-  font-size: 1.25rem;
+.text-h6 {
+  font-size: 1rem;
   font-weight: 500;
 }
+
+.text-caption {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
 </style>
+
