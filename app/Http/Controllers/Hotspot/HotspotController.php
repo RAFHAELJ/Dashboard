@@ -4,6 +4,8 @@
 
 namespace App\Http\Controllers\Hotspot;
 
+
+use Inertia\Inertia;
 use App\Models\Regiao;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,10 +19,15 @@ class HotspotController extends Controller
     {
         $this->hotspotRepository = $hotspotRepository;
     }
+    public function new()
+    {
+        return Inertia::render('hotspot/Cadastro');
+        
+    }
 
     public function showLoginForm($region)
     {
-       // 
+       
        $regiaoId = Regiao::whereRaw('LOWER(REPLACE(cidade, " ", "")) = ?', [strtolower(str_replace(' ', '', $region))])
        ->pluck('id')
        ->first(); 
@@ -55,6 +62,7 @@ class HotspotController extends Controller
 
     public function authenticate(Request $request, $region)
     {
+        dd($request->all(), $region);
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',

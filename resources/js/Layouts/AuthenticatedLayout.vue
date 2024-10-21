@@ -75,7 +75,7 @@
             <v-list-item v-bind="props" prepend-icon="mdi-account" title="Usuários"></v-list-item>
           </template>
           <v-list-item v-if="canAccess('usuariosDash', 'ler')" title="Lista Usuários Dashboard" @click="navigateTo('/users/')"></v-list-item>
-          <v-list-item v-if="canAccess('usuariosRadio', 'ler')" title="Lista Usuários Radio" @click="navigateTo('/usuarios/')"></v-list-item>
+          <v-list-item v-if="canAccess('usuariosRadio', 'ler')" title="Lista Usuários Wifi" @click="navigateTo('/usuarios/')"></v-list-item>
         </v-list-group>
 
         <!-- Campanhas Menu -->

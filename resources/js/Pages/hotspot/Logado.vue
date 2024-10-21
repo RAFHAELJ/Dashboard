@@ -15,31 +15,9 @@
 
                   <!-- Botão -->
                   <v-btn v-if="element.type === 'button'" @click="handleLogin" :style="buttonStyle(element)">
-                    {{ screenData?.login_button_text || 'Login' }}
+                    {{ screenData?.login_button_textt || 'Continuar' }}
                   </v-btn>
 
-                  <!-- Links de texto -->
-                  <a v-if="element.type === 'buttonC'" href="#" @click="handleCreateAccount" :style="linkStyle(element)">
-                    Criar nova conta
-                  </a>
-                  <a v-if="element.type === 'buttonA'" href="#" @click="handleHelpAccount" :style="linkStyle(element)">
-                    Ajuda
-                  </a>
-
-                  <!-- Texto editável -->
-                  <div v-if="element.type === 'text'" contenteditable="true" class="editable-text" :style="textStyle(element)">
-                    {{ element.text || 'Editável! Adicione seu texto aqui...' }}
-                  </div>
-
-                  <!-- Campo de Login -->
-                  <div v-if="element.type === 'input'" class="input-field" :style="inputStyle(element)">
-                    <input v-model="element.value" :placeholder="screenData?.login_method?.join(' ou ') || 'Login'" :style="inputInternalStyle(element)" />
-                  </div>
-
-                  <!-- Campo de Senha -->
-                  <div v-if="element.type === 'inputPassword'" class="input-field" :style="inputStyle(element)">
-                    <input v-model="element.value" type="password" :placeholder="screenData?.login_password_method?.join(' ou ') || 'Senha'" :style="inputInternalStyle(element)" />
-                  </div>
                 </div>
               </form>
             </div>
@@ -148,7 +126,7 @@ async handleLogin() {
 
   async handleCreateAccount() {
     // Redireciona para a página de cadastro
-    this.$inertia.visit(`/hotspot/${this.region}/new`);
+    this.$inertia.visit(`/hotspot/${this.region}/register`);
   },
 
   async handleHelpAccount() {
@@ -167,6 +145,7 @@ async handleLogin() {
     },
     buttonStyle(element) {
       return {
+        width: '150 px',
         background: element.backgroundColor,
         borderRadius: element.shape + 'px',
         boxShadow: '0 ' + element.elevation + 'px ' + element.elevation + 'px rgba(0,0,0,0.2)',

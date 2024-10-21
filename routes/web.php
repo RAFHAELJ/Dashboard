@@ -52,6 +52,7 @@ Route::get('/dashboard', function () {
 
 Route::prefix('hotspot/{region}')->group(function () {
     Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
+    Route::get('/new', [HotspotController::class, 'new'])->name('hotspot.new');
     Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
 });
@@ -161,7 +162,7 @@ Route::middleware('auth')->group(function () {
         
 
     });
-    Route::prefix('usuarios')->middleware('check-page-access:ler')->group(function () {
+    Route::prefix('usuarios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {
         Route::get('/', [UsuarioController::class, 'index'])->middleware('set-dynamic-db')->name('usuarios.index');
         Route::get('/new', [UsuarioController::class, 'new'])->name('usuarios.create');
         Route::get('/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
