@@ -52,7 +52,8 @@ Route::get('/dashboard', function () {
 
 Route::prefix('hotspot/{region}')->group(function () {
     Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
-    Route::get('/new', [HotspotController::class, 'new'])->name('hotspot.new');
+    Route::get('/logon/{id}/{campanha_id}', [HotspotController::class, 'logon'])->name('hotspot.logon');
+    Route::get('/new/{id}', [HotspotController::class, 'new'])->name('hotspot.new');
     Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
 });

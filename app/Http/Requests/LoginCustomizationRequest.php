@@ -43,6 +43,8 @@ class LoginCustomizationRequest extends FormRequest
             'elements' => 'nullable|array',
             'region' => 'nullable|integer|max:255',
             'username' => 'nullable|string|max:255',
+            'social_networks' => 'nullable|array',
+            'caditens' => 'nullable|array',
         ];
     }
     protected function prepareForValidation()

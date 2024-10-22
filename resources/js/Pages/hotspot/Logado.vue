@@ -35,6 +35,8 @@ export default {
   setup() {
     const { props } = usePage();
     let customization = props.login;
+    let campanha = props.campanha;
+
 
     // Verificações e conversões semelhantes ao fetchData
     if (typeof customization.login_method === 'string') {
@@ -61,10 +63,10 @@ export default {
       previewStyles: {
         width: '412px',
         height: '915px',
-        border: '1px solid #ccc',
+        border: 'none',
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: '12px',
+        borderRadius: '0',
       },
       topCardHeight: 150,
       topCardWidth: 375,
@@ -84,6 +86,7 @@ export default {
         backgroundRepeat: 'no-repeat',
         width: '100%',
         height: '100%',
+        borderRadius: '0',
       };
     },
   },

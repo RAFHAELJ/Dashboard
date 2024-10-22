@@ -44,6 +44,7 @@ class LoginCustomizationController extends Controller
 
     public function create()
     {
+        
         return Inertia::render('loginLayout/LoginCustomizations');
     }
 
@@ -83,7 +84,7 @@ class LoginCustomizationController extends Controller
 
     public function update(LoginCustomizationRequest $request, $id)
     {        
-       
+ //\dd($request->all());
         $data = $request->validated();
  
         if ($request->hasFile('elements[0].image')) {

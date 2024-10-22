@@ -10,21 +10,32 @@ use App\Models\Regiao;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\HotspotRepository;
+use App\Repositories\CampanhaRepository;
+use App\Repositories\LoginCustomizationRepository;
 
 class HotspotController extends Controller
 {
     protected $hotspotRepository;
 
-    public function __construct(HotspotRepository $hotspotRepository)
+    public function __construct(HotspotRepository $hotspotRepository, LoginCustomizationRepository $loginCustomizationRepository ,CampanhaRepository $campanhaRepository)
     {
         $this->hotspotRepository = $hotspotRepository;
+        $this->loginCustomizationRepository = $loginCustomizationRepository;
+        $this->campanhaRepository = $campanhaRepository;
     }
-    public function new()
+    public function new($regiao,$id)
     {
-        return Inertia::render('hotspot/Cadastro');
+       // dd($this->loginCustomizationRepository->find($id));
+      // dd($this->loginCustomizationRepository->find(1));
+        return Inertia::render('hotspot/Cadastro',[
+            'Customization' => $this->loginCustomizationRepository->find($id)]);
         
     }
-
+    public function logon($regiao,$id,$campanha_id)
+    {
+        return Inertia::render('hotspot/Logado',[    
+            'campanha' => $this->campanhaRepository->find($campanha_id),'login' => $this->loginCustomizationRepository->find($id)]);
+    }
     public function showLoginForm($region)
     {
        

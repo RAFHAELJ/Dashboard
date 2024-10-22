@@ -33,7 +33,7 @@ class RadioController extends Controller {
         $data = $this->radioRepository->getAllTrackedUsers($startDate, $endDate, $username, $mac, $region);
 
         $headers = ['ID', 'Nome', 'Início', 'Fim', 'Duração', 'Entrada', 'Saída', 'MAC', 'Usuário'];
-        return $this->csvExportService->downloadCsv('report', $headers, $data);
+        return $this->csvExportService->downloadCsv('Relatorio de acessos', $headers, $data);
     }
     public function index()
     {

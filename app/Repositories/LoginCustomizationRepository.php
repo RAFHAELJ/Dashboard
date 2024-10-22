@@ -23,6 +23,7 @@ class LoginCustomizationRepository
     // Recupera uma customização por ID ou lança exceção se não encontrar
     public function find($id)
     {
+        
         return $this->model->findOrFail($id);
     }
 
@@ -36,6 +37,12 @@ class LoginCustomizationRepository
     
         if (isset($data['elements']) && is_array($data['elements'])) {
             $data['elements'] = json_encode($data['elements']);
+        }
+        if (isset($data['caditens']) && is_array($data['caditens'])) {
+            $data['caditens'] = json_encode($data['caditens']);
+        }
+        if (isset($data['social_networks']) && is_array($data['social_networks'])) {
+            $data['social_networks'] = json_encode($data['social_networks']);
         }
     
         return $this->model->create($data);
@@ -53,7 +60,13 @@ class LoginCustomizationRepository
         if (isset($data['elements']) && is_array($data['elements'])) {
             $data['elements'] = json_encode($data['elements']);
         }
-        
+        if (isset($data['caditens']) && is_array($data['caditens'])) {
+            $data['caditens'] = json_encode($data['caditens']);
+        }
+        if (isset($data['social_networks']) && is_array($data['social_networks'])) {
+            $data['social_networks'] = json_encode($data['social_networks']);
+        }
+      //  \dd($data);
         $customization = $this->find($id); 
        // dd($data);
         $customization->update($data);

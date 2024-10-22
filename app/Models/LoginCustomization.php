@@ -29,6 +29,8 @@ class LoginCustomization extends Model
         'elements' ,
         'region' ,
         'username' ,
+        'social_networks',
+        'caditens',
     ];
 
     protected $casts = [

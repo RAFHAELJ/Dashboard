@@ -83,10 +83,10 @@ export default {
       previewStyles: {
         width: '412px',
         height: '915px',
-        border: '1px solid #ccc',
+        border: 'none',
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: '12px',
+        borderRadius: '0px',
       },
       topCardHeight: 150,
       topCardWidth: 375,
@@ -106,6 +106,7 @@ export default {
         backgroundRepeat: 'no-repeat',
         width: '100%',
         height: '100%',
+        borderRadius: '0px',
       };
     },
   },
@@ -147,9 +148,17 @@ async handleLogin() {
   },
 
   async handleCreateAccount() {
-    // Redireciona para a página de cadastro
-    this.$inertia.visit(`/hotspot/${this.region}/new`);
-  },
+  // Obtém o ID da página atual
+  const customizationId = this.screenData?.id;
+
+  if (!customizationId) {
+    console.error('ID de customização não encontrado.');
+    return;
+  }
+
+  // Redireciona para a página de cadastro com o ID da customização
+  this.$inertia.visit(`/hotspot/${this.region}/new/${customizationId}`);
+},
 
   async handleHelpAccount() {
     // Implementa lógica para ajuda
