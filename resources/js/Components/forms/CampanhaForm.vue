@@ -103,6 +103,57 @@
           ></v-radio>
         </v-radio-group>
 
+        <!-- Campo para o URL do Google Forms -->
+<!-- Campo para o URL do Google Forms e Upload de Capa -->
+<div v-if="form.tipo === 'formulario'">
+  <!-- URL do Google Forms -->
+  <v-text-field
+    v-model="form.urlForms"
+    label="URL do Google Forms"
+    :rules="[v => !!v || 'URL é obrigatória']"
+    required
+  ></v-text-field>
+
+  <!-- Upload de Capa -->
+  <v-row>
+    <v-col cols="12">
+      <v-file-input
+        v-model="form.capa"
+        label="Upload de Capa (Imagem)"
+        accept="image/*"
+        prepend-icon="mdi-image"
+        :show-size="true"
+        :rules="[v => !!v || 'Capa é obrigatória']"
+        @change="onFileChange"
+      ></v-file-input>
+    </v-col>
+  </v-row>
+
+  <!-- Visualizador de Capa -->
+  <v-row v-if="originalCapa">
+    <v-col cols="12">
+      <v-img
+        :src="`/storage/${originalCapa}`"
+        max-height="150"
+        alt="Capa do formulário"
+      ></v-img>
+    </v-col>
+  </v-row>
+
+  <!-- Duração do Formulário -->
+  <v-row>
+    <v-col cols="12">
+      <v-text-field
+        v-model="form.duracao"
+        label="Duração (em segundos)"
+        type="number"
+        :rules="[v => !!v || 'Campo obrigatório']"
+        required
+      ></v-text-field>
+    </v-col>
+  </v-row>
+</div>
+
         <!-- Upload de Imagem -->
         <div v-if="form.tipo === 'imagem'">
           <v-row>
@@ -248,7 +299,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
 import RegioesSelect from '../RegioesSelect.vue'; // ajuste o caminho se necessário
-
+const errors = reactive({});
 const props = defineProps({
   formData: {
     type: Object,
@@ -316,17 +367,19 @@ const onFileChange = (file) => {
 };
 
 const submitForm = async () => {
-  
   const isValid = dynamicForm.value.validate();
- 
+
   if (!isValid) {
     snackbar.text = 'Por favor, preencha todos os campos obrigatórios corretamente.';
     snackbar.show = true;
-    return; // Impede o envio do formulário se não for válido
+    return;
   }
+
   loading.value = true;
+  errors.value = {}; // Limpa os erros anteriores
 
   const formData = new FormData();
+
   for (const key in form) {
     if (form[key] !== null && form[key] !== 'null') {
       if (form[key] instanceof File) {
@@ -353,16 +406,31 @@ const submitForm = async () => {
       method: 'POST',
       body: formData,
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json'
       }
     });
 
-    if (response.ok) {
+    if (response.status === 422) {
+      // Captura os erros de validação (status 422)
+      const responseData = await response.json();
+      handleErrors(responseData.errors);
+
+      // Concatena todas as mensagens de erro
+      const errorMessages = Object.values(responseData.errors).flat().join(' ');
+      snackbar.text = errorMessages || 'Erro de validação. Corrija os erros e tente novamente.';
+      snackbar.show = true;
+    } else if (response.ok) {
       snackbar.text = 'Formulário enviado com sucesso!';
       snackbar.show = true;
+      
+      // Emite um evento para o componente pai e fecha a modal
+      emit('formSubmitted');
+      
+      // Fecha a modal após o sucesso
       setTimeout(() => {
-        window.location.reload(); // Recarrega a página
-      }, 1000); // 1 segundo de espera para exibir a mensagem
+        emit('cancel'); // Emite o evento para fechar a modal
+      }, 500);
     } else {
       const responseData = await response.json();
       console.error('Erro no servidor:', responseData);
@@ -377,4 +445,14 @@ const submitForm = async () => {
     loading.value = false;
   }
 };
+
+// Função para processar os erros de validação e vinculá-los aos campos
+const handleErrors = (errorsData) => {
+  for (const field in errorsData) {
+    if (errorsData.hasOwnProperty(field)) {
+      errors[field] = errorsData[field];
+    }
+  }
+};
+
 </script>

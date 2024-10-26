@@ -1,26 +1,124 @@
 <template>
   <v-app>
-    <v-container class="no-padding no-margin" fluid>
-      <v-row class="no-padding no-margin fill-height d-flex justify-center align-center" align="center">
-        <v-col cols="12" class="preview-column no-padding no-margin">
+    <v-container class="no-padding no-margin fill-height" fluid>
+      <v-row class="fill-height d-flex justify-center align-center">
+        <v-col
+          :class="['d-flex justify-center align-center', isMobile ? 'full-screen' : 'fixed-size']"
+          cols="12"
+        >
           <v-card class="preview-card" :style="previewStyles">
-            <div v-if="screenData" class="preview-background" :style="backgroundStyles">
-              <form>
-                <!-- Elementos da tela renderizados dinamicamente -->
-                <div v-for="(element, index) in screenData?.elements" :key="element.id" :style="elementStyle(element, index)" class="draggable">
-                  <!-- Topo da página -->
-                  <template v-if="element.type === 'topCard' && element.image">
-                    <v-img :src="`/storage/${element.image}`" :max-height="element.height + 'px'" :max-width="element.width + 'px'"></v-img>
-                  </template>
+            <v-sheet
+              class="preview-background"
+              :style="backgroundStyles"
+            >
+              <!-- Caso não haja campanha, exibir a tela padrão -->
+              <template v-if="!campanha || !campanha.id">
+                <!-- Exibir o TopCard (logo) na tela padrão -->
+                <v-img
+                  v-if="topCard"
+                  :src="`/storage/${topCard.image}`"
+                  :style="logoStyle"
+                  class="logo-image"
+                ></v-img>
 
-                  <!-- Botão -->
-                  <v-btn v-if="element.type === 'button'" @click="handleLogin" :style="buttonStyle(element)">
-                    {{ screenData?.login_button_textt || 'Continuar' }}
-                  </v-btn>
+                <!-- Botão "Continuar" na tela padrão -->
+                <v-btn
+                  class="continue-button"
+                  @click="handleContinue"
+                  color="success"
+                  dark
+                >
+                  Continuar
+                </v-btn>
+              </template>
 
+              <!-- Se houver campanha definida, exibir a tela da campanha -->
+              <template v-else>
+                <!-- Capa da Campanha para Vídeo ou Formulário -->
+                <v-row class="d-flex justify-center">
+                  <v-col cols="12" class="d-flex justify-center">
+                    <v-img
+                      v-if="(campanha.tipo === 'video' || campanha.tipo === 'formulario') && !isVideoPlaying && !showFormButton"
+                      :src="`/storage/${campanha.capa}`"
+                      class="video-cover"
+                      @click="campanha.tipo === 'video' ? startVideo() : null"
+                      cover
+                    ></v-img>
+                  </v-col>
+                </v-row>
+
+                <!-- Logo exibida junto ao botão do formulário, com posição customizada -->
+                <v-img
+                  v-if="showFormButton && topCard && campanha.tipo !== 'video'"
+                  :src="`/storage/${topCard.image}`"
+                  :style="logoStyle"
+                  class="logo-image"
+                ></v-img>
+
+                <!-- Botão para abrir o Google Forms (Formulário) -->
+                <v-row class="d-flex justify-center mt-3" v-if="showFormButton">
+                  <v-col cols="12" class="d-flex justify-center">
+                    <v-btn
+                      v-if="campanha.tipo === 'formulario' && campanha.urlForms"
+                      class="open-form-button"
+                      @click="openFormInNewTab"
+                      color="primary"
+                      dark
+                    >
+                      Abrir Formulário
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+                <!-- Vídeo da Campanha -->
+                <div
+                  v-if="campanha.tipo === 'video' && isVideoPlaying"
+                  class="video-container"
+                >
+                  <div class="video-wrapper">
+                    <video
+                      ref="videoPlayer"
+                      :src="`/storage/${campanha.video}`"
+                      controls
+                      autoplay
+                      muted
+                      class="video-content"
+                      @ended="handleVideoEnd"
+                    ></video>
+                  </div>
                 </div>
-              </form>
-            </div>
+
+                <!-- Imagem da Campanha -->
+                <v-img
+                  v-if="campanha.tipo === 'imagem'"
+                  :src="`/storage/${campanha.imagem}`"
+                  class="ad-content"
+                  @click="handleAdClick"
+                  cover
+                ></v-img>
+
+                <!-- Relógio de contagem regressiva -->
+                <v-chip
+                  v-if="remainingTime > 0"
+                  class="timer"
+                  color="red"
+                  dark
+                >
+                  {{ remainingTime }}s
+                </v-chip>
+
+                <!-- Botão "Continuar" -->
+                <v-btn
+                  v-if="remainingTime === 0"
+                  class="continue-button"
+                  @click="handleContinue"
+                  color="success"
+                  dark
+                >
+                  Continuar
+                </v-btn>
+              </template>
+            </v-sheet>
           </v-card>
         </v-col>
       </v-row>
@@ -29,180 +127,155 @@
 </template>
 
 <script>
-import { usePage } from '@inertiajs/vue3'; // Importar o usePage
+import { ref, computed, onMounted } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 export default {
   setup() {
     const { props } = usePage();
-    let customization = props.login;
-    let campanha = props.campanha;
+    const campanha = props.campanha || null; // Pode ser null
+    const customization = props.login || {};
+    const elements = JSON.parse(customization.elements || '[]');
 
+    // Pegando o primeiro elemento do tipo "topCard"
+    const topCard = elements.find((element) => element.type === 'topCard');
+    
+    const exibe_propaganda = true;
+    const videoPlayer = ref(null);
 
-    // Verificações e conversões semelhantes ao fetchData
-    if (typeof customization.login_method === 'string') {
-      customization.login_method = JSON.parse(customization.login_method);
-    }
-    if (typeof customization.elements === 'string') {
-      customization.elements = JSON.parse(customization.elements);
-    }
-    if (typeof customization.login_password_method === 'string') {
-      customization.login_password_method = JSON.parse(customization.login_password_method);
-    }
+    // Tempo total e tempo de exibição da capa
+    const totalDuration = campanha?.duracao || 10;
+    const capaDuration = Math.floor(totalDuration / 2);
+    const remainingTime = ref(totalDuration);
+    const isVideoPlaying = ref(false);
+    const isMobile = ref(window.innerWidth <= 768);
+    const showFormButton = ref(false);
 
-    // Definindo a screenData com os valores convertidos
-    const screenData = customization;
+    const previewStyles = computed(() => ({
+      width: isMobile.value ? '98%' : '360px',
+      height: isMobile.value ? '98%' : '740px',
+      border: 'none',
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }));
 
-    console.log("Dados de login recebidos e processados:", screenData);
+    const backgroundStyles = computed(() => ({
+      backgroundImage: customization.background_type === 'Imagem' && customization.background_value
+        ? `url(/storage/${customization.background_image})`
+        : 'none',
+      backgroundColor: customization.background_type === 'Cor' && customization.background_value
+        ? customization.background_value
+        : 'blue',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    }));
 
-    return {
-      screenData,
-    };
-  },
-  data() {
-    return {
-      previewStyles: {
-        width: '412px',
-        height: '915px',
-        border: 'none',
-        position: 'relative',
-        overflow: 'hidden',
-        borderRadius: '0',
-      },
-      topCardHeight: 150,
-      topCardWidth: 375,
-    };
-  },
-  computed: {
-    backgroundStyles() {
+    const logoStyle = computed(() => {
+      if (!topCard) return {};
       return {
-        backgroundImage: this.screenData?.background_type === 'Imagem' && this.screenData?.background_value
-          ? `url(/storage/${this.screenData.background_image})`
-          : 'none',
-        backgroundColor: this.screenData?.background_type === 'Cor' && this.screenData?.background_value
-          ? this.screenData?.background_value
-          : 'transparent',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        width: '100%',
-        height: '100%',
-        borderRadius: '0',
-      };
-    },
-  },
-  mounted() {
-    // Captura a parte da URL para identificar a região
-    const pathParts = window.location.pathname.split('/');
-    const regionIndex = pathParts.indexOf('hotspot') + 1;
-    this.region = pathParts[regionIndex] || 'default';
-  },
-  
-  methods: {
-async handleLogin() {
-
-    let username = '';
-    let password = '';
-
-    // Itera pelos elementos para capturar os valores
-    this.screenData.elements.forEach(element => {
-      if (element.type === 'input') {
-        username = element.value; // Captura o valor do input de login
-      }
-      if (element.type === 'inputPassword') {
-        password = element.value; // Captura o valor do input de senha
-      }
-    });
-    try {
-      const response = await this.$inertia.post(`/hotspot/${this.region}/authenticate`, {
-        username: username,
-        password: password,
-      });
-      if (response.success) {
-        window.location.href = response.url;
-      } else {
-        this.$notify({ type: 'error', text: response.error });
-      }
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-    }
-  },
-
-  async handleCreateAccount() {
-    // Redireciona para a página de cadastro
-    this.$inertia.visit(`/hotspot/${this.region}/register`);
-  },
-
-  async handleHelpAccount() {
-    // Implementa lógica para ajuda
-    console.log('Ajuda acionada');
-  },
-    elementStyle(element, index) {
-      return {
-        top: element.top + 'px',
-        left: element.left + 'px',
         position: 'absolute',
-        width: element.width + 'px',
-        height: element.height + 'px',
-        zIndex: index + 1,
+        top: `${topCard.top}px`,
+        left: `${topCard.left}px`,
+        width: `${topCard.width}px`,
+        height: `${topCard.height}px`,
+        zIndex: 10,
       };
-    },
-    buttonStyle(element) {
-      return {
-        width: '150 px',
-        background: element.backgroundColor,
-        borderRadius: element.shape + 'px',
-        boxShadow: '0 ' + element.elevation + 'px ' + element.elevation + 'px rgba(0,0,0,0.2)',
-        color: this.screenData?.text_color,
-      };
-    },
-    linkStyle(element) {
-      return {
-        color: element.color || this.screenData?.textColorButton,
-        fontSize: '14px',
-        textDecoration: 'underline',
-        cursor: 'pointer',
-        top: element.top + 'px',
-        left: element.left + 'px',
-      };
-    },
-    textStyle(element) {
-      return {
-        color: element.color || this.screenData?.text_color,
-        fontSize: '16px',
-        fontWeight: 'bold',
-        fontStyle: 'italic',
-        top: element.top + 'px',
-        left: element.left + 'px',
-      };
-    },
-    inputStyle(element) {
-      return {
-        top: element.top + 'px',
-        left: element.left + 'px',
-        width: element.width + 'px',
-        height: element.height + 'px',
-        backgroundColor: element.backgroundColor,
-        border: '1px solid #ccc',
-        borderRadius: element.shape + 'px',
-      };
-    },
-    inputInternalStyle(element) {
-      return {
-        width: '100%',
-        height: '100%',
-        backgroundColor: element.backgroundColor,
-        borderRadius: element.shape + 'px',
-        opacity: element.opacity,
-        boxShadow: '0 ' + element.elevation + 'px ' + element.elevation + 'px rgba(0,0,0,0.2)',
-        padding: '8px',
-        outline: 'none',
-      };
-    },
+    });
+
+    const startTimer = () => {
+      const interval = setInterval(() => {
+        if (remainingTime.value > 0 && campanha?.id) {
+          remainingTime.value--;
+
+          // Mostrar o botão do formulário após o tempo de exibição da capa
+          if (remainingTime.value === totalDuration - capaDuration) {
+            showFormButton.value = true;
+          }
+
+          // Quando o tempo da capa terminar, inicia o vídeo (se houver)
+          if (remainingTime.value === capaDuration && campanha.tipo === 'video') {
+            startVideo();
+          }
+        } else {
+          clearInterval(interval);
+        }
+      }, 1000);
+    };
+
+    const startVideo = () => {
+      isVideoPlaying.value = true;
+      if (videoPlayer.value) {
+        videoPlayer.value.currentTime = 0;
+        videoPlayer.value.play();
+      }
+    };
+
+    const handleVideoEnd = () => {
+      isVideoPlaying.value = false;
+      remainingTime.value = 0;
+    };
+
+    const openFormInNewTab = () => {
+      if (campanha?.urlForms) {
+        window.open(campanha.urlForms, '_blank');
+      }
+    };
+
+    const handleAdClick = () => {
+      if (campanha?.url) {
+        window.location.href = campanha.url;
+      }
+    };
+
+    const handleContinue = () => {
+      window.location.href = '/hotspot/campolargo/logon';
+    };
+
+    const updateIsMobile = () => {
+      isMobile.value = window.innerWidth <= 768;
+    };
+
+    window.addEventListener('resize', updateIsMobile);
+
+    onMounted(() => {
+      if (exibe_propaganda && campanha?.id) {
+        startTimer();
+      }
+      updateIsMobile();
+    });
+
+    return {
+      campanha,
+      topCard,
+      exibe_propaganda,
+      remainingTime,
+      isVideoPlaying,
+      isMobile,
+      showFormButton,
+      videoPlayer,
+      previewStyles,
+      backgroundStyles,
+      logoStyle,
+      handleAdClick,
+      handleContinue,
+      openFormInNewTab,
+      handleVideoEnd,
+    };
   },
 };
 </script>
 
 <style scoped>
+.logo-image {
+  position: absolute;
+  max-width: 100%;
+  height: auto;
+  z-index: 10;
+}
 .no-padding {
   padding: 0 !important;
 }
@@ -212,20 +285,20 @@ async handleLogin() {
 .fill-height {
   height: 100vh;
 }
-.preview-column {
+.fixed-size {
+  width: 360px;
+  height: 740px;
+}
+.full-screen {
+  width: 100%;
+  height: 100%;
+}
+.preview-card {
+  background-color: #fff;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0;
-  margin: 0;
-}
-.preview-card {
-  width: 100%;
-  max-width: 400px;
-  min-height: 667px;
-  background-color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
 }
 .preview-background {
   width: 100%;
@@ -233,28 +306,51 @@ async handleLogin() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
-  border-radius: 12px;
+  position: relative;
 }
-.editable-text {
-  font-size: 16px;
-  color: #000;
-  padding: 8px;
-  border: none;
-  background-color: transparent;
-  min-height: 50px;
-  min-width: 150px;
-}
-.input-field {
+.ad-content,
+.video-cover,
+.video-content {
   width: 100%;
-  margin-bottom: 16px;
+  height: 100%;
+  object-fit: cover;
 }
-input {
+.video-container,
+.video-wrapper {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+}
+.timer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+.continue-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.open-form-button {
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: auto;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

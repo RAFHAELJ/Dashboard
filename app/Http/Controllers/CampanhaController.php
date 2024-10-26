@@ -42,6 +42,7 @@ class CampanhaController extends Controller
 
     public function store(CampanhaRequest $request)
     {
+        //\dd($request->all());
         $idade = $request->minimo . "," . $request->maxima;
         $radios = json_encode($request->radios);
         
@@ -63,6 +64,8 @@ class CampanhaController extends Controller
             'imagem' => $imagemPath,
             'tempo' => $request->duracao,
             'url' => $request->url,
+            'urlForms' => $request->urlForms,
+            'status' => $request->status,
             'regiao' => $request->regiao
         ]);
         $this->logRepository->createLog(auth()->id(), "Adicionado Campanha {$request->nome} ", $request->regiao);
@@ -117,6 +120,7 @@ class CampanhaController extends Controller
             'imagem' => $imagemPath,
             'tempo' => $request->duracao,
             'url' => $request->url,
+            'urlForms' => $request->urlForms,
             'regiao' => $request->regiao
         ], $campanha);
 

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
@@ -20,8 +21,8 @@ use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\AccessDataController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserPermissionController;
-use App\Http\Controllers\LoginCustomizationController;
 use App\Http\Controllers\Hotspot\HotspotController;
+use App\Http\Controllers\LoginCustomizationController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -102,6 +103,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/access', [StatisticsController::class, 'accessStatistics'])->name('statistics.access');
         Route::get('/storage', [StatisticsController::class, 'storageUsage'])->name('statistics.storage');
     });
+
+    Route::prefix('forms')->middleware('check-page-access:ler')->group(function () {
+        Route::get('/', [FormController::class, 'index'])->name('forms.index');
+        Route::get('/{id}', [FormController::class, 'show'])->name('forms.show');      
+
+        Route::post('/store', [FormController::class, 'store'])->middleware('check-page-access:gravar')->name('forms.store');
+        Route::put('/{id}', [FormController::class, 'update'])->middleware('check-page-access:atualizar')->name('forms.update');
+        Route::delete('/{id}', [FormController::class, 'destroy'])->middleware('check-page-access:excluir')->name('forms.destroy');
+        
+    });
+
 
 
     Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
