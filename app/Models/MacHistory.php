@@ -14,6 +14,6 @@ class MacHistory extends Model
 
     public function radio()
     {
-        return $this->belongsTo(Radio::class);
+        return $this->belongsTo(RadioDash::class);
     }
 }

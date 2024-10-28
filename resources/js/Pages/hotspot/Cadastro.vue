@@ -15,6 +15,7 @@
                       outlined
                       dense
                       required
+                      :error-messages="errors.nome"
                       :style="{ color: textColor }"
                     ></v-text-field>
                   </div>
@@ -28,6 +29,7 @@
                       outlined
                       dense
                       required
+                      :error-messages="errors.usuario"
                       :style="{ color: textColor }"
                     ></v-text-field>
                   </div>
@@ -42,6 +44,7 @@
                       dense
                       type="email"
                       required
+                      :error-messages="errors.email"
                       :style="{ color: textColor }"
                     ></v-text-field>
                   </div>
@@ -56,6 +59,7 @@
                       dense
                       type="password"
                       required
+                      :error-messages="errors.senha"
                       :style="{ color: textColor }"
                     ></v-text-field>
                   </div>
@@ -69,6 +73,7 @@
                       outlined
                       dense
                       required
+                      :error-messages="errors.cpf"
                       v-mask="'###.###.###-##'"
                       :style="{ color: textColor }"
                     ></v-text-field>
@@ -83,6 +88,7 @@
                       outlined
                       dense
                       required
+                      :error-messages="errors.telefone"
                       v-mask="'(##) #####-####'"
                       :style="{ color: textColor }"
                     ></v-text-field>
@@ -98,6 +104,7 @@
                       dense
                       required
                       v-mask="'##/##/####'"
+                      :error-messages="errors.nascimento"
                       :style="{ color: textColor }"
                     ></v-text-field>
                   </div>
@@ -111,6 +118,7 @@
                       outlined
                       dense
                       required
+                      :error-messages="errors.sexo"
                       :style="{ color: textColor }"
                     ></v-select>
                   </div>
@@ -119,6 +127,10 @@
                   <v-btn @click="handleRegister" color="primary" class="mt-4">
                     Cadastrar
                   </v-btn>
+                                  <!-- Mensagem de erro geral -->
+                    <div v-if="errors.message" class="error-message">
+                      {{ errors.message }}
+                    </div>
                 </form>
               </div>
             </v-card>
@@ -136,6 +148,12 @@
     setup() {
       const { props } = usePage();
       const customization = props.Customization;
+      const regiao = ref(props.regiao);
+      const errors = ref(props.errors || {});
+
+      console.log('Região recebida:', regiao.value);
+
+
   
       // Convertendo caditens de string JSON para objeto
       let caditens = JSON.parse(customization.caditens || '{}');
@@ -145,7 +163,7 @@
   
       // Definindo a screenData
       const screenData = ref(customization || {});
-  console.log(screenData.value.elements.id);
+  
       // Estilos do preview
       const previewStyles = reactive({
         width: '412px',
@@ -197,7 +215,7 @@
         return `rgb(${rOpp}, ${gOpp}, ${bOpp})`;
       }
   
-      return { screenData, caditens, previewStyles, backgroundStyles, textColor };
+      return { screenData, caditens, previewStyles, backgroundStyles, textColor, regiao };
     },
     data() {
       return {
@@ -210,28 +228,35 @@
           telefone: '',
           nascimento: '',
           sexo: '',
-        },
+        }, 
+        errors: {},     
       };
     },
+   
     methods: {
-      async handleRegister() {
-        try {
-          const response = await this.$inertia.post(`/hotspot/${this.region}/register`, this.formData);
-          if (response.success) {
-            this.$notify({ type: 'success', text: 'Cadastro realizado com sucesso!' });
-            window.location.href = response.url;
-          } else {
-            this.$notify({ type: 'error', text: response.error });
-          }
-        } catch (error) {
-          console.error('Erro ao cadastrar:', error);
-        }
-      },
-    },
+  async handleRegister() {
+    try {
+      await this.$inertia.post(`/hotspot/${this.regiao}/register`, this.formData, {
+        onError: (errors) => {
+          console.error('Erro ao cadastrar:', errors);
+          this.errors = errors; // Atualiza os erros para o frontend
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao cadastrar:', error);
+    }
+  },
+},
+
   };
   </script>
   
   <style scoped>
+  
+  .error-message {
+  color: red;
+  margin-top: 10px;
+}
   .no-padding {
     padding: 0 !important;
   }

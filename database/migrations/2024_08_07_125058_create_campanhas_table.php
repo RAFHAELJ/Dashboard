@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('tempo');
             $table->string('url')->nullable();
             $table->integer('duracao');
+            $table->string('status')->default('ativa');
             $table->timestamps();
         });
     }

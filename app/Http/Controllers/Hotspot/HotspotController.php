@@ -9,7 +9,9 @@ use Inertia\Inertia;
 use App\Models\Regiao;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Repositories\RegiaoRepository;
 use App\Repositories\HotspotRepository;
+use Illuminate\Support\Facades\Session;
 use App\Repositories\CampanhaRepository;
 use App\Repositories\LoginCustomizationRepository;
 
@@ -22,29 +24,39 @@ class HotspotController extends Controller
         $this->hotspotRepository = $hotspotRepository;
         $this->loginCustomizationRepository = $loginCustomizationRepository;
         $this->campanhaRepository = $campanhaRepository;
+        
     }
     public function new($regiao,$id)
     {
        // dd($this->loginCustomizationRepository->find($id));
       // dd($this->loginCustomizationRepository->find(1));
+       
+
         return Inertia::render('hotspot/Cadastro',[
-            'Customization' => $this->loginCustomizationRepository->find($id)]);
+            'Customization' => $this->loginCustomizationRepository->find($id)
+            , 'regiao' => $regiao
+        ]);
         
     }
-    public function logon($regiao,$id,$campanha_id)
-    {
-        return Inertia::render('hotspot/Logado',[    
-            'campanha' => $this->campanhaRepository->find($campanha_id),'login' => $this->loginCustomizationRepository->find($id)]);
-    }
-    public function showLoginForm($region)
-    {
-       
-       $regiaoId = Regiao::whereRaw('LOWER(REPLACE(cidade, " ", "")) = ?', [strtolower(str_replace(' ', '', $region))])
-       ->pluck('id')
-       ->first(); 
+  
 
-     
-       $login =  $this->hotspotRepository->login($regiaoId)->first();
+    public function logon($regiao, $id, $campanha_id)
+    {
+        // Obtém a URL de redirecionamento armazenada na sessão
+        $url = session('url');
+    
+        return Inertia::render('hotspot/Logado', [
+            'campanha' => $this->campanhaRepository->find($campanha_id),
+            'login' => $this->loginCustomizationRepository->find($id),
+            'url' => $url, // Passa a URL para o frontend
+        ]);
+    }
+    
+    public function showLoginForm(Request $request, $region)
+    {      
+
+        
+       $login =  $this->hotspotRepository->login($region)->first();
        //dd($login);
        return inertia('hotspot/Login', [
         'login' => $login ?? null, // Garante que 'login' seja enviado, mesmo que null
@@ -53,39 +65,56 @@ class HotspotController extends Controller
 
     public function register(Request $request, $region)
     {
-        $request->validate([
-            'username' => 'required|string',
-            'cpf' => 'nullable|string',
-            'email' => 'nullable|email',
-            'telefone' => 'nullable|string',
-            'password' => 'required|string|confirmed',
-        ]);
+       
 
         // Passar os dados para o repository junto com a região
         $result = $this->hotspotRepository->registerUser($request->all(), $region);
 
         if (!$result['success']) {
-            return back()->withErrors([$result['error']]);
+            return redirect()->back()
+                ->withErrors(['message' => $result['error']]) // Passa a mensagem de erro
+                ->withInput();
         }
-
-        return redirect()->to($result['url'])->with('message', 'Cadastro concluído com sucesso');
+    
+        // Redirecionar para a rota de login via Inertia
+        return Inertia::location(route('hotspot.login', ['region' => $region]));
+    
     }
 
     public function authenticate(Request $request, $region)
     {
-        dd($request->all(), $region);
+       // dd($request->all());
+       
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
-
+        
+    
         $result = $this->hotspotRepository->authenticateUser($request->all(), $region);
-
+    
         if (!$result['success']) {
-            return back()->withErrors([$result['error']]);
+            return redirect()->back()
+                ->withErrors(['message' => $result['error']]) // Passa a mensagem de erro
+                ->withInput();
         }
+   // \dd($result);
+        // Redirecionar para a rota usando Inertia
+        return redirect()->route('hotspot.logon', [
+            'region' => $region,
+            'id' => $request->customization_id, // ID do usuário autenticado
+            'campanha_id' => $result['campanha_id'] ?? 'null',
+        ])->with('url', $result['url']);
+        
+}
+public function logout()
+{
+   // \dd (Session::get('macradio'));
+    // Limpa a sessão do hotspot
+    Session::forget('hotspot.session');
 
-        return redirect()->to($result['url'])->with('message', 'Autenticação realizada com sucesso');
-    }
+    // Redireciona para a página de login com uma mensagem de sucesso
+    return redirect()->route('hotspot.login')->with('message', 'Sessão encerrada com sucesso!');
 }
 
+}

@@ -136,7 +136,8 @@ export default {
     const campanha = props.campanha || null; // Pode ser null
     const customization = props.login || {};
     const elements = JSON.parse(customization.elements || '[]');
-
+    const redirectUrl = ref(props.url || null);
+    console.log(redirectUrl);
     // Pegando o primeiro elemento do tipo "topCard"
     const topCard = elements.find((element) => element.type === 'topCard');
     
@@ -232,8 +233,14 @@ export default {
     };
 
     const handleContinue = () => {
-      window.location.href = '/hotspot/campolargo/logon';
+      // Redireciona para a URL de resposta do login
+      if (redirectUrl.value) {
+        window.location.href = redirectUrl.value;
+      } else {
+        console.error('URL de redirecionamento não encontrada');
+      }
     };
+
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
@@ -262,6 +269,7 @@ export default {
       logoStyle,
       handleAdClick,
       handleContinue,
+      redirectUrl,
       openFormInNewTab,
       handleVideoEnd,
     };

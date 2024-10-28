@@ -21,7 +21,7 @@ class SetDynamicDatabaseConnection
             $region = $user->isAdmin() ? session('regiao') : $user->regiao;
 
             // Verifica se a conexão foi configurada corretamente
-            $connected = $this->setRadiusConnection($user, $region);
+            $connected = $this->setRadiusConnection($user, $region, 'interno');
 
             if (!$connected) {
                 // Retorna uma resposta de erro amigável usando Inertia

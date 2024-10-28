@@ -51,12 +51,17 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::prefix('hotspot/{region}')->group(function () {
+Route::prefix('hotspot/{region}')->middleware(['web','dynamic-db-hotspot','hotspot.session'])->group(function () {
     Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
     Route::get('/logon/{id}/{campanha_id}', [HotspotController::class, 'logon'])->name('hotspot.logon');
     Route::get('/new/{id}', [HotspotController::class, 'new'])->name('hotspot.new');
     Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
+    Route::get('/logout', [HotspotController::class, 'logout'])->name('hotspot.logout');
+
+});
+Route::get('/hotspot/test-session', function () {
+    dd(Session::get('hotspot.session'));
 });
 
 

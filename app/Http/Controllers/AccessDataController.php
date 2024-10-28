@@ -182,7 +182,7 @@ public function updateRegionConnection(Request $request)
     if ($user->isAdmin()) {
         $region = $request->input('regiao');        
         
-        $this->setRadiusConnection($user, $region);
+        $this->setRadiusConnection($user, $region , 'interno');
         
         // Armazena a nova região na sessão para futuras requisições
         session(['regiao' => $region]);

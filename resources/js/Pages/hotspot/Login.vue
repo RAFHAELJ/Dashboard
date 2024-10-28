@@ -5,16 +5,17 @@
         <v-col cols="12" class="preview-column no-padding no-margin">
           <v-card class="preview-card" :style="previewStyles">
             <div v-if="screenData" class="preview-background" :style="backgroundStyles">
-              <form>
+              <form @submit.prevent="handleLogin">
                 <!-- Elementos da tela renderizados dinamicamente -->
                 <div v-for="(element, index) in screenData?.elements" :key="element.id" :style="elementStyle(element, index)" class="draggable">
+                  
                   <!-- Topo da página -->
                   <template v-if="element.type === 'topCard' && element.image">
                     <v-img :src="`/storage/${element.image}`" :max-height="element.height + 'px'" :max-width="element.width + 'px'"></v-img>
                   </template>
 
                   <!-- Botão -->
-                  <v-btn v-if="element.type === 'button'" @click="handleLogin" :style="buttonStyle(element)">
+                  <v-btn v-if="element.type === 'button'" @click.prevent="handleLogin" :style="buttonStyle(element)">
                     {{ screenData?.login_button_text || 'Login' }}
                   </v-btn>
 
@@ -34,6 +35,8 @@
                   <!-- Campo de Login -->
                   <div v-if="element.type === 'input'" class="input-field" :style="inputStyle(element)">
                     <input v-model="element.value" :placeholder="screenData?.login_method?.join(' ou ') || 'Login'" :style="inputInternalStyle(element)" />
+                    
+
                   </div>
 
                   <!-- Campo de Senha -->
@@ -41,24 +44,44 @@
                     <input v-model="element.value" type="password" :placeholder="screenData?.login_password_method?.join(' ou ') || 'Senha'" :style="inputInternalStyle(element)" />
                   </div>
                 </div>
+
+                <!-- Campos ocultos para customization ID e regiao ID -->
+                <input type="hidden" :value="screenData?.id" v-if="screenData?.id" />
+                <input type="hidden" :value="regionId" v-if="regionId" />
+
+              
+
               </form>
+                            <!-- Diálogo de erro -->
+                            <v-dialog v-model="errorDialog" max-width="400px">
+                                <v-card>
+                                  <v-card-title class="red--text">Erro de Login</v-card-title>
+                                  <v-card-text>
+                                    <div v-for="(error, key) in errors" :key="key" class="error-message">
+                                      {{ error }}
+                                    </div>
+                                  </v-card-text>
+                                  <v-card-actions>
+                                    <v-btn color="red" @click="errorDialog = false">Fechar</v-btn>
+                                  </v-card-actions>
+                                </v-card>
+                              </v-dialog>
             </div>
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> 
     </v-container>
   </v-app>
 </template>
 
 <script>
-import { usePage } from '@inertiajs/vue3'; // Importar o usePage
+import { usePage } from '@inertiajs/vue3';
 
 export default {
   setup() {
     const { props } = usePage();
     let customization = props.login;
 
-    // Verificações e conversões semelhantes ao fetchData
     if (typeof customization.login_method === 'string') {
       customization.login_method = JSON.parse(customization.login_method);
     }
@@ -69,7 +92,6 @@ export default {
       customization.login_password_method = JSON.parse(customization.login_password_method);
     }
 
-    // Definindo a screenData com os valores convertidos
     const screenData = customization;
 
     console.log("Dados de login recebidos e processados:", screenData);
@@ -90,6 +112,9 @@ export default {
       },
       topCardHeight: 150,
       topCardWidth: 375,
+      regionId: null,
+      errorDialog: false,
+      errors: {},
     };
   },
   computed: {
@@ -111,59 +136,65 @@ export default {
     },
   },
   mounted() {
-    // Captura a parte da URL para identificar a região
     const pathParts = window.location.pathname.split('/');
     const regionIndex = pathParts.indexOf('hotspot') + 1;
     this.region = pathParts[regionIndex] || 'default';
+
+    // Definindo o ID da região a partir do `usePage` ou de outro local de configuração
+   
   },
   
   methods: {
-async handleLogin() {
+    async handleLogin() {
+      let username = '';
+      let password = '';
+      let customizationId = this.screenData?.id || null;
+     
 
-    let username = '';
-    let password = '';
-
-    // Itera pelos elementos para capturar os valores
-    this.screenData.elements.forEach(element => {
-      if (element.type === 'input') {
-        username = element.value; // Captura o valor do input de login
-      }
-      if (element.type === 'inputPassword') {
-        password = element.value; // Captura o valor do input de senha
-      }
-    });
-    try {
-      const response = await this.$inertia.post(`/hotspot/${this.region}/authenticate`, {
-        username: username,
-        password: password,
+      this.screenData.elements.forEach(element => {
+        if (element.type === 'input') {
+          username = element.value;
+        }
+        if (element.type === 'inputPassword') {
+          password = element.value;
+        }
       });
-      if (response.success) {
-        window.location.href = response.url;
-      } else {
-        this.$notify({ type: 'error', text: response.error });
+      try {
+        await this.$inertia.post(`/hotspot/${this.region}/authenticate`, {
+          username: username,
+          password: password,
+          customization_id: customizationId,
+        }, {
+          onError: (errors) => {
+            // Atualiza as mensagens de erro
+            this.errors = errors;
+            this.errorDialog = true;
+          }
+        });
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        this.errorMessage = 'Erro ao tentar autenticar. Tente novamente.';
+        this.errorDialog = true; 
       }
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-    }
-  },
+    },
 
-  async handleCreateAccount() {
-  // Obtém o ID da página atual
-  const customizationId = this.screenData?.id;
 
-  if (!customizationId) {
-    console.error('ID de customização não encontrado.');
-    return;
-  }
 
-  // Redireciona para a página de cadastro com o ID da customização
-  this.$inertia.visit(`/hotspot/${this.region}/new/${customizationId}`);
-},
+    async handleCreateAccount() {
+      const customizationId = this.screenData?.id;
 
-  async handleHelpAccount() {
-    // Implementa lógica para ajuda
-    console.log('Ajuda acionada');
-  },
+      if (!customizationId) {
+        console.error('ID de customização não encontrado.');
+        return;
+      }
+
+      this.$inertia.visit(`/hotspot/${this.region}/new/${customizationId}`);
+    },
+
+    async handleHelpAccount() {
+      console.log('Ajuda acionada');
+    },
+
     elementStyle(element, index) {
       return {
         top: element.top + 'px',
@@ -229,7 +260,29 @@ async handleLogin() {
 };
 </script>
 
+
+
 <style scoped>
+.error-dialog-card {
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.error-title {
+  color: #e53935;
+  font-weight: bold;
+}
+
+.error-text {
+  color: #e53935;
+  font-size: 16px;
+  text-align: center;
+}
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
 .no-padding {
   padding: 0 !important;
 }

@@ -6,7 +6,8 @@ import MarkerClusterer from "@google/markerclustererplus";
 
 const { props } = usePage();
 const mapInitialized = ref(false);
-const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'; // Substitua pela sua chave de API
+const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXz'; // Substitua pela sua chave de API
+// 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'
 
 // Função para carregar o script do Google Maps
 const loadGoogleMapsScript = (callback) => {
