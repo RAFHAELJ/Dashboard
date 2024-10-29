@@ -5,6 +5,7 @@
 namespace App\Http\Controllers\Hotspot;
 
 
+use Log;
 use Inertia\Inertia;
 use App\Models\Regiao;
 use Illuminate\Http\Request;
@@ -88,17 +89,16 @@ class HotspotController extends Controller
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
-        ]);
+        ]);       
         
-    
-        $result = $this->hotspotRepository->authenticateUser($request->all(), $region);
-    
-        if (!$result['success']) {
-            return redirect()->back()
-                ->withErrors(['message' => $result['error']]) // Passa a mensagem de erro
-                ->withInput();
-        }
-   // \dd($result);
+        $result = $this->hotspotRepository->authenticateUser($request->all(), $region, 'database');    
+    if (!$result['success']) {
+        Log::info('Erro de autenticação: ' . $result['error']);
+        return redirect()->back()
+            ->withErrors(['message' => $result['error']])
+            ->withInput();
+    }
+  
         // Redirecionar para a rota usando Inertia
         return redirect()->route('hotspot.logon', [
             'region' => $region,
@@ -107,14 +107,59 @@ class HotspotController extends Controller
         ])->with('url', $result['url']);
         
 }
-public function logout()
+public function logout($region)
 {
    // \dd (Session::get('macradio'));
     // Limpa a sessão do hotspot
     Session::forget('hotspot.session');
 
     // Redireciona para a página de login com uma mensagem de sucesso
-    return redirect()->route('hotspot.login')->with('message', 'Sessão encerrada com sucesso!');
+    return Inertia::location(route('hotspot.login', ['region' => $region]));
+   
 }
+public function logoutRadius($region)
+{
+   // \dd (Session::get('macradio'));
+    // Limpa a sessão do hotspot
+    Session::forget('hotspot.session');
+
+    // Redireciona para a página de login com uma mensagem de sucesso
+    return Inertia::location(route('hotspot.radius.login', ['region' => $region]));
+   
+}
+public function showRadiusLoginForm(Request $request, $region)
+{
+    $login = $this->hotspotRepository->login($region)->first();
+    return Inertia::render('hotspot/RadiusLogin', [
+        'login' => $login ?? null,
+    ]);
+}
+
+// Autenticação pelo RADIUS
+public function authenticateRadius(Request $request, $region)
+{
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    $result = $this->hotspotRepository->authenticateUser($request->all(), $region, 'radius');
+
+   
+    if (!$result['success']) {
+        Log::info('Erro de autenticação: ' . $result['error']);
+        return redirect()->back()
+            ->withErrors(['message' => $result['error']])
+            ->withInput();
+    }
+
+    return redirect()->route('hotspot.logon', [
+        'region' => $region,
+        'id' => $request->customization_id,
+        'campanha_id' => $result['campanha_id'] ?? 'null',
+    ])->with('url', $result['url']);
+}
+
+
 
 }

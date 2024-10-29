@@ -137,7 +137,7 @@ const handleDeleteItem = (item) => {
               info: { label: 'Info', rules: [(v) => !!v || 'Info é obrigatório'], required: true},    
             }"
             :isEditing="isEditing"
-            title="Radios Radio"
+            title="Radios"
             createRoute="radios.store"
             updateRoute="radios.update"
             returnRoute="radios.index"

@@ -33,7 +33,7 @@ const initMap = () => {
 
   const mapCenter = props.data.center || { lat: -25.4284, lng: -49.2733 };
   const map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 10,
+    zoom: 14,
     center: mapCenter
   });
 

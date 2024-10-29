@@ -160,17 +160,16 @@ export default {
         }
       });
       try {
-        await this.$inertia.post(`/hotspot/${this.region}/authenticate`, {
+        await this.$inertia.post(`/hotspot/${this.region}/wfd/authenticate`, {
           username: username,
           password: password,
           customization_id: customizationId,
-        }, { onError: (errors) => {
-         console.log('Erro ao fazer login:', errors);
-                
-                    this.errors = { message: errors.message }; // Captura a mensagem de erro corretamente
-                    this.errorDialog = true;
-                
-            }
+        }, {
+          onError: (errors) => {
+            // Atualiza as mensagens de erro
+            this.errors = errors;
+            this.errorDialog = true;
+          }
         });
       } catch (error) {
         console.error('Erro ao fazer login:', error);

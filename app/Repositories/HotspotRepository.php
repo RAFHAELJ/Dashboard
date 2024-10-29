@@ -7,10 +7,13 @@ use App\Models\Campanha;
 use App\Models\RadCheck;
 use App\Models\RadioDash;
 use App\Helpers\CpfHelper;
+use App\Models\AccessData;
 use App\Models\MacHistory;
 use App\Models\LoginCustomization;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Repositories\RegiaoRepository;
+use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Session;
 
 class HotspotRepository
@@ -77,32 +80,122 @@ class HotspotRepository
         return ['success' => true, 'region_id' => $region];
     }
 
-    public function authenticateUser(array $data, $region)
+    public function authenticateUser(array $data, $region, $authType = 'database')
     {
         $regiaoId = $this->regiaoRepository->getRegiaoId($region);
-        $user = RadCheck::where('UserName', $data['username'])->first();
 
+        if ($authType === 'database') {
+            return $this->authenticateWithDatabase($data, $regiaoId);
+        } elseif ($authType === 'radius') {
+            return $this->authenticateWithRadius($data, $regiaoId);
+        }
+
+        return ['success' => false, 'error' => 'Tipo de autenticação desconhecido'];
+    }
+
+    private function getSaveUserDatabase($data)
+    {
+        $user = RadCheck::where('UserName', $data['username'])->first();
+    
         if (!$user) {
             return ['success' => false, 'error' => 'E-mail não cadastrado'];
         }
-
-        // Verificar se a senha corresponde ao e-mail
+    
         if ($user->Value !== $data['password']) {
             return ['success' => false, 'error' => 'Senha incorreta'];
         }
-
+    
         $user->ultimo_acesso = now();
         $user->save();
+    
+        return ['success' => true, 'user' => $user];
+    }
+    
+    private function authenticateWithDatabase(array $data, $regiaoId)
+    {
+        $response = $this->getSaveUserDatabase($data);
+    
+        // Se houver erro, retornar para o frontend
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'error' => $response['error']
+            ];
+        }
+    
+        // Se a autenticação foi bem-sucedida, prosseguir com a lógica posterior
+        return $this->handlePostAuthentication($response['user'], $data, $regiaoId, 'database');
+    }
+    
 
-        // Recuperar o valor de 'macradio' da sessão do hotspot
+    private function authenticateWithRadius(array $data, $regiaoId)
+    {
+
+        $response = $this->getSaveUserDatabase($data);
+    
+        // Se houver erro, retornar para o frontend
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'error' => $response['error']
+            ];
+        }
+        $accessData = AccessData::where('regiao', $regiaoId)->where('type', 'radius')->first();
+    
+        if (!$accessData) {
+            return ['success' => false, 'error' => 'Configuração de autenticação RADIUS não encontrada'];
+        }
+    
+        $pythonScriptPath = app_path('radius/radius_auth.py');
+    
+        // Criar o processo para executar o script Python
+        $process = new Process([
+            'python3',
+            $pythonScriptPath,
+            $data['username'],
+            $data['password'],
+            $accessData->senha,
+            $accessData->ip
+        ]);
+    
+        // Executar o processo e esperar o resultado
+        $process->run();
+       
+        // Verificar se o processo falhou
+        if (!$process->isSuccessful()) {
+            Log::error('Falha ao executar o script Python:', [
+                'error' => $process->getErrorOutput(),
+                'output' => $process->getOutput(),
+            ]);
+            return ['success' => false, 'error' => 'Falha na execução do script de autenticação RADIUS'];        }
+    
+        
+        $output = $process->getOutput();      
+        $response = json_decode($output, true);
+    
+        if (json_last_error() !== JSON_ERROR_NONE || !$response) {
+            
+            return ['success' => false, 'error' => 'Resposta inválida do script de autenticação RADIUS'];
+        }
+    
+        if (!$response['success']) {
+            return ['success' => false, 'error' => $response['message']];
+        }
+   
+        // Retornar o sucesso da autenticação
+        return $this->handlePostAuthentication(null, $data, $regiaoId, 'radius');
+    }
+    private function handlePostAuthentication($user = null, $data, $regiaoId , $authType )
+    {
+       
         $macradio = Session::get('hotspot.session.macradio');
         if (!$macradio) {
-            return ['success' => false, 'error' => 'Conexao de rede não está ativa no hotspot,Verifica se o 3g esta desligado e se o hotspot esta ativo'];
+            return ['success' => false, 'error' => 'Rede Hotspost não selecionada, Verifique e desactive o a internet movel e tente novamente'];
         }
 
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
         $campanha_id = $this->getActiveCampaign($macradio, $regiaoId);
-        $url = $this->generateRedirectUrl($user, $pappassword, $regiaoId);
+        $url = $this->generateRedirectUrl($data, $pappassword, $regiaoId, $authType);
 
         return ['success' => true, 'url' => $url, 'campanha_id' => $campanha_id, 'region_id' => $regiaoId];
     }
@@ -145,8 +238,11 @@ class HotspotRepository
         return null;
     }
 
-    private function generateRedirectUrl($user, $pappassword, $regiaoId)
+    private function generateRedirectUrl($data, $pappassword, $regiaoId, $authType)
     {
+
+        $sessionTimeout = 3600;
+        // Capturar informações da sessão
         $uamip = Session::get('hotspot.session.uamip');
         $uamport = Session::get('hotspot.session.uamport');
         $ga_srvr = Session::get('hotspot.session.ga_srvr');
@@ -156,26 +252,62 @@ class HotspotRepository
         $ga_cmac = Session::get('hotspot.session.ga_cmac');
         $ga_Qv = Session::get('hotspot.session.ga_Qv');
         $emac = Session::get('hotspot.session.emac');
-
-        if ($uamip) {
-            return "http://$uamip:$uamport/logon?username=" . urlencode($user->UserName) . "&password=" . urlencode($pappassword);
+    
+        // Se o tipo de autenticação for 'database'
+        if ($authType === 'database') {
+            //ligowave
+            if ($uamip) {
+                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword);
+            }
+            //cambium
+            if ($ga_srvr) {
+                return "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi?ga_user=" . urlencode($data['username']) .
+                       "&ga_pass=" . urlencode($data['password']) .
+                       "&ga_ssid=" . urlencode($ga_ssid) .
+                       "&ga_ap_mac=" . urlencode($ga_ap_mac) .
+                       "&ga_nas_id=" . urlencode($ga_nas_id) .
+                       "&ga_srvr=" . urlencode($ga_srvr) .
+                       "&ga_cmac=" . urlencode($ga_cmac) .
+                       "&ga_Qv=" . urlencode($ga_Qv);
+            }
+            //edge core
+            if ($emac) {
+                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword) . "&emac=" . urlencode($emac);
+            }
+    
+            return Session::get('hotspot.session.linklogin') . '?username=' . urlencode($data['username']) . '&password=' . urlencode($data['password']);
         }
-
-        if ($ga_srvr) {
-            return "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi?ga_user=" . urlencode($user->UserName) .
-                   "&ga_pass=" . urlencode($user->Value) .
-                   "&ga_ssid=" . urlencode($ga_ssid) .
-                   "&ga_ap_mac=" . urlencode($ga_ap_mac) .
-                   "&ga_nas_id=" . urlencode($ga_nas_id) .
-                   "&ga_srvr=" . urlencode($ga_srvr) .
-                   "&ga_cmac=" . urlencode($ga_cmac) .
-                   "&ga_Qv=" . urlencode($ga_Qv);
+    
+        // Se o tipo de autenticação for 'radius'
+        if ($authType === 'radius') {
+            $redirectUrl = '';
+    
+            if ($ga_srvr) {
+                $redirectUrl = "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi";
+            } elseif ($uamip) {
+                $redirectUrl = "http://$uamip:$uamport/logon";
+            }
+    
+            // Concatenar todos os atributos na URL
+            $redirectUrl .= "?code=Access-Accept" .
+                            "&Reply-Message=" . urlencode('Autenticação bem-sucedida') .
+                            "&Session-Timeout=" . $sessionTimeout .
+                            "&User-Name=" . urlencode($data['username']) .
+                            "&ga_user=" . urlencode($data['username']) .
+                            "&ga_pass=" . urlencode($pappassword) .
+                            "&ga_ssid=" . urlencode($ga_ssid) .
+                            "&ga_ap_mac=" . urlencode($ga_ap_mac) .
+                            "&ga_nas_id=" . urlencode($ga_nas_id) .
+                            "&ga_srvr=" . urlencode($ga_srvr) .
+                            "&ga_cmac=" . urlencode($ga_cmac) .
+                            "&ga_Qv=" . urlencode($ga_Qv);
+    
+            return $redirectUrl;
         }
-
-        if ($emac) {
-            return "http://$uamip:$uamport/logon?username=" . urlencode($user->UserName) . "&password=" . urlencode($pappassword) . "&emac=" . urlencode($emac);
-        }
-
-        return Session::get('hotspot.session.linklogin') . '?username=' . urlencode($user->UserName) . '&password=' . urlencode($user->Value);
+    
+        // Retorno padrão se nenhuma condição for atendida
+        return ['success' => false, 'message' => 'Tipo de autenticação desconhecido'];
     }
+    
+    
 }

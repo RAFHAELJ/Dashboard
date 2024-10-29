@@ -59,10 +59,12 @@ Route::prefix('hotspot/{region}')->middleware(['web','dynamic-db-hotspot','hotsp
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
     Route::get('/logout', [HotspotController::class, 'logout'])->name('hotspot.logout');
 
+    Route::get('/wfd/login', [HotspotController::class, 'showRadiusLoginForm'])->name('hotspot.radius.login');
+    Route::post('/wfd/authenticate', [HotspotController::class, 'authenticateRadius'])->name('hotspot.authenticate.radius');
+    Route::get('/wfd/logout', [HotspotController::class, 'logoutRadius'])->name('hotspot.radius.logout');
+
 });
-Route::get('/hotspot/test-session', function () {
-    dd(Session::get('hotspot.session'));
-});
+
 
 
 
