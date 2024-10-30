@@ -31,44 +31,26 @@ class UsuarioController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:usuarios',
-            'password' => 'required|min:6',
-        ]);
+       
 
         $user = $this->userRepository->create([
-            'name' => $request->name,
+            'nome' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'value' => Hash::make($request->password),
+            'telefone' => $request->telefone
         ]);
 
         return redirect()->route('usuarios.index')->with('success', 'Usuário criado com sucesso!');
     }
 
-    public function show($id)
-    {
-        $user = $this->userRepository->find($id);
-        if ($user) {
-            return Inertia::render('Users/Show', [
-                'user' => $user
-            ]);
-        } else {
-            return Inertia::render('Errors/404', [
-                'message' => 'Usuário não encontrado'
-            ]);
-        }
-    }
+ 
 
-    public function update(Request $request, User $user)
+    public function update(Request $request,  $id)
     {
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:usuarios,email,' ,
-            
-        ]);        
+       
+                
 
-        $userResp = $this->userRepository->update($request, $user);
+        $userResp = $this->userRepository->update($request->all(), $id);
         if ($userResp) {
             return redirect()->route('usuarios.index')->with('success', 'Usuário atualizado com sucesso!');
         } else {

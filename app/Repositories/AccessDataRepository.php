@@ -46,4 +46,16 @@ class AccessDataRepository
     {
         return $this->model->destroy($id);
     }
+
+        // Método para contar o total de bancos de dados
+        public function getTotalDatabases()
+        {
+            return $this->model->where('type', 'database')->count();
+        }
+    
+        // Método para contar o total de controladoras
+        public function getTotalControllers()
+        {
+            return $this->model->where('type', 'controller')->count();
+        }
 }

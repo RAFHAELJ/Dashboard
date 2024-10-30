@@ -55,6 +55,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Regiao::class, 'regiao');
     }
+    public function regioes()
+    {
+        return $this->belongsTo(Regiao::class, 'regiao');
+    }
 
     public function permissions()
     {

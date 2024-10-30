@@ -65,18 +65,40 @@ const form = ref({
   input_elevation:1,
   input_opacity:  1,
   previewTopImage: null,
+  caditens: {
+    nome: false,
+    usuario: false,
+    email: false,
+    senha: false,
+    cpf: false,
+    telefone: false,
+    nascimento: false,
+    sexo: false,
+  },
   types: {
     conta: false,  // Será ajustado com base nos elementos abaixo
     rede_social: false,
     login_click: false,
   },
   login_method:  [],
-  password_method: [],
+  login_password_method: [],
   selected_social_networks:  [],
   editableTextContent: 'Digite Aqui seu texto',
   elements: [],
   
 });
+
+const socialNetworks = ref([
+  { name: 'Facebook', on: false, key: '', secret: '', url: '' },
+  { name: 'Twitter', on: false, key: '', secret: '', url: '' },
+  { name: 'Instagram', on: false, key: '', secret: '', url: '' },
+  { name: 'Google', on: false, key: '', secret: '', url: '' },
+]);
+
+const showInsertItemsModal = ref(false);
+const showSocialModal = ref(false);
+
+
 // Função para carregar os dados da base de dados no form
 const loadCustomizationData = (customizationData) => {
   form.value.id = customizationData.id;
@@ -94,13 +116,50 @@ const loadCustomizationData = (customizationData) => {
   form.value.login_method = customizationData.login_method ? JSON.parse(customizationData.login_method) : [];
 
   // Converter login_password_method de string JSON para array (se não for nulo)
-  form.value.login_password_method = customizationData.login_password_method ? JSON.parse(customizationData.login_password_method) : [];
+  //console.log('login_password_method:', customizationData.login_password_method);
+  form.value.login_password_method = 
+  typeof customizationData.login_password_method === 'string' 
+    ? JSON.parse(customizationData.login_password_method) 
+    : customizationData.login_password_method || [];
+
+  // Converter caditens de string JSON para objeto (se não for nulo)
+  if (customizationData.caditens) {
+    const parsedCaditens = JSON.parse(customizationData.caditens);
+    // Convertendo os valores de string para boolean
+    form.value.caditens = Object.keys(parsedCaditens).reduce((acc, key) => {
+      acc[key] = parsedCaditens[key] === "true";
+      return acc;
+    }, {});
+  } else {
+    form.value.caditens = {
+      nome: false,
+      usuario: false,
+      email: false,
+      senha: false,
+      cpf: false,
+      telefone: false,
+      nascimento: false,
+      sexo: false,
+    };
+  }
+
+  // Converter social_networks de string JSON para array (se não for nulo)
+  if (customizationData.social_networks) {
+    const parsedSocialNetworks = JSON.parse(customizationData.social_networks);
+    // Atualizar socialNetworks.value com os dados vindos do banco
+    socialNetworks.value = parsedSocialNetworks.map(network => ({
+      name: network.name,
+      on: network.on === "true", // Convertendo para boolean
+      key: network.key || '',
+      secret: network.secret || '',
+      url: network.url || '',
+    }));
+  }
 
   // Atualizar as variáveis globais de ajuste do form com base nos valores dos elementos
   if (customizationData.elements) {
     const parsedElements = JSON.parse(customizationData.elements);
 
-    // Verifique se existem elementos relevantes e popule as variáveis globais
     parsedElements.forEach(element => {
       if (element.type === 'input' || element.type === 'inputPassword') {
         form.value.input_width = element.width || form.value.input_width;
@@ -117,7 +176,6 @@ const loadCustomizationData = (customizationData) => {
         form.value.button_opacity = element.opacity || form.value.button_opacity;
         form.value.background = element.backgroundColor || form.value.background;
         form.value.textColorButon = element.color || form.value.textColorButon;
-        
       }
 
       if (element.type === 'text') {
@@ -125,7 +183,7 @@ const loadCustomizationData = (customizationData) => {
       }
     });
 
-    // Depois de processar as variáveis globais, popula o form.value.elements para manter a estrutura de elementos
+    // Popula o form.value.elements para manter a estrutura de elementos
     form.value.elements = parsedElements.map(element => {
       const baseElement = {
         id: element.id,
@@ -140,7 +198,6 @@ const loadCustomizationData = (customizationData) => {
         previewTopImage: element.image || null
       };
 
-      // Tratamento específico para diferentes tipos de elementos
       if (element.type === 'input' || element.type === 'inputPassword') {
         return {
           ...baseElement,
@@ -174,11 +231,12 @@ const loadCustomizationData = (customizationData) => {
         };
       }
 
-      // Retorna o elemento base para os tipos não tratados
       return baseElement;
     });
   }
 };
+
+
 
 const resolveImageSource = (element) => {
   // Verifica se existe uma imagem base64 (geralmente para pré-visualização)
@@ -249,10 +307,10 @@ const handleLoginMethodChange = () => {
 const handlePasswordMethodChange = () => {
  
   // Remover elementos de senha que não estão mais selecionados
-  previewElements.value = previewElements.value.filter(el => !(el.type === 'input' && !form.value.password_method.includes(el.label)));
+  previewElements.value = previewElements.value.filter(el => !(el.type === 'input' && !form.value.login_password_method.includes(el.label)));
 
   // Adicionar novos elementos de senha
-  form.value.password_method.forEach(method => {
+  form.value.login_password_method.forEach(method => {
     const existingElement = previewElements.value.find(el => el.label === method );
     if (!existingElement) {
       previewElements.value.push({
@@ -338,19 +396,22 @@ const handleToggleConta = () => {
 
 const handleToggleRedeSocial = () => {
   if (form.value.types.rede_social) {
-    form.value.selected_social_networks.forEach(network => {
-      previewElements.value.push({
-        id: previewElements.value.length + 1,
-        type: 'social',
-        social: network,
-        top: 200 + previewElements.value.length * 50,
-        left: 50,
-      });
-    });
+    showSocialModal.value = true;
   } else {
-    removePreviewElement('social');
+    form.value.selected_social_networks = [];
   }
 };
+
+const saveInsertItems = () => {
+  // Lógica para salvar os itens selecionados
+  showInsertItemsModal.value = false;
+};
+
+const saveSocialConfig = () => {
+  // Lógica para salvar a configuração das redes sociais
+  showSocialModal.value = false;
+};
+
 
 const handleToggleLoginClick = () => {
   if (form.value.types.login_click) {
@@ -596,7 +657,7 @@ const getMaskForMethod = computed(() => {
 
 // Função para retornar a máscara baseada no método de senha
 const getMaskForPassword = computed(() => {
-  const passwordMethod = form.value.password_method[0]; // Seleciona o primeiro método de senha
+  const passwordMethod = form.value.login_password_method[0]; // Seleciona o primeiro método de senha
   if (passwordMethod === 'CPF') {
     return '###.###.###-##'; // Máscara para CPF
   } else {
@@ -609,42 +670,63 @@ const getMaskForPassword = computed(() => {
 
 const saveScreenAsJson = () => {
   const screenData = {
-    layout_name: form.value.layout_name,
-    top_type: form.value.top_type,
-    top_value: form.value.top_value,
-    background_type: form.value.background_type,
-    background_value: form.value.background_value,
-    login_button_text: form.value.login_button_text,
-    login_button_color: form.value.login_button_color,
-    login_method: form.value.login_method,
-    login_password_method: form.value.login_password_method,
-    input_color: form.value.input_color,
-    region: form.value.regiao,
-    elements: previewElements.value.map(element => ({
-      id: element.id,
-      type: element.type,
-      top: element.top,
-      left: element.left,
-      backgroundColor: element.type === 'input' || element.type === 'inputPassword' ? form.value.input_color || element.backgroundColor : element.type === 'button' ? form.value.login_button_color || element.backgroundColor : element.backgroundColor,
-      width: element.type === 'input' || element.type === 'inputPassword'
-        ? form.value.input_width || element.width
-        : element.type === 'topCard'
-        ? form.value.imageTamanho || element.width
-        : element.width || 100,
-      height: element.type === 'input' || element.type === 'inputPassword'
-        ? form.value.input_height || element.height
-        : element.type === 'topCard'
-        ? form.value.imageTamanho || element.height
-        : element.height || 40,
-      text: element.text || null,
-      color: element.type === 'text' ? form.value.textColor || element.color : element.type === 'buttonA' || element.type === 'buttonC' ? form.value.textColorButon || element.color : element.color,
-      shape: element.type === 'input' || element.type === 'inputPassword' ? form.value.input_shape || element.shape 
-      :element.type === 'button' ? form.value.login_button_shape || element.shape : element.shape ,
-      opacity: element.opacity || form.value.button_opacity,
-      elevation: element.elevation || form.value.button_elevation,
-      image: element.image || null,
-    }))
-  };
+  layout_name: form.value.layout_name,
+  top_type: form.value.top_type,
+  top_value: form.value.top_value,
+  background_type: form.value.background_type,
+  background_value: form.value.background_value,
+  login_button_text: form.value.login_button_text,
+  login_button_color: form.value.login_button_color,
+  login_method: form.value.login_method,
+  login_password_method: form.value.login_password_method,
+  input_color: form.value.input_color,
+  region: form.value.regiao,
+  caditens: { ...form.value.caditens }, // Incluindo caditens
+  social_networks: socialNetworks.value.map(network => ({ // Incluindo redes sociais
+    name: network.name,
+    on: network.on,
+    key: network.key,
+    secret: network.secret,
+    url: network.url
+  })),
+  elements: previewElements.value.map(element => ({
+    id: element.id,
+    type: element.type,
+    top: element.top,
+    left: element.left,
+    backgroundColor: element.type === 'input' || element.type === 'inputPassword' 
+      ? form.value.input_color || element.backgroundColor 
+      : element.type === 'button' 
+      ? form.value.login_button_color || element.backgroundColor 
+      : element.backgroundColor,
+    width: element.type === 'input' || element.type === 'inputPassword'
+      ? form.value.input_width || element.width
+      : element.type === 'topCard'
+      ? form.value.imageTamanho || element.width
+      : element.width || 100,
+    height: element.type === 'input' || element.type === 'inputPassword'
+      ? form.value.input_height || element.height
+      : element.type === 'topCard'
+      ? form.value.imageTamanho || element.height
+      : element.height || 40,
+    text: element.text || null,
+    color: element.type === 'text' 
+      ? form.value.textColor || element.color 
+      : element.type === 'buttonA' || element.type === 'buttonC' 
+      ? form.value.textColorButon || element.color 
+      : element.color,
+    shape: element.type === 'input' || element.type === 'inputPassword' 
+      ? form.value.input_shape || element.shape 
+      : element.type === 'button' 
+      ? form.value.login_button_shape || element.shape 
+      : element.shape,
+    opacity: element.opacity || form.value.button_opacity,
+    elevation: element.elevation || form.value.button_elevation,
+    image: element.image || null,
+  }))
+};
+
+
   
 
   // Criar uma instância de FormData para combinar screenData e arquivos de imagem
@@ -676,6 +758,19 @@ const saveScreenAsJson = () => {
           formData.append(`${key}[${index}]`, item);
         });
       }
+    } else if (key === 'social_networks' && Array.isArray(screenData[key])) {
+      screenData[key].forEach((network, index) => {
+        formData.append(`social_networks[${index}][name]`, network.name);
+        formData.append(`social_networks[${index}][on]`, network.on);
+        formData.append(`social_networks[${index}][key]`, network.key);
+        formData.append(`social_networks[${index}][secret]`, network.secret);
+        formData.append(`social_networks[${index}][url]`, network.url);
+      });
+    } else if (key === 'caditens') {
+      console.log('caditens', screenData[key]);
+      Object.keys(screenData[key]).forEach((item) => {
+        formData.append(`caditens[${item}]`, screenData[key][item]);
+      });
     } else {
       formData.append(key, screenData[key]);
     }
@@ -762,7 +857,59 @@ const downloadJsonFile = (jsonString, fileName) => {
                 label="Selecione uma região"
                 :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
                />
-          </v-card>   
+               <v-btn @click="showInsertItemsModal = true" color="secondary" class="mt-4">
+              Inserir Itens
+            </v-btn>
+             <!-- Modal para seleção de campos -->
+             <v-dialog v-model="showInsertItemsModal" max-width="500px">
+              <v-card>
+                <v-card-title>Selecione os Itens</v-card-title>
+                <v-card-text>
+                  <v-checkbox v-model="form.caditens.nome" label="Nome" />
+                  <v-checkbox v-model="form.caditens.usuario" label="Nome de Usuário" />
+                  <v-checkbox v-model="form.caditens.email" label="Email" />
+                  <v-checkbox v-model="form.caditens.senha" label="Senha" />
+                  <v-checkbox v-model="form.caditens.cpf" label="CPF" />
+                  <v-checkbox v-model="form.caditens.telefone" label="Telefone" />
+                  <v-checkbox v-model="form.caditens.nascimento" label="Data de Nascimento" />
+                  <v-checkbox v-model="form.caditens.sexo" label="Sexo" />
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text @click="showInsertItemsModal = false">Cancelar</v-btn>
+                  <v-btn color="primary" @click="saveInsertItems">Salvar</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+            <!-- Checkbox para Redes Sociais -->
+            <v-checkbox
+              v-model="form.types.rede_social"
+              label="Rede Social"
+              @change="handleToggleRedeSocial"
+            ></v-checkbox>
+
+            <!-- Modal para redes sociais -->
+            <v-dialog v-model="showSocialModal" max-width="500px">
+              <v-card>
+                <v-card-title>Redes Sociais</v-card-title>
+                <v-card-text>
+                  <div v-for="(network, index) in socialNetworks" :key="index" class="my-2">
+                    <v-checkbox v-model="network.on" :label="network.name" />
+                    <template v-if="network.on">
+                      <v-text-field v-model="network.key" label="Key" />
+                      <v-text-field v-model="network.secret" label="Secret" />
+                      <v-text-field v-model="network.url" label="URL" />
+                    </template>
+                  </div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text @click="showSocialModal = false">Cancelar</v-btn>
+                  <v-btn color="primary" @click="saveSocialConfig">Salvar</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-card>  
+
           
           <v-card-title>Ajuste fundo e logotipo</v-card-title>
           <v-card class="customization-card" elevation="10">
@@ -857,7 +1004,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                   @change="handleLoginMethodChange"
                 ></v-select>
                 <v-select
-                  v-model="form.password_method"
+                  v-model="form.login_password_method"
                   :items="['CPF', 'Data de Nascimento', 'Telefone', 'Livre']"
                   label="Senha Usando"
                   multiple
@@ -973,7 +1120,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                         <input
                           v-if="element.type === 'inputPassword' && (element.label || isEditMode)"
                           id="password"
-                          :placeholder="form.password_method.join(' ou ')" 
+                          :placeholder="form.login_password_method.join(' ou ')" 
                           :style="{
                             width:  form.input_width + 'px',
                             height: form.input_height + 'px',

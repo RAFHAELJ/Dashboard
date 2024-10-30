@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Regiao;
-use App\Repositories\RegiaoRepository;
-use Illuminate\Http\Request;
+use auth;
 use Inertia\Inertia;
+use App\Models\Regiao;
+use Illuminate\Http\Request;
+use App\Repositories\LogRepository;
+use App\Repositories\RegiaoRepository;
 
 class RegiaoController extends Controller
 {
     protected $regiaoRepository;
 
-    public function __construct(RegiaoRepository $regiaoRepository)
+    public function __construct(RegiaoRepository $regiaoRepository,LogRepository $logRepository)
     {
         $this->regiaoRepository = $regiaoRepository;
+        $this->logRepository = $logRepository;
     }
 
     // Index (exibição)
@@ -26,7 +29,7 @@ class RegiaoController extends Controller
             
             return response()->json($regioes);
         }    
-        // Se não for uma requisição JSON, renderize a página normalmente com Inertia
+       
         return Inertia::render('configuracao/Index', [
             'regioes' => $regioes
         ]);
@@ -45,15 +48,16 @@ class RegiaoController extends Controller
         try {
             // Criação da região
             $regiao = $this->regiaoRepository->create($validatedData);
+            $this->logRepository->createLog(auth()->id(), 'Adcionado Nova Regiao', $request->regiao);
     
             if ($request->expectsJson()) {
-                return response()->json($regiao, 201); // Retorna como JSON caso seja esperado
+                return response()->json($regiao, 201); 
             }
     
             return redirect()->route('regioes.index')
                 ->with('success', 'Região criada com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erros
+           
             return Inertia::render('Error', [
                 'error' => 'Erro ao criar a região: ' . $e->getMessage()
             ]);
@@ -61,7 +65,7 @@ class RegiaoController extends Controller
     }
     
 
-    // Editar uma região
+    
     public function update(Request $request, $id)
     {
         // Validações
@@ -73,15 +77,16 @@ class RegiaoController extends Controller
         try {
             // Atualização da região
             $regiao = $this->regiaoRepository->update($id, $validatedData);
+            $this->logRepository->createLog(auth()->id(), 'Atualização de Regiao', $request->regiao);
     
             if ($request->expectsJson()) {
-                return response()->json($regiao, 200); // Retorna como JSON caso seja esperado
+                return response()->json($regiao, 200); 
             }
     
             return redirect()->route('regioes.index')
                 ->with('success', 'Região atualizada com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erros
+           
             return Inertia::render('Error', [
                 'error' => 'erro ao atualizar a região: ' . $e->getMessage()
             ]);
@@ -93,17 +98,18 @@ class RegiaoController extends Controller
     public function destroy($id)
     {
         try {
-            // Tenta deletar a região
+          
             $this->regiaoRepository->delete($id);
+            $this->logRepository->createLog(auth()->id(), 'Deletado Regiao');
     
             if (request()->expectsJson()) {
-                return response()->json(null, 204); // Retorna status 204 (No Content) em caso de sucesso
+                return response()->json(null, 204); 
             }
     
             return redirect()->route('regioes.index')
                 ->with('success', 'Região deletada com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e retorna uma mensagem de erro apropriada
+            
             if (request()->expectsJson()) {
                 return Inertia::render('Error', [
                     'error' => 'Erro ao deletar a região: ' . $e->getMessage()

@@ -3,12 +3,13 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Intervention\Image\Facades\Image;
 
 class CampanhaRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // Altere se precisar de controle de autorização
+        return true;
     }
 
     public function rules()
@@ -20,11 +21,12 @@ class CampanhaRequest extends FormRequest
             'publico' => 'required|string',
             'minimo' => 'required|integer|min:0',
             'maxima' => 'required|integer|gte:minimo',
-            'tipo' => 'required|string|in:video,imagem',
+            'tipo' => 'required|string|in:video,imagem,formulario',
             'duracao' => 'required_if:tipo,video|integer|min:1',
             'url' => 'nullable|string',
+            'urlForms' => 'nullable|string',
             'regiao' => 'nullable|string',
-            'video' => 'nullable|file|mimes:mp4,avi,mov|max:10240', // Adicione ou ajuste os tipos de arquivo e tamanho
+            'video' => 'nullable|file|mimes:mp4,avi,mov|max:10240',
             'capa' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
             'imagem' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
         ];
@@ -48,6 +50,33 @@ class CampanhaRequest extends FormRequest
             'capa.max' => 'A capa não pode ser maior que 2MB.',
             'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, ou jpg.',
             'imagem.max' => 'A imagem não pode ser maior que 2MB.',
+            'capa.dimensions' => 'A capa deve ter exatamente 300x620 pixels.',
+            'imagem.dimensions' => 'A imagem deve ter exatamente 340x620 pixels.',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Valida as dimensões da capa
+            if ($this->hasFile('capa')) {
+                $capa = $this->file('capa');
+                $capaImage = Image::make($capa->getPathname());
+
+                if ($capaImage->width() !== 300 || $capaImage->height() !== 620) {
+                    $validator->errors()->add('capa', 'A capa deve ter exatamente 300x620 pixels.');
+                }
+            }
+
+            // Valida as dimensões da imagem
+            if ($this->hasFile('imagem')) {
+                $imagem = $this->file('imagem');
+                $imagemImage = Image::make($imagem->getPathname());
+
+                if ($imagemImage->width() !== 340 || $imagemImage->height() !== 620) {
+                    $validator->errors()->add('imagem', 'A imagem deve ter exatamente 340x620 pixels.');
+                }
+            }
+        });
     }
 }

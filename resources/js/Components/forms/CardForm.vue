@@ -24,56 +24,49 @@
           label="Tipo de Exibição"
           required
         ></v-select>
-        <v-textarea
-          v-if="cardData.type === 'Texto'"
-          v-model="cardData.content"
-          label="Conteúdo"
-          :style="{ backgroundColor: 'transparent' }"
-        ></v-textarea>
-
-        <!-- Campo oculto para o parâmetro page -->
-        <v-text-field
-          v-model="cardData.page"
-          type="hidden"
-        ></v-text-field>
+        <v-select
+          v-if="cardData.type === 'Gráfico'"
+          v-model="cardData.format"
+          :items="['line', 'bar']"
+          label="Formato do Gráfico"
+          required
+        ></v-select>
       </v-form>
     </v-card-text>
     <v-card-actions>
-      <v-btn @click="saveCard" color="primary">Salvar</v-btn>
-      <v-btn @click="closeDialog" color="secondary">Cancelar</v-btn>
+      <v-btn @click="saveCard" :disabled="isSaving" color="primary">
+        <!-- Ícone de carregamento enquanto o estado de "isSaving" for verdadeiro -->
+        <v-icon v-if="isSaving" class="mr-2">mdi-loading</v-icon>
+        Salvar
+      </v-btn>
+      <v-btn @click="closeDialog" color="secondary" :disabled="isSaving">Cancelar</v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3'; // Importa useForm do Inertia.js
 
-const props = defineProps({
-  dialog: Boolean,
-  card: Object,
-  page: String,
-});
+const isSaving = ref(false); // Estado para controlar o loading
 
-const emit = defineEmits(['update', 'close']);
+const emit = defineEmits(['add', 'close']);
 
 const urlOptions = ref([
-  { title: 'Usuários (Dashboard)', value: 'users/count' },
-  { title: 'Usuários (Rádio)', value: 'users/radio/count' },
-  { title: 'Rádios', value: 'radios/count' },
-  { title: 'Radius', value: 'radius/count' },
+  { title: 'Estatísticas de Acessos', value: 'statistics/access' },
+  { title: 'Uso de Armazenamento', value: 'statistics/storage' },
+  { title: 'Info geral user/radio', value: 'radios/getRadiosInfo' },
+  { title: 'usuarios por regiao e nivel', value: 'users/count' },
+  { title: 'banco de dados /controller', value: 'database/showStatistics' }
 ]);
 
 const cardData = reactive({
-  id: props.card?.id || null,
-  url: props.card?.url || '',
-  title: props.card?.title || '',
-  type: props.card?.type || '',
-  content: props.card?.content || '',
-  chart_options: props.card?.chartOptions || {},
-  page: props.page || '', // Adiciona o parâmetro page aqui
+  url: '',
+  title: '',
+  type: '',
+  page: 'home',
+  format: 'line'
 });
-
 const fetchData = async (url) => {
   try {
     const response = await fetch(url);
@@ -84,27 +77,19 @@ const fetchData = async (url) => {
     return null;
   }
 };
-
 const saveCard = async () => {
+  isSaving.value = true; // Inicia o estado de carregamento
+
   const data = await fetchData(cardData.url);
 
-  if (cardData.type === 'Texto') {
-    cardData.content = data;
-  } else if (cardData.type === 'Gráfico') {
-    cardData.chartOptions = data;
-  }
-
-  // Verifique se a página está sendo incluída corretamente
-  console.log('Dados do card antes de salvar:', cardData);
-
+  const form = useForm(cardData);
   const method = cardData.id ? 'put' : 'post';
   const url = cardData.id ? `/cards/${cardData.id}` : '/cards';
 
   try {
-    // Envia o cardData diretamente para garantir que todos os dados sejam enviados
-    await useForm(cardData).submit(method, url, {
+    await form.submit(method, url, {
       onSuccess: () => {
-        emit('update');
+        emit('add', cardData);
         emit('close');
       },
       onError: (errors) => {
@@ -113,6 +98,8 @@ const saveCard = async () => {
     });
   } catch (error) {
     console.error('Erro ao salvar o card:', error);
+  } finally {
+    isSaving.value = false; // Finaliza o estado de carregamento
   }
 };
 
@@ -122,5 +109,5 @@ const closeDialog = () => {
 </script>
 
 <style scoped>
-/* Adicione estilos específicos para o formulário aqui */
+/* Estilos específicos para o formulário */
 </style>

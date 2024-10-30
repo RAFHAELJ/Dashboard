@@ -25,8 +25,9 @@ return new class extends Migration
             $table->string('imagem')->nullable();
             $table->string('regiao')->nullable();
             $table->integer('tempo');
-            $table->string('url');
+            $table->string('url')->nullable();
             $table->integer('duracao');
+            $table->string('status')->default('ativa');
             $table->timestamps();
         });
     }

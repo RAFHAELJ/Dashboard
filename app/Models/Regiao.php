@@ -9,6 +9,7 @@ class Regiao extends Model
 {
     use HasFactory;
     protected $table = 'regioes';
+    protected $connection = 'mysql';
     protected $fillable = ['cidade', 'bairros'];
 
     // Para lidar com o campo JSON de bairros

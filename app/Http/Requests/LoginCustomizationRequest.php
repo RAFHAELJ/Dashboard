@@ -35,7 +35,7 @@ class LoginCustomizationRequest extends FormRequest
             'login_button_color' => 'nullable|string',
             'login_button_shape' => 'nullable|integer',
             'login_method' => 'nullable|array',
-            'password_method' => 'nullable|array',
+            'login_password_method' => 'nullable|array',
             'input_width' => 'nullable',
             'input_height' => 'nullable',
             'input_color' => 'nullable|string',
@@ -43,6 +43,8 @@ class LoginCustomizationRequest extends FormRequest
             'elements' => 'nullable|array',
             'region' => 'nullable|integer|max:255',
             'username' => 'nullable|string|max:255',
+            'social_networks' => 'nullable|array',
+            'caditens' => 'nullable|array',
         ];
     }
     protected function prepareForValidation()

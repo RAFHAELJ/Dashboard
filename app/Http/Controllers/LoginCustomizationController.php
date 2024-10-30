@@ -2,39 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Traits\HandlesFileUpload;
+use App\Repositories\LogRepository;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\LoginCustomizationRequest;
 use App\Repositories\LoginCustomizationRepository;
-use App\Traits\HandlesFileUpload;
+
 class LoginCustomizationController extends Controller
 {
     use HandlesFileUpload;
     protected $repository;
 
-    public function __construct(LoginCustomizationRepository $repository)
+    public function __construct(LoginCustomizationRepository $repository,LogRepository $logRepository)
     {
         $this->repository = $repository;
+        $this->logRepository = $logRepository;
     }
 
-    // Método para exibir a tela com Inertia.js
-    public function index(Request $request)
-    {
+   
+    public function index(Request $request)    {
        
-        // Buscar os dados da tabela de customizações
-        $customizations = $this->repository->getAll();
-        
-        // Verificar se a solicitação quer JSON (via Axios ou API)
+ 
+        $customizations = $this->repository->getAll();        
+   
         if ($request->wantsJson()) {
-            //Log::info($customizations);
-            // Retornar uma resposta JSON
+  
             return response()->json([
                 'customizations' => $customizations
             ]);
         }
     
-        // Retornar uma view usando Inertia.js se não for uma solicitação JSON
+       
         return Inertia::render('loginLayout/ListaHotSpot', [
             'customizations' => $customizations
         ]);
@@ -43,21 +44,21 @@ class LoginCustomizationController extends Controller
 
     public function create()
     {
+        
         return Inertia::render('loginLayout/LoginCustomizations');
     }
 
     public function store(LoginCustomizationRequest $request)
     {
-        // Valida os dados
+        
        
         $data = $request->validated();
-      // dd($data);
-        // Verifica se há arquivos para upload
+     
         if ($request->hasFile('imagem')) {
             // Faz o upload da imagem de topo
             $data['elements'][0]['image'] = $this->uploadFile($request->file('imagem'), 'imagens');
         }
-       // dd($data);
+       
         if ($request->hasFile('backgroundImage')) {
             // Faz o upload da imagem de fundo
             $data['background_image'] = $this->uploadFile($request->file('backgroundImage'), 'imagens');
@@ -65,6 +66,7 @@ class LoginCustomizationController extends Controller
         
         // Cria a customização de login com os dados atualizados
         $this->repository->create($data);
+        $this->logRepository->createLog(auth()->id(), 'Adcionado Nova Configuração de Login', $request->regiao);
     
         return response()->json(['message' => 'Login customization created successfully!']);
     }
@@ -73,6 +75,7 @@ class LoginCustomizationController extends Controller
     {
         //dd($id);
         $customization = $this->repository->find($id);
+       
 
         return Inertia::render('loginLayout/LoginCustomizations', [
             'customization' => $customization
@@ -80,15 +83,12 @@ class LoginCustomizationController extends Controller
     }
 
     public function update(LoginCustomizationRequest $request, $id)
-    {
-        
-        // Valida os dados
-        //dd($request->all());
+    {        
+ //\dd($request->all());
         $data = $request->validated();
-    //dd()
-        // Verifica se há arquivos para upload
+ 
         if ($request->hasFile('elements[0].image')) {
-            // Faz o upload da nova imagem de topo
+           
             $data['elements'][0]['image'] = $this->uploadFile($request->file('elements[0].image'), 'imagens');
         }
     
@@ -101,18 +101,17 @@ class LoginCustomizationController extends Controller
          if ($request->hasFile('imagem')) {
             // Faz o upload da imagem de topo
             $data['image'] = $this->uploadFile($request->file('imagem'), 'imagens');
-        }
-       
-        // Atualiza a customização de login
+        }       
+        
         $this->repository->update($id, $data);
-    
+        $this->logRepository->createLog(auth()->id(), 'Editou Configuração de Login');
         return response()->json(['message' => 'Login customization updated successfully!']);
     }
 
     public function destroy($id)
     {
         $this->repository->delete($id);
-
+        $this->logRepository->createLog(auth()->id(), 'Apagado Configuração de Login');
         return redirect()->route('login_customizations.index')
                          ->with('success', 'Login customization deleted successfully!');
     }

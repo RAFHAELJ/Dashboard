@@ -41,6 +41,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\StoreHotspotSessionMiddleware::class,
+
            // \App\Http\Middleware\SetDynamicDatabaseConnection::class,
         ],
 
@@ -73,10 +75,13 @@ class Kernel extends HttpKernel
         'perPageLimit' => \App\Http\Middleware\PerPageLimit::class,
         'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
         'set-dynamic-db' => \App\Http\Middleware\SetDynamicDatabaseConnection::class,
+        'dynamic-db-hotspot' => \App\Http\Middleware\DynamicDatabaseConnectionHotSpot::class,
 
     ];
     protected $routeMiddleware = [
         // Outros middlewares...
         'check-page-access' => \App\Http\Middleware\CheckPageAccess::class,
+        'hotspot.session' => \App\Http\Middleware\StoreHotspotSessionMiddleware::class,
+
     ];
 }

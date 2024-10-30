@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\FaqRequest;
 use App\Repositories\FaqRepository;
+use App\Repositories\LogRepository;
 
 class FaqController extends Controller
 {
     protected $faqRepository;
 
-    public function __construct(FaqRepository $faqRepository)
+    public function __construct(FaqRepository $faqRepository,LogRepository $logRepository)
     {
         $this->faqRepository = $faqRepository;
+        $this->logRepository = $logRepository;
     }
 
     // Exibir a lista de FAQs com Inertia
@@ -37,6 +40,7 @@ class FaqController extends Controller
      
     
         $created = $this->faqRepository->store($request->only('nome', 'texto'));
+        $this->logRepository->createLog(auth()->id(), 'Adcionado Nova FAQ', $request->regiao);
     
         if ($created) {
             return back()->with('success', 'Nova FAQ criada com sucesso!');
@@ -51,7 +55,7 @@ class FaqController extends Controller
      
        
         $updated = $this->faqRepository->updateFaq($id, $request->only('nome', 'texto'));
-
+        $this->logRepository->createLog(auth()->id(), 'Atualizado FAQ', $request->regiao);
         if ($updated) {
             return 'ok';
         }

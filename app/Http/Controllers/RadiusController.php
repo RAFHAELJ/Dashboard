@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Repositories\LogRepository;
 use App\Http\Requests\RadiusRequest;
-use Illuminate\Support\Facades\Auth;
 use App\Repositories\RadiusRepository;
 
 class RadiusController extends Controller {
     protected $radiusRepository;
 
-    public function __construct(RadiusRepository $radiusRepository) {
+    public function __construct(RadiusRepository $radiusRepository,LogRepository $logRepository) {
         $this->radiusRepository = $radiusRepository;
+        $this->logRepository = $logRepository;
     }
     public function index()
     { 
@@ -43,7 +45,8 @@ class RadiusController extends Controller {
         try {
             // Criação do rádio no repositório
             $radio = $this->radiusRepository->create($request->all());
-           
+
+           $this->logRepository->createLog(auth()->id(), 'Adcionado Novo NAS', $request->regiao);
             return redirect()->route('radius.index')
                 ->with('success', 'Rádio criado com sucesso!');
         } catch (\Exception $e) {
@@ -67,6 +70,8 @@ class RadiusController extends Controller {
         try {
             // Atualização do rádio no repositório
             $radio = $this->radiusRepository->update($id, $request->all());
+
+            $this->logRepository->createLog(auth()->id(), 'Atualização de NAS', $request->regiao);
     
             return redirect()->route('radius.index')
                 ->with('success', 'Rádio atualizado com sucesso!');
@@ -79,6 +84,8 @@ class RadiusController extends Controller {
 
     public function destroy($id) {
         $this->radiusRepository->delete($id);
+
+        $this->logRepository->createLog(auth()->id(), 'Apagado NAS');
         return redirect()->route('radius.index')
             ->with('success', 'Rádio deletado com sucesso!');
     }

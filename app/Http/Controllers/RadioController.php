@@ -2,16 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Requests\RadioRequest;
+use App\Repositories\LogRepository;
+use App\Services\CsvExportService;
 use App\Repositories\RadioRepository;
 
 class RadioController extends Controller {
     protected $radioRepository;
+    protected $csvExportService;
+    protected $logRepository;
 
-    public function __construct(RadioRepository $radioRepository) {
+    public function __construct(RadioRepository $radioRepository, LogRepository $logRepository, CsvExportService $csvExportService)
+    {
         $this->radioRepository = $radioRepository;
+        $this->logRepository = $logRepository;
+        $this->csvExportService = $csvExportService;
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->input('startD');
+        $endDate = $request->input('endD');
+        $username = $request->input('username');
+        $mac = $request->input('mac');
+        $region = $request->input('region');
+
+        $data = $this->radioRepository->getAllTrackedUsers($startDate, $endDate, $username, $mac, $region);
+
+        $headers = ['ID', 'Nome', 'Início', 'Fim', 'Duração', 'Entrada', 'Saída', 'MAC', 'Usuário'];
+        return $this->csvExportService->downloadCsv('Relatorio de acessos', $headers, $data);
     }
     public function index()
     {
@@ -39,6 +61,30 @@ class RadioController extends Controller {
             'filters' => $request->all(), 
         ]);
     }
+    public function rastrearRadiosUso(Request $request)
+    {
+        
+        $radios = $this->radioRepository->rastrearRadiosUso($request);
+    
+        
+        return Inertia::render('radios/RastrearRadiosUso', [
+            'radios' => $radios,
+            'filters' => $request->all(), 
+        ]);
+    }
+    public function macHistory($id)
+{
+    $history = $this->radioRepository->getMacHistory($id);
+
+    if (request()->wantsJson()) {
+        return response()->json($history);
+    }
+
+    return Inertia::render('radios/HistóricoMac', [
+        'history' => $history
+    ]);
+}
+
 
     public function store(RadioRequest $request) {
         
@@ -48,7 +94,7 @@ class RadioController extends Controller {
         try {
             // Criação do rádio no repositório
             $radio = $this->radioRepository->create($request->all());
-           
+            $this->logRepository->createLog(auth()->id(), "Adcionado Novo Rádio {$request->radio} ", $request->regiao);
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio criado com sucesso!');
         } catch (\Exception $e) {
@@ -70,13 +116,16 @@ class RadioController extends Controller {
      
     
         try {
+            
             // Atualização do rádio no repositório
             $radio = $this->radioRepository->update($id, $request->all());
+            $this->logRepository->createLog(auth()->id(), "Atualização de Rádio {$request->radio} ", $request->regiao);
     
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio atualizado com sucesso!');
         } catch (\Exception $e) {
             // Captura a exceção e redireciona com erro
+            //\dd($e);
             return Inertia::render('Error', [
                 'error' => 'Erro ao atualizar rádio: ' . $e->getMessage()
             ]);
@@ -86,6 +135,7 @@ class RadioController extends Controller {
 
     public function destroy($id) {
         $this->radioRepository->delete($id);
+        $this->logRepository->createLog(auth()->id(), "Apagado Rádio {$id}");
         return redirect()->route('radios.index')
             ->with('success', 'Rádio deletado com sucesso!');
     }
@@ -119,4 +169,12 @@ class RadioController extends Controller {
             'users' => $usersFinal
         ]);
     }
+
+    public function radiosInfo()
+{
+    $info = $this->radioRepository->getRadiosInfo();
+
+        return response()->json(['success' => true, 'message' => 'Logged', 'data' => $info]);
+   
+}
 }

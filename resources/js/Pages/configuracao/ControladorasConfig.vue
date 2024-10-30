@@ -91,7 +91,7 @@ const redirectToHost = (server) => {
     url = `http://${server.ip}:${server.porta}`;
   } else {
     // Caso contrário, mantém o protocolo padrão e o hostname
-    const protocol = server.ip.includes('https') ? 'https' : 'http';
+    const protocol = server.ip.includes('http') ? 'http' : 'https';
     url = `${protocol}://${server.ip}`;
   }
 

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use auth;
 use App\Models\Card;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,8 @@ class CardRepository implements CardRepositoryInterface
 
     public function all()
     {
-        return $this->card->all();
+        $user_id = auth()->id(); // Obtém o ID do usuário autenticado
+        return $this->card->where('user_id', $user_id)->get(); // Retorna apenas os registros do usuário autenticado
     }
 
     public function find($id)
@@ -27,14 +29,19 @@ class CardRepository implements CardRepositoryInterface
     public function create(Request $request)
     {
         // Extrai os dados do request e cria o modelo
+        $user_id = auth()->id();
+       // dd($user_id);
         $data = $request->only([
             'title',
             'content',
             'url',
             'type',
             'chart_options',
+            'format',
             'page',
+           
         ]);
+        $data['user_id'] = $user_id;
 
         return $this->card->create($data);
     }
