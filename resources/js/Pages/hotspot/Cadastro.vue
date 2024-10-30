@@ -149,9 +149,7 @@
       const { props } = usePage();
       const customization = props.Customization;
       const regiao = ref(props.regiao);
-      const errors = ref(props.errors || {});
-
-      console.log('Região recebida:', regiao.value);
+      const errors = ref(props.errors || {}); 
 
 
   

@@ -60,7 +60,8 @@ class HotspotController extends Controller
        $login =  $this->hotspotRepository->login($region)->first();
        //dd($login);
        return inertia('hotspot/Login', [
-        'login' => $login ?? null, // Garante que 'login' seja enviado, mesmo que null
+        'login' => $login ?? null, 
+        'validation' => 'controller',
     ]);
     }
 
@@ -92,13 +93,12 @@ class HotspotController extends Controller
         ]);       
         
         $result = $this->hotspotRepository->authenticateUser($request->all(), $region, 'database');    
-    if (!$result['success']) {
-        Log::info('Erro de autenticação: ' . $result['error']);
-        return redirect()->back()
-            ->withErrors(['message' => $result['error']])
-            ->withInput();
-    }
-  
+        if (!$result['success']) {        
+            return redirect()->back()
+                ->withErrors(['message' => $result['error']])
+                ->withInput();
+        }
+        
         // Redirecionar para a rota usando Inertia
         return redirect()->route('hotspot.logon', [
             'region' => $region,
@@ -130,8 +130,9 @@ public function logoutRadius($region)
 public function showRadiusLoginForm(Request $request, $region)
 {
     $login = $this->hotspotRepository->login($region)->first();
-    return Inertia::render('hotspot/RadiusLogin', [
+    return Inertia::render('hotspot/Login', [
         'login' => $login ?? null,
+        'validation' => 'hotspot',
     ]);
 }
 

@@ -81,7 +81,7 @@ const form = ref({
     login_click: false,
   },
   login_method:  [],
-  password_method: [],
+  login_password_method: [],
   selected_social_networks:  [],
   editableTextContent: 'Digite Aqui seu texto',
   elements: [],
@@ -116,7 +116,11 @@ const loadCustomizationData = (customizationData) => {
   form.value.login_method = customizationData.login_method ? JSON.parse(customizationData.login_method) : [];
 
   // Converter login_password_method de string JSON para array (se não for nulo)
-  form.value.login_password_method = customizationData.login_password_method ? JSON.parse(customizationData.login_password_method) : [];
+  //console.log('login_password_method:', customizationData.login_password_method);
+  form.value.login_password_method = 
+  typeof customizationData.login_password_method === 'string' 
+    ? JSON.parse(customizationData.login_password_method) 
+    : customizationData.login_password_method || [];
 
   // Converter caditens de string JSON para objeto (se não for nulo)
   if (customizationData.caditens) {
@@ -303,10 +307,10 @@ const handleLoginMethodChange = () => {
 const handlePasswordMethodChange = () => {
  
   // Remover elementos de senha que não estão mais selecionados
-  previewElements.value = previewElements.value.filter(el => !(el.type === 'input' && !form.value.password_method.includes(el.label)));
+  previewElements.value = previewElements.value.filter(el => !(el.type === 'input' && !form.value.login_password_method.includes(el.label)));
 
   // Adicionar novos elementos de senha
-  form.value.password_method.forEach(method => {
+  form.value.login_password_method.forEach(method => {
     const existingElement = previewElements.value.find(el => el.label === method );
     if (!existingElement) {
       previewElements.value.push({
@@ -653,7 +657,7 @@ const getMaskForMethod = computed(() => {
 
 // Função para retornar a máscara baseada no método de senha
 const getMaskForPassword = computed(() => {
-  const passwordMethod = form.value.password_method[0]; // Seleciona o primeiro método de senha
+  const passwordMethod = form.value.login_password_method[0]; // Seleciona o primeiro método de senha
   if (passwordMethod === 'CPF') {
     return '###.###.###-##'; // Máscara para CPF
   } else {
@@ -1000,7 +1004,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                   @change="handleLoginMethodChange"
                 ></v-select>
                 <v-select
-                  v-model="form.password_method"
+                  v-model="form.login_password_method"
                   :items="['CPF', 'Data de Nascimento', 'Telefone', 'Livre']"
                   label="Senha Usando"
                   multiple
@@ -1116,7 +1120,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                         <input
                           v-if="element.type === 'inputPassword' && (element.label || isEditMode)"
                           id="password"
-                          :placeholder="form.password_method.join(' ou ')" 
+                          :placeholder="form.login_password_method.join(' ou ')" 
                           :style="{
                             width:  form.input_width + 'px',
                             height: form.input_height + 'px',

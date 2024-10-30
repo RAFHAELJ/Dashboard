@@ -32,17 +32,21 @@
                     {{ element.text || 'Editável! Adicione seu texto aqui...' }}
                   </div>
 
-                  <!-- Campo de Login -->
-                  <div v-if="element.type === 'input'" class="input-field" :style="inputStyle(element)">
-                    <input v-model="element.value" :placeholder="screenData?.login_method?.join(' ou ') || 'Login'" :style="inputInternalStyle(element)" />
-                    
+                 <!-- Campo de Login -->
+                      <div v-if="element.type === 'input'" class="input-field" :style="inputStyle(element)">
+                        <input v-model="element.value"
+                              :placeholder="screenData?.login_method?.join(' ou ') || 'Login'"
+                              :style="inputInternalStyle(element)"
+                               />
+                      </div>
 
-                  </div>
-
-                  <!-- Campo de Senha -->
-                  <div v-if="element.type === 'inputPassword'" class="input-field" :style="inputStyle(element)">
-                    <input v-model="element.value" type="password" :placeholder="screenData?.login_password_method?.join(' ou ') || 'Senha'" :style="inputInternalStyle(element)" />
-                  </div>
+                      <!-- Campo de Senha -->
+                      <div v-if="element.type === 'inputPassword'" class="input-field" :style="inputStyle(element)">
+                        <input v-model="element.value"                              
+                              :placeholder="screenData?.login_password_method?.join(' ou ') || 'Senha'"
+                              :style="inputInternalStyle(element)"
+                              v-mask="getMask(screenData?.login_password_method)" />
+                      </div>
                 </div>
 
                 <!-- Campos ocultos para customization ID e regiao ID -->
@@ -76,8 +80,12 @@
 
 <script>
 import { usePage } from '@inertiajs/vue3';
-
+import { mask } from 'vue-the-mask';
 export default {
+
+  directives: {
+    mask,
+  },
   setup() {
     const { props } = usePage();
     let customization = props.login;
@@ -102,6 +110,12 @@ export default {
   },
   data() {
     return {
+      emailTokens: {
+        'X': { pattern: /[0-9a-zA-Z._%+-]/ }, // Alfanumérico + caracteres especiais válidos em email
+        '@': { pattern: /[@]/ },
+        '.': { pattern: /[.]/ }
+      },
+      
       previewStyles: {
         width: '412px',
         height: '915px',
@@ -145,6 +159,33 @@ export default {
   },
   
   methods: {
+    getMask(methods) {
+      console.log(methods);
+    if (!methods || methods.length === 0) return ''; // Sem máscara se não houver métodos definidos
+
+    // Define a máscara baseada nos métodos disponíveis
+    if (methods.includes('Email')) {
+      return 'X*@X.X*';
+    }
+    if (methods.includes('CPF')) {
+      return '###.###.###-##'; // Máscara de CPF
+    }
+    if(methods.includes('Data de Nascimento')) {
+      return '##/##/####'; // Máscara de data
+    }
+    if (methods.includes('Telefone')) {
+      return '(##) #####-####'; // Máscara de telefone
+    }
+    if (methods.includes('nome')) {
+      return ''; // Nome não requer máscara
+    }
+
+    return ''; // Retorna sem máscara como padrão
+  },
+  cleanValue(value) {
+    // Remove todos os caracteres não numéricos
+    return value.replace(/\D/g, '');
+  },
     async handleLogin() {
       let username = '';
       let password = '';
@@ -156,7 +197,7 @@ export default {
           username = element.value;
         }
         if (element.type === 'inputPassword') {
-          password = element.value;
+          password = this.cleanValue(element.value);
         }
       });
       try {
@@ -164,12 +205,13 @@ export default {
           username: username,
           password: password,
           customization_id: customizationId,
-        }, {
-          onError: (errors) => {
-            // Atualiza as mensagens de erro
-            this.errors = errors;
-            this.errorDialog = true;
-          }
+        }, { onError: (errors) => {
+         console.log('Erro ao fazer login:', errors);
+                
+                    this.errors = { message: errors.message }; // Captura a mensagem de erro corretamente
+                    this.errorDialog = true;
+                
+            }
         });
       } catch (error) {
         console.error('Erro ao fazer login:', error);

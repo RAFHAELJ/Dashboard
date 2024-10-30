@@ -137,7 +137,7 @@ export default {
     const customization = props.login || {};
     const elements = JSON.parse(customization.elements || '[]');
     const redirectUrl = ref(props.url || null);
-    console.log(redirectUrl);
+   
     // Pegando o primeiro elemento do tipo "topCard"
     const topCard = elements.find((element) => element.type === 'topCard');
     
@@ -151,6 +151,7 @@ export default {
     const isVideoPlaying = ref(false);
     const isMobile = ref(window.innerWidth <= 768);
     const showFormButton = ref(false);
+
 
     const previewStyles = computed(() => ({
       width: isMobile.value ? '98%' : '360px',
@@ -220,11 +221,17 @@ export default {
       remainingTime.value = 0;
     };
 
-    const openFormInNewTab = () => {
-      if (campanha?.urlForms) {
-        window.open(campanha.urlForms, '_blank');
-      }
-    };
+
+    const openFormInNewTab = async () => {
+  if (campanha?.urlForms) {
+    // Executa a função handleContinue e espera 2 segundos antes de abrir a nova aba
+    await handleContinue();
+
+    setTimeout(() => {
+      window.open(campanha.urlForms, '_blank');
+    }, 2000);
+  }
+};
 
     const handleAdClick = () => {
       if (campanha?.url) {

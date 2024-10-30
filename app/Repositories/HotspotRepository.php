@@ -82,6 +82,7 @@ class HotspotRepository
 
     public function authenticateUser(array $data, $region, $authType = 'database')
     {
+        
         $regiaoId = $this->regiaoRepository->getRegiaoId($region);
 
         if ($authType === 'database') {

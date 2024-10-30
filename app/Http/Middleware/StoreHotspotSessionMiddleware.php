@@ -9,7 +9,10 @@ class StoreHotspotSessionMiddleware
 {
     public function handle($request, Closure $next)
     {
-        
+                // Se já existem erros na sessão, não altere
+                if ($request->session()->has('errors')) {
+                    return $next($request);
+                }
         // Capturar parâmetros da URL e armazenar na sessão específica do hotspot
         $params = [
             'challenge', 'uamip', 'uamport', 'userurl',
