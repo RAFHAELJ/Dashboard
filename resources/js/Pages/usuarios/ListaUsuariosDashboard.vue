@@ -89,7 +89,7 @@ const handleDeleteItem = (item) => {
         <DataList
           :headers="headers"
           :items="users"
-          :columnTitles="['ID', 'Nome', 'Email']"
+          :columnTitles="[]"
           searchPlaceholder="Pesquisar Usuários"
           createButtonLabel="Adicionar Usuário"
           @create="handleCreateItem"

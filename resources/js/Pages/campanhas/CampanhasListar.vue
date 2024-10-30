@@ -32,6 +32,26 @@ const search = ref('');
 const selectedPublico = ref([]);
 const selectedTipo = ref([]);
 
+
+const reloadData = async () => {
+  try {
+    // Faz a chamada para buscar novamente as campanhas
+    const response = await fetch(route('campanhas.index'), {
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      campanhas.value = data; // Atualiza a lista de campanhas
+    } else {
+      console.error('Erro ao recarregar campanhas:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Erro ao recarregar campanhas:', error);
+  }
+};
+
+
 const deleteCampanhas = async (id) => {
   if (confirm('Tem certeza que deseja deletar esta campanha?')) {
     try {
@@ -229,11 +249,12 @@ const filteredCampanhas = computed(() => {
             radio: { label: 'Rádios da campanha', rules: [(v) => !!v || 'Rádio é obrigatório'], required: true },
             publico: { label: 'Público', type: 'select', options: ['Homens', 'Mulheres', 'Todos'], required: true },
             idade: { label: 'Idade mínima', type: 'date-range', start: 'minimo', startLabel: 'Mínima', end: 'maxima', endLabel: 'Máxima', rules: [(v) => !!v || 'Campo obrigatório'], required: true },
-            tipo: { label: 'Tipo de anúncio', type: 'radio', options: [{ text: 'Vídeo', value: 'video' }, { text: 'Imagem', value: 'imagem' }], required: true },
+            tipo: { label: 'Tipo de anúncio', type: 'radio', options: [{ text: 'Vídeo', value: 'video' }, { text: 'Imagem', value: 'imagem' }, { text: 'Formulario', value: 'formulario' }], required: true },
             url: { label: 'Url Destino', rules: [(v) => !!v || 'url é obrigatório'], required: true },
             tempo: { label: 'Duração', type: 'slider', min: 1, max: 60, required: true }
           }"
           :isEditing="isEditing"
+          @formSubmitted="reloadData"
           title="Campanha Radio"
           createRoute="campanhas.store"
           updateRoute="campanhas.update"

@@ -26,6 +26,7 @@ class Campanha extends Model
         'capa',
         'tempo',
         'url',
+        'urlForms',
         'regiao'
     ];
 

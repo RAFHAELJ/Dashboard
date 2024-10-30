@@ -11,27 +11,30 @@ const isEditModalOpen = ref(false);
 const isEditing = ref(false);
 const editUsuarios = ref({
   id: null,
-  name: '',
+  nome: '',
   email: '',
+  Value: '',
+  telefone: '',
 });
 const search = ref('');
 
 const headers = [
 
-  { text: 'ID', value: 'RadAcctId',sortable: true,title:'ID',key:'RadAcctId' },
-  { text: 'Nome', value: 'UserName',sortable: true,title:'Nome',key:'UserName'},
-  { text: 'Endereço IP', value: 'NASIPAddress',sortable: true,title:'Endereço IP',key:'NASIPAddress' },  
-  { text: 'MAC', value: 'CalledStationId',sortable: true,title:'MAC',key:'CalledStationId' },
-  //{ text: 'Ações', value: 'actions', sortable: false },
+  { text: 'ID', value: 'id',sortable: true,title:'ID',key:'id' },
+  { text: 'Nome', value: 'nome',sortable: true,title:'Nome',key:'nome'},
+  { text: 'Email', value: 'email',sortable: true,title:'Email',key:'email' },  
+  { text: 'Acesso', value: 'Value',sortable: true,title:'Acesso',key:'Value' },
+  { text: 'Telefone', value: 'telefone',sortable: true,title:'Telefone',key:'telefone' },
+  { text: 'Ações', value: 'actions', sortable: false },
 ];
 
-const deleteUsuarios = async (RadAcctId) => {
+const deleteUsuarios = async (id) => {
   if (confirm('Tem certeza que deseja deletar este usuário?')) {
     try {      
       const userArray = usuarios.value.data ? usuarios.value.data : [];
-      await router.delete(route('usuarios.destroy', RadAcctId));      
+      await router.delete(route('usuarios.destroy', id));      
       
-      usuarios.value.data = userArray.filter(usuario => usuario.RadAcctId !== RadAcctId);
+      usuarios.value.data = userArray.filter(usuario => usuario.id !== id);
      
       window.location.reload(); 
       
@@ -48,19 +51,22 @@ const handleViewItem = (item) => {
 const handleCreateItem = () => {
   isEditing.value = false;
   editUsuarios.value = {
-    RadAcctId: null,
+    id: null,
     name: '',
     email: '',
-    cpf: '',
-    mac: '',
-    password: ''
+    Value: '',
+    telefone: '',
+    
   };
   isEditModalOpen.value = true;
 };
 
 const handleEditItem = (item) => {
+  console.log('Editar item:', item);
+ 
   isEditing.value = true;
   editUsuarios.value = { ...item };
+  console.log('Editar value:', editUsuarios.value);
   isEditModalOpen.value = true;
 };
 
@@ -69,7 +75,7 @@ const closeEditModal = () => {
 };
 
 const handleDeleteItem = (item) => {
-  deleteUsuarios(item.RadAcctId);
+  deleteUsuarios(item.id);
 };
 </script>
 
@@ -82,21 +88,30 @@ const handleDeleteItem = (item) => {
       <DataList
         :headers="headers"
         :items="usuarios"
-        searchPlaceholder="Pesquisar Usuários Radio"
-        createButtonLabel="Add Usuarios Radio"
+        searchPlaceholder="Pesquisar Usuários Wifi"
+        createButtonLabel="Add Usuarios Wifi"
         :showCreateButton = false
         @create="handleCreateItem"
         @edit="handleEditItem"
         @delete="handleDeleteItem"
-        :item-key="'RadAcctId'"
+        :item-key="'id'"
         :canAccess="canAccess" 
           createRoute="usuarios"
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UsuariosForm
           v-if="isEditModalOpen"
-          :usuario="editUsuarios"
+          :formData="editUsuarios"
           :isEditing="isEditing"
+          :fields="{
+              nome: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'nome' },
+              email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
+              Value: { label: 'Acesso', rules: [(v) => !!v || 'Acesso é obrigatório', (v) => /.+@.+\..+/.test(v) ], required: true },    
+              telefone: { label: 'Telefone', rules: []},               
+            }"
+             createRoute="usuarios.store"
+             updateRoute="usuarios.update"
+             returnRoute="usuarios.index"
           @cancel="closeEditModal"
         />
 

@@ -19,7 +19,7 @@ const search = ref('');
 const headers = [
   { text: 'ID', value: 'id', sortable: true, title: 'ID', key: 'id' },
   { text: 'Cidade', value: 'cidade', sortable: true, title: 'Cidade', key: 'cidade' },
-  { text: 'Bairros', value: 'bairros', sortable: true, title: 'Bairros', key: 'bairros' },
+  { text: 'Info', value: 'bairros', sortable: true, title: 'Info', key: 'bairros' },
   { text: 'Ações', value: 'actions', sortable: false },
 ];
 const deleteRegiao = async (id) => {
@@ -87,7 +87,7 @@ const handleDeleteItem = (item) => {
           :formData="editRegiao"
           :fields="{
             cidade: { label: 'Cidade', rules: [(v) => !!v || 'Cidade é obrigatória'], required: true },
-            bairros: { label: 'Bairros (separados por vírgula)', rules: [(v) => !!v || 'Bairros são obrigatórios'], required: true },
+            bairros: { label: 'Info ', rules: [(v) => !!v || 's'], required: true },
           }"
           :isEditing="isEditing"
           title="Região"

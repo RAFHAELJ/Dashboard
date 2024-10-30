@@ -21,7 +21,7 @@ class LoginCustomization extends Model
         'login_button_color',
         'login_button_shape',
         'login_method' ,
-        'password_method',
+        'login_password_method',
         'input_width',
         'input_height' ,
         'input_color',
@@ -29,12 +29,14 @@ class LoginCustomization extends Model
         'elements' ,
         'region' ,
         'username' ,
+        'social_networks',
+        'caditens',
     ];
 
     protected $casts = [
         'social_logins' => 'array',
         'login_method' => 'array',
-        'password_method' => 'array',
+        'login_password_method' => 'array',
         'registration_fields' => 'array',
         'region' => 'integer',
         

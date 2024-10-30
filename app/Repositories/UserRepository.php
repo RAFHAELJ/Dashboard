@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\UserPermissionService;
 use App\Repositories\UserPermissionRepository;
@@ -19,14 +20,27 @@ class UserRepository{
     }
 
     public function all() {
-        $users = User::byRegiao()->with('regiao')->paginate();       
+        $users = User::byRegiao()->with('regioes')->paginate();       
         return $users;
         
     }
     public function count() {
         return User::all()->count();
     }
+    public function countUsersByRegion()
+    {
+        return  User::with('regiao')
+        ->select('regiao', DB::raw('count(*) as user_count'))
+        ->groupBy('regiao')
+        ->get();
+    }
 
+    public function countUsersByLevel()
+    {
+        return User::select('nivel', DB::raw('count(*) as user_count'))
+                    ->groupBy('nivel')
+                    ->get();
+    }
     public function find($id) {
 
        

@@ -23,6 +23,15 @@ class RegiaoRepository
         return $regiao;
     }
 
+    public function getRegiaoId($regiao)
+    {
+        $regiaoId = Regiao::whereRaw('LOWER(REPLACE(cidade, " ", "")) = ?', [strtolower(str_replace(' ', '', $regiao))])
+        ->pluck('id')
+        ->first(); 
+
+        return $regiaoId;
+    }
+
     public function delete($id)
     {
         $regiao = Regiao::findOrFail($id);

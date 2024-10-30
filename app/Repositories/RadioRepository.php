@@ -5,8 +5,10 @@ namespace App\Repositories;
 use Carbon\Carbon;
 use App\Models\Radio;
 use App\Models\RadAcct;
+use App\Models\RadCheck;
 use Carbon\CarbonPeriod;
 use App\Models\RadioDash;
+use App\Models\MacHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -55,11 +57,26 @@ class RadioRepository  {
     }
 
     public function update($id, array $data) {
-        // Encontrar e atualizar o registro
         $radio = RadioDash::findOrFail($id);
+    
+        // Verifica se o MAC foi alterado
+        if ($radio->mac !== $data['mac']) {
+            // Cria o histórico de troca de MAC
+            MacHistory::create([
+                'nome' => $radio->radio,
+                'radio_id' => $radio->id,
+                'mac_antigo' => $radio->mac,
+                'mac_novo' => $data['mac']
+            ]);
+        }
+        
+    
         $radio->update($data);
         return $radio;
     }
+    public function getMacHistory($radioId) {
+    return MacHistory::where('radio_id', $radioId)->orderBy('created_at', 'desc')->get();
+}
 
     public function delete($id) {
         // Verificar se o registro existe antes de tentar deletá-lo
@@ -80,7 +97,7 @@ class RadioRepository  {
     public function getGeoRadio()
     {
         return Cache::remember('geo_radio_data', 1, function () {
-            $radios = RadioDash::all(['id', 'mac', 'geo']);
+            $radios = Radio::all(['id', 'mac', 'geo']);
             
             if ($radios->isEmpty()) {
                 return [
@@ -169,7 +186,7 @@ class RadioRepository  {
             return [
                 'acessadoshj' => $acessadosHj,
                 'acessadosontem' => $acessadosOntem,
-                'naoacessados' => $naoAcessados - $acessadosHj - $acessadosOntem,
+                'naoacessados' => $naoAcessados ,
                 'data' => $newData,
                 'center' => [
                     'lat' => $latCenter,
@@ -194,34 +211,58 @@ class RadioRepository  {
 
         return false;
     }
-    public function getTrackedUsers($startDate, $endDate, $perPage = 10, $username = null)
-    {
-       
-        $query = RadAcct::select('RadAcctId', 'UserName', 'AcctStartTime', 'AcctStopTime', 'acctsessiontime', 'acctinputoctets', 'acctoutputoctets', 'calledstationid', 'callingstationid');
-    
-        // Se o nome for fornecido, faz a busca por nome
-        if (!empty($username)) {
-            
-            $query->where('UserName', 'LIKE', '%' . $username . '%');    
-           
-        } else {
-           
-            $query->whereBetween(DB::raw('DATE(AcctStartTime)'), [$startDate, $endDate]);
-        }    
+   // Função para obter os dados paginados (para exibição na tela)
+   public function getTrackedUsers($startDate, $endDate, $perPage = 10, $username = null)
+   {
       
-        $paginatedUsers = $query->paginate($perPage);    
-        
-        foreach ($paginatedUsers->items() as $user) {
-            $user->acctinputoctets = $this->convertBytes($user->acctinputoctets);
-            $user->acctoutputoctets = $this->convertBytes($user->acctoutputoctets);
-            $user->acctsessiontime = gmdate('H:i:s', $user->acctsessiontime);
-            $user->acctstarttime = Carbon::parse($user->acctstarttime)->format('d/m/Y H:i:s');
-            $user->acctstoptime = Carbon::parse($user->acctstoptime)->format('d/m/Y H:i:s');
-        }
-    
-        
-        return $paginatedUsers;
+       $query = RadAcct::select('RadAcctId', 'UserName', 'AcctStartTime', 'AcctStopTime', 'acctsessiontime', 'acctinputoctets', 'acctoutputoctets', 'calledstationid', 'callingstationid');
+   
+       // Se o nome for fornecido, faz a busca por nome
+       if (!empty($username)) {
+           
+           $query->where('UserName', 'LIKE', '%' . $username . '%');    
+          
+       } else {
+          
+           $query->whereBetween(DB::raw('DATE(AcctStartTime)'), [$startDate, $endDate]);
+       }    
+     
+       $paginatedUsers = $query->paginate($perPage);    
+       //\dd($paginatedUsers);
+       foreach ($paginatedUsers->items() as $user) {
+           $user->acctinputoctets = $this->convertBytes($user->acctinputoctets);
+           $user->acctoutputoctets = $this->convertBytes($user->acctoutputoctets);
+           $user->acctsessiontime = gmdate('H:i:s', $user->acctsessiontime);
+           $user->acctstarttime = Carbon::parse($user->acctstarttime)->format('d/m/Y H:i:s');
+           $user->acctstoptime = Carbon::parse($user->acctstoptime)->format('d/m/Y H:i:s');
+       }
+   
+       
+       return $paginatedUsers;
     }
+
+   // Função para exportar todos os dados sem paginação
+   public function getAllTrackedUsers($startDate, $endDate, $username = null, $mac = null, $region = null)
+   {
+       $query = RadAcct::select('RadAcctId', 'UserName', 'AcctStartTime', 'AcctStopTime', 'acctsessiontime', 'acctinputoctets', 'acctoutputoctets', 'calledstationid', 'callingstationid');
+
+       // Filtros de busca
+       if (!empty($username)) {
+           $query->where('UserName', 'LIKE', '%' . $username . '%');
+       }
+
+       if (!empty($mac)) {
+           $query->where('calledstationid', 'LIKE', '%' . $mac . '%');
+       }
+
+       if (!empty($region)) {
+           $query->where('region_column', 'LIKE', '%' . $region . '%'); // Substitua 'region_column' pelo nome correto da coluna de região
+       }
+
+       $query->whereBetween(DB::raw('DATE(AcctStartTime)'), [$startDate, $endDate]);
+
+       return $query->get(); // Sem paginação, retorna todos os dados
+   }
     
 
     private function dateRange($startDate, $endDate)
@@ -241,5 +282,38 @@ class RadioRepository  {
     {
         return round($bytes / 1024 / 1024, 2) . ' MB';
     }
+        public function getTotalRadios()
+    {
+        return Radio::count();
+    }
+
+    public function getTotalNovosUsersHoje()
+    {
+        return RadCheck::whereDate('data_criacao', Carbon::today())->count();
+    }
+
+    public function getTotalAcessosHoje()
+    {
+        return RadAcct::whereDate('acctstarttime', Carbon::today())->count();
+    } 
+
+
+
+    public function getRadiosInfo()
+    {
+        $totalRadios = $this->getTotalRadios();
+        $totalNovosUsers = $this->getTotalNovosUsersHoje();
+        $totalAcessos = $this->getTotalAcessosHoje();
+        //$totalUso = $this->getStorageInfo();
+
+        return [
+            'totalRadios' => $totalRadios,
+            'novosUsers' => $totalNovosUsers,
+            'totalAcessos' => $totalAcessos,
+            //'totalUso' => $totalUso,
+        ];
+    }
+
+
     
 }

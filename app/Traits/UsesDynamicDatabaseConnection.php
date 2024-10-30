@@ -11,12 +11,18 @@ use Exception;
 
 trait UsesDynamicDatabaseConnection
 {
-    public function setRadiusConnection($user, $region = null)
+    public function setRadiusConnection($user, $region = null, $type = null)
     {
         try {
-            $connection = $user->isAdmin()
-                ? AccessData::where('type', 'database')->where('regiao', $region)->first()
-                : AccessData::where('type', 'database')->where('regiao', $user->regiao)->first();
+            
+            $regionToUse = $type === 'hotspot' ? $region : ($user->isAdmin() ? $region : $user->regiao);
+
+            // Busca única com base na região definida
+            $connection = AccessData::where('type', 'database')
+                ->where('regiao', $regionToUse)
+                ->first();
+            
+            
 
             if ($connection) {
                 // Configura dinamicamente a conexão `dynamic_radius`

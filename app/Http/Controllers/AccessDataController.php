@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Repositories\LogRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\AccessDataRequest;
 use App\Repositories\AccessDataRepository;
@@ -15,9 +17,10 @@ class AccessDataController extends Controller
     
     protected $accessDataRepository;
 
-    public function __construct(AccessDataRepository $accessDataRepository)
+    public function __construct(AccessDataRepository $accessDataRepository,LogRepository $logRepository)
     {
         $this->accessDataRepository = $accessDataRepository;
+        $this->logRepository = $logRepository;
     }
 
     public function index()
@@ -76,10 +79,16 @@ class AccessDataController extends Controller
 
     public function store(AccessDataRequest $request)
     {
-      // dd($request->all());
+     
         try {
+            
            // $data = $request->validated();
             $accessData = $this->accessDataRepository->create($request->all());
+            if ($request->input('type') === 'database') {
+                $this->logRepository->createLog(Auth::id(), "Adcionado Nova base de dados {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'controller') {
+                $this->logRepository->createLog(Auth::id(), "Adcionado Nova controladora {$request->nome} ", $request->regiao);
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -106,8 +115,15 @@ class AccessDataController extends Controller
     public function update(AccessDataRequest $request, $id)
     {
         try {
+            
+
             $data = $request->validated();
             $accessData = $this->accessDataRepository->update($id, $data);
+            if ($request->input('type') === 'database') {
+                $this->logRepository->createLog(Auth::id(), "Atualização de base de dados {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'controller') {
+                $this->logRepository->createLog(Auth::id(), "Atualização de controladora {$request->nome} ", $request->regiao);
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -134,7 +150,11 @@ class AccessDataController extends Controller
     public function destroy($id)
     {
         try {
+           
+              
+           
             $this->accessDataRepository->delete($id);
+            $this->logRepository->createLog(Auth::id(), "Deletado acesso {$id}");
 
             if (request()->wantsJson()) {
                 return response()->json([
@@ -162,7 +182,7 @@ public function updateRegionConnection(Request $request)
     if ($user->isAdmin()) {
         $region = $request->input('regiao');        
         
-        $this->setRadiusConnection($user, $region);
+        $this->setRadiusConnection($user, $region , 'interno');
         
         // Armazena a nova região na sessão para futuras requisições
         session(['regiao' => $region]);
@@ -171,5 +191,25 @@ public function updateRegionConnection(Request $request)
 
     return response()->json(['error' => 'Acesso não autorizado.'], 403);
 }
+
+public function showStatistics(AccessDataRepository $accessDataRepo)
+{
+    // Tenta buscar os dados no cache
+    $statistics = Cache::remember('statistics_cache', 60, function () use ($accessDataRepo) {
+        $totalDatabases = $accessDataRepo->getTotalDatabases();
+        $totalControllers = $accessDataRepo->getTotalControllers();
+
+        return [
+            'total_databases' => $totalDatabases,
+            'total_controllers' => $totalControllers,
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'data' => $statistics
+    ]);
+}
+
 
 }

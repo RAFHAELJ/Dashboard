@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 
-use App\Repositories\UserPermissionRepository;
+use auth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Repositories\LogRepository;
+use App\Repositories\UserPermissionRepository;
 
 class UserPermissionController extends Controller
 {
     protected $userPermissionRepository;
 
-    public function __construct(UserPermissionRepository $userPermissionRepository)
+    public function __construct(UserPermissionRepository $userPermissionRepository,LogRepository $logRepository)
     {
         $this->userPermissionRepository = $userPermissionRepository;
+        $this->logRepository = $logRepository;
+
     }
 
     public function getActions()
@@ -60,6 +64,7 @@ public function getPages()
     {
         $validated = $request->validated();
         $this->userPermissionRepository->updateUserPermissions($user, $validated);
+        $this->logRepository->createLog(auth()->id(), "Atualizado Permissões de Usuário {$user->name} ", $request->regiao);
         return response()->json(['message' => 'Permissões atualizadas com sucesso!']);
     }
 

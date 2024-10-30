@@ -44,7 +44,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-   canAccess: { // Recebendo o canAccess diretamente via prop
+   canAccess: {
     type: Function,
     required: true
   },
@@ -59,6 +59,10 @@ const props = defineProps({
   showControladoraLink: { 
     type: Boolean,
     default: false
+  },
+  onCustomAction: {
+    type: Function,
+    default: null,
   }
 });
 
@@ -180,7 +184,7 @@ const openControladora = (controladora) => {
 
   const url = isIPAddress && controladora.porta
     ? `http://${controladora.ip}:${controladora.porta}`
-    : `http://${controladora.ip}`;
+    : `https://${controladora.ip}`;
 
   window.open(url, '_blank');
 };
@@ -263,6 +267,14 @@ const openControladora = (controladora) => {
 
             <!-- Ações de edição e exclusão -->
             <template v-slot:item.actions="{ item }">
+                <!-- Botão para abrir o modal de histórico de MACs -->
+                <v-btn
+                  v-if="props.onCustomAction"
+                  icon="mdi-information-slab-circle-outline"
+                  variant="plain"
+                  density="compact"
+                  @click="props.onCustomAction(item)"
+                ></v-btn>
               <v-btn
                v-if="canAccess(props.createRoute, 'atualizar')"
                 variant="plain"
@@ -277,6 +289,7 @@ const openControladora = (controladora) => {
                 icon="mdi-trash-can-outline"
                 @click="handleDeleteItem(item)"
               ></v-btn>
+              
             </template>
 
             <!-- Paginação -->
@@ -312,21 +325,7 @@ const openControladora = (controladora) => {
   margin-right: 10px;
 }
 
-@media (max-width: 768px) {
-  .v-card-title {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .search-field {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .me-2 {
-    margin-bottom: 10px;
-  }
-}
 </style>
 
 <style scoped>
@@ -339,15 +338,5 @@ const openControladora = (controladora) => {
   margin-right: 10px;
 }
 
-@media (max-width: 768px) {
-  .v-card-title {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .search-field {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
 </style>

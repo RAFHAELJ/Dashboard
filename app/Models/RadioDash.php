@@ -22,6 +22,10 @@ class RadioDash extends Model
     {
         return $this->belongsTo(Regiao::class, 'regiao');
     }
+    public function macHistory()
+    {
+        return $this->hasMany(MacHistory::class, 'radio_id');
+    }
     public function controladora()
     {
         return $this->belongsTo(AccessData::class, 'controladora');

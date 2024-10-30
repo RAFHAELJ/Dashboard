@@ -1,8 +1,8 @@
 <template>
-  <v-sheet color="lighten-4" class="mb-6 py-4 px-4" rounded elevation="2">
-    <v-row align="center" justify="space-between">
+  <v-sheet color="lighten-4" class="mb-6 py-4 px-2" rounded elevation="2">
+    <v-row align="center" justify="space-between" dense>
       <!-- Campo de Data de Início -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="2">
         <v-text-field
           v-model="internalFilters.startD"
           label="Data de Início"
@@ -11,11 +11,12 @@
           outlined
           dense
           hide-details
+          class="py-1"
         ></v-text-field>
       </v-col>
 
       <!-- Campo de Data de Fim -->
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="2">
         <v-text-field
           v-model="internalFilters.endD"
           label="Data de Fim"
@@ -24,32 +25,13 @@
           outlined
           dense
           hide-details
+          class="py-1"
         ></v-text-field>
       </v-col>
-
-      <!-- Campo de Nome do Usuário -->
-      <v-col cols="12" sm="6" md="3">
-        <v-text-field
-          v-model="internalFilters.username"
-          label="Nome do Usuário"
-          prepend-inner-icon="mdi-account"
-          outlined
-          dense
-          hide-details
-        ></v-text-field>
-      </v-col>
-
-            <!-- Regiao -->
-            <regioes-select              
-              v-model="internalFilters.regiao"
-              label="Selecione uma região"
-              :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
-            ></regioes-select>
-   
 
       <!-- Renderização dinâmica de campos adicionais -->
       <template v-for="(field, key) in extraFields" :key="key">
-        <v-col :cols="field.cols || '12'" :sm="field.sm || '6'" :md="field.md || '3'">
+        <v-col :cols="field.cols || '12'" :sm="field.sm || '6'" :md="field.md || '2'">
           <v-text-field
             v-model="internalFilters[key]"
             :label="field.label"
@@ -58,15 +40,20 @@
             outlined
             dense
             hide-details
+            class="py-1"
           ></v-text-field>
         </v-col>
       </template>
 
-      <!-- Botão de Busca -->
-      <v-col cols="12" sm="6" md="2" class="d-flex justify-center">
-        <v-btn @click="onSearch" color="primary" block small rounded>
+      <!-- Botões de Ação -->
+      <v-col cols="12" sm="12" md="4" class="d-flex justify-end">
+        <v-btn @click="onSearch" color="primary" small rounded class="py-1 me-2">
           <v-icon left>mdi-magnify</v-icon>
           Buscar
+        </v-btn>
+        <v-btn :href="exportUrl" color="secondary" small rounded class="py-1">
+          <v-icon left>mdi-file-download</v-icon>
+          Exportar CSV
         </v-btn>
       </v-col>
     </v-row>
@@ -74,8 +61,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import RegioesSelect from '@/Components/RegioesSelect.vue';
+import { ref, watch, computed } from 'vue';
+
+
 const props = defineProps({
   filters: {
     type: Object,
@@ -83,7 +71,7 @@ const props = defineProps({
   },
   extraFields: {
     type: Object,
-    default: () => ({}), // Recebe campos adicionais dinamicamente
+    default: () => ({}),
   },
 });
 
@@ -118,4 +106,8 @@ watch(
 const onSearch = () => {
   emit('search', internalFilters.value); // Emite os filtros atuais ao buscar
 };
+
+const exportUrl = computed(() => {
+  return route('radios.export', props.filters);
+});
 </script>

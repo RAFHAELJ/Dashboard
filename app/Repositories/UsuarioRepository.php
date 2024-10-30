@@ -5,28 +5,30 @@ namespace App\Repositories;
 
 use App\Models\RadAcct;
 use App\Models\Usuario;
+use App\Models\RadCheck;
 
 class UsuarioRepository  {
 
     public function all(){        
-        return RadAcct::paginate();
+        return RadCheck::paginate();
     }
 
     public function find($id) {
-        return Usuario::find($id);
+        return RadCheck::find($id);
     }
 
     public function create(array $data) {
-        return Usuario::create($data);
+        return RadCheck::create($data);
     }
 
-    public function update($id, array $data) {
-        $usuario = Usuario::find($id);
+    public function update( array $data, $id) {
+       // dd($data);
+        $usuario = RadCheck::find($id);
         $usuario->update($data);
         return $usuario;
     }
 
     public function delete($id) {
-        return Usuario::destroy($id);
+        return RadCheck::destroy($id);
     }
 }

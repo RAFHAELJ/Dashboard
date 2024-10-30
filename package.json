@@ -30,6 +30,7 @@
         "@vueup/vue-quill": "^1.2.0",
         "chart.js": "^4.4.3",
         "ckeditor5": "^43.1.0",
+        "dayjs": "^1.11.13",
         "grapesjs": "^0.21.12",
         "interactjs": "^1.10.27",
         "vue-chartjs": "^5.3.1",
