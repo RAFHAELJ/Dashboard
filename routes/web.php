@@ -167,6 +167,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('database.update');       
         Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('database.destroy');
     });
+
+    Route::prefix('radius')->middleware('check-page-access:ler')->group(function () {        
+        Route::get('/', [AccessDataController::class, 'indexRadius'])->name('radius.index');
+        Route::get('/showStatistics', [AccessDataController::class, 'showStatistics'])->name('radius.showStatistics');
+        Route::get('/{id}', [AccessDataController::class, 'show'])->name('radius.show');
+        Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('radius.store');  
+        Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('radius.update');       
+        Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radius.destroy');
+    });
     
  
    Route::prefix('users')->middleware('check-page-access:ler')->group(function () {

@@ -103,6 +103,7 @@
           </template>
           <v-list-item v-if="canAccess('database', 'ler')" title="Database" @click="navigateTo('/database')"></v-list-item>
           <v-list-item v-if="canAccess('controladora', 'ler')" title="Controladora" @click="navigateTo('/controladora')"></v-list-item>
+          <v-list-item v-if="canAccess('radius', 'ler')" title="Radius" @click="navigateTo('/radius')"></v-list-item>
           <v-list-item v-if="canAccess('regioes', 'ler')" title="Lista Regiões" @click="navigateTo('/regioes/')"></v-list-item>
         </v-list-group>
 

@@ -39,6 +39,10 @@ class AccessData extends Model
     {
         return $query->where('type', 'database');
     }
+    public function scopeRadius($query)
+    {
+        return $query->where('type', 'radius');
+    }
     public function radios()
     {
         return $this->hasMany(RadioDash::class, 'id');

@@ -51,6 +51,19 @@ class AccessDataController extends Controller
             'controladora' => $controllers,
         ]);
     }
+
+    public function indexRadius()
+    {
+        $radius = $this->accessDataRepository->findByType('radius');
+       
+        if (request()->wantsJson()) {
+            return response()->json($radius);
+        }
+
+        return Inertia::render('configuracao/RadiusList', [
+            'radius' => $radius,
+        ]);
+    }
     public function show($id)
     {
         $accessData = $this->accessDataRepository->find($id);
@@ -88,6 +101,8 @@ class AccessDataController extends Controller
                 $this->logRepository->createLog(Auth::id(), "Adcionado Nova base de dados {$request->nome} ", $request->regiao);
             }else if ($request->input('type') === 'controller') {
                 $this->logRepository->createLog(Auth::id(), "Adcionado Nova controladora {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'radius') {
+                $this->logRepository->createLog(Auth::id(), "Adcionado Novo radius {$request->nome} ", $request->regiao);
             }
 
             if ($request->wantsJson()) {
@@ -104,6 +119,9 @@ class AccessDataController extends Controller
             } elseif ($request->input('type') === 'controller') {
                 return redirect()->route('controladora.index')
                     ->with('success', 'Configuração de controladora criada com sucesso!');
+            }elseif ($request->input('type') === 'radius') {
+                return redirect()->route('radius.index')
+                    ->with('success', 'Configuração de radius criada com sucesso!');
             }
         } catch (\Exception $e) {
             return Inertia::render('Error', [
@@ -123,6 +141,11 @@ class AccessDataController extends Controller
                 $this->logRepository->createLog(Auth::id(), "Atualização de base de dados {$request->nome} ", $request->regiao);
             }else if ($request->input('type') === 'controller') {
                 $this->logRepository->createLog(Auth::id(), "Atualização de controladora {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'radius') {
+                $this->logRepository->createLog(Auth::id(), "atualizada Novo radius {$request->nome} ", $request->regiao);
+            }elseif ($request->input('type') === 'radius') {
+                return redirect()->route('radius.index')
+                    ->with('success', 'Configuração de radius atualizada com sucesso!');
             }
 
             if ($request->wantsJson()) {
