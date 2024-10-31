@@ -195,7 +195,7 @@ class HotspotRepository
             return ['success' => false, 'error' => 'Rede Hotspost não selecionada, Verifique e desactive o a internet movel e tente novamente'];
         }
 
-        $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
+        $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'),'speedyze', $data['password']);
         
         $campanha_id = $this->getActiveCampaign($macradio, $regiaoId);
         $url = $this->generateRedirectUrl($data, $pappassword, $regiaoId, $authType);
@@ -261,7 +261,7 @@ class HotspotRepository
         if ($authType === 'database') {
             //ligowave
             if ($uamip) {
-                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($data['password']);
+                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword);
             }
             //cambium
             if ($ga_srvr) {
