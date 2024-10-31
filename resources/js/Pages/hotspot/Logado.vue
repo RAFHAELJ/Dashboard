@@ -50,7 +50,7 @@
 
                 <!-- Logo exibida junto ao botão do formulário, com posição customizada -->
                 <v-img
-                  v-if="showFormButton && topCard && campanha.tipo !== 'video'"
+                  v-if="showFormButton && topCard && campanha.tipo !== 'video'&& campanha.tipo !== 'imagem'"
                   :src="`/storage/${topCard.image}`"
                   :style="logoStyle"
                   class="logo-image"
