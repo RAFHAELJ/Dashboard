@@ -188,7 +188,7 @@ class HotspotRepository
     }
     private function handlePostAuthentication($user = null, $data, $regiaoId , $authType )
     {
-       
+      
         $macradio = Session::get('hotspot.session.macradio');
         if (!$macradio) {
             return ['success' => false, 'error' => 'Rede Hotspost não selecionada, Verifique e desactive o a internet movel e tente novamente'];
@@ -241,6 +241,7 @@ class HotspotRepository
 
     private function generateRedirectUrl($data, $pappassword, $regiaoId, $authType)
     {
+       
 
         $sessionTimeout = 3600;
         // Capturar informações da sessão

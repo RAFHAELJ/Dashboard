@@ -91,7 +91,7 @@ class HotspotController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ]);       
-        
+        //\dd($request->all());
         $result = $this->hotspotRepository->authenticateUser($request->all(), $region, 'database');    
         if (!$result['success']) {        
             return redirect()->back()

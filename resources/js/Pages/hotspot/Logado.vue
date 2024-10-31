@@ -154,8 +154,8 @@ export default {
 
 
     const previewStyles = computed(() => ({
-      width: isMobile.value ? '98%' : '360px',
-      height: isMobile.value ? '98%' : '740px',
+      width: isMobile.value ? '98%' : '340px',
+      height: isMobile.value ? '98%' : '680px',
       border: 'none',
       position: 'relative',
       overflow: 'hidden',

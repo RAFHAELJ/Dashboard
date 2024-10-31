@@ -91,6 +91,8 @@ export default {
     let customization = props.login;
     let validation = props.validation;
 
+    
+
     if (typeof customization.login_method === 'string') {
       customization.login_method = JSON.parse(customization.login_method);
     }
@@ -107,6 +109,7 @@ export default {
 
     return {
       screenData,
+      validation,
     };
   },
   data() {
@@ -195,6 +198,7 @@ export default {
       let loginUrl = ''; 
      
 
+      
       this.screenData.elements.forEach(element => {
         if (element.type === 'input') {
           username = element.value;
@@ -203,6 +207,7 @@ export default {
           password = this.cleanValue(element.value);
         }
       });
+     
       if(this.validation === 'controller') {
         loginUrl = `/hotspot/${this.region}/authenticate`;
 
