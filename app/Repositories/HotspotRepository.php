@@ -195,7 +195,7 @@ class HotspotRepository
             return ['success' => false, 'error' => 'Rede Hotspost não selecionada, Verifique e desactive o a internet movel e tente novamente'];
         }
 
-        $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'),'speedyze', $data['password']);
+        $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
         
         $campanha_id = $this->getActiveCampaign($macradio, $regiaoId);
         $url = $this->generateRedirectUrl($data, $pappassword, $regiaoId, $authType);
