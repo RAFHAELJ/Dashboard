@@ -76,6 +76,7 @@ class HotspotRepository
 
         // Gerar a senha PAP (opcional)
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['senha']);
+        
 
         return ['success' => true, 'region_id' => $region];
     }
@@ -195,6 +196,7 @@ class HotspotRepository
         }
 
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
+        
         $campanha_id = $this->getActiveCampaign($macradio, $regiaoId);
         $url = $this->generateRedirectUrl($data, $pappassword, $regiaoId, $authType);
 
@@ -259,7 +261,7 @@ class HotspotRepository
         if ($authType === 'database') {
             //ligowave
             if ($uamip) {
-                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword);
+                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($data['password']);
             }
             //cambium
             if ($ga_srvr) {
