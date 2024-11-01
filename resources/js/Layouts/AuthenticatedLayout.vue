@@ -4,7 +4,7 @@
   <v-app class="rounded rounded-md">
     <v-app-bar scroll-behavior="elevate" elevation="5" color="#2f2f2f">
       <template v-slot:prepend>
-        <img src="/images/LogoSf.png" alt="Logo" class="w-16 h-12">
+        <img src="../../images/LogoSf.png" alt="Logo" class="w-16 h-12">
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
       </template>
 
