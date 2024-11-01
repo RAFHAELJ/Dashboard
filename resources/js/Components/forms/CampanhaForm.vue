@@ -402,7 +402,7 @@ const submitForm = async () => {
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
 
   try {
-    const response = await fetch(route(routeName, routeParams), {
+    const response = await fetch(route(routeName, routeParams, true), {
       method: 'POST',
       body: formData,
       headers: {

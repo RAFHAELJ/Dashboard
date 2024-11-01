@@ -127,7 +127,7 @@ const loadFaq = async () => {
   if (!selectedFaq.value) return;
 
   try {
-    const response = await fetch(route('faq.show', selectedFaq.value));
+    const response = await fetch(route('faq.show', selectedFaq.value, true));
     if (!response.ok) throw new Error('Erro ao buscar os dados do FAQ');
     
     const data = await response.json();

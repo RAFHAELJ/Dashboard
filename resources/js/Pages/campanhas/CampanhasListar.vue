@@ -36,7 +36,7 @@ const selectedTipo = ref([]);
 const reloadData = async () => {
   try {
     // Faz a chamada para buscar novamente as campanhas
-    const response = await fetch(route('campanhas.index'), {
+    const response = await fetch(route('campanhas.index',[], true), {
       headers: { 'Accept': 'application/json' }
     });
 
@@ -106,7 +106,7 @@ const handleDeleteItem = (item) => {
 
 const fetchRadios = async () => {
   try {
-    const response = await fetch(route('radios.index'), {
+    const response = await fetch(route('radios.index',[], true), {
       headers: { 'Accept': 'application/json' },
     });
 

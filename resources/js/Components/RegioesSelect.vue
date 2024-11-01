@@ -35,7 +35,7 @@ const localModelValue = ref(props.modelValue);
 // Buscar regiões da API
 const fetchRegioes = async () => {
   try {
-    const response = await fetch(route('regioes.index'), {
+    const response = await fetch(route('regioes.index',[], true), {
       headers: { 'Accept': 'application/json' },
     });
 

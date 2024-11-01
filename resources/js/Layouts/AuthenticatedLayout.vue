@@ -1,4 +1,6 @@
 <template>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
   <v-app class="rounded rounded-md">
     <v-app-bar scroll-behavior="elevate" elevation="5" color="#2f2f2f">
       <template v-slot:prepend>
