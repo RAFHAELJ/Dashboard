@@ -2,8 +2,13 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
+// Define a URL base dos assets dependendo do ambiente
+const assetUrl = process.env.NODE_ENV === 'production'
+    ? 'https://d3j80ooyz4simi.cloudfront.net/build' // URL do CloudFront para produção
+    : '/build/'; // URL base para ambiente de desenvolvimento
+
 export default defineConfig({
-    base: 'https://wniwifi.humangovrj.click/', // Definindo base com HTTPS
+    base: assetUrl, // Define o caminho base até 'build' sem duplicar 'assets'
     plugins: [
         laravel({
             input: 'resources/js/app.js',
@@ -12,18 +17,10 @@ export default defineConfig({
         vue({
             template: {
                 transformAssetUrls: {
-                    base: 'https://wniwifi.humangovrj.click',
+                    base: assetUrl, // Define base até o build apenas
                     includeAbsolute: true,
                 },
             },
         }),
     ],
-    server: {
-        host: '98.82.236.251',
-        port: 5173,
-        https: true,
-        watch: {
-            usePolling: true,
-        },
-    },
 });
