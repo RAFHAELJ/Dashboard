@@ -47,13 +47,14 @@
 
       <!-- Botões de Ação -->
       <v-col cols="12" sm="12" md="4" class="d-flex justify-end">
-        <v-btn @click="onSearch" color="primary" small rounded class="py-1 me-2">
+        <v-btn @click="onSearch" color="primary" small rounded class="py-1 me-2" >
           <v-icon left>mdi-magnify</v-icon>
           Buscar
         </v-btn>
-        <v-btn :href="exportUrl" color="secondary" small rounded class="py-1">
+        <slot></slot>
+        <v-btn :href="exportUrl" color="secondary" small rounded class="py-1 mx-1" style="min-width: 100px" v-if="csvButton">
           <v-icon left>mdi-file-download</v-icon>
-          Exportar CSV
+          Exportar
         </v-btn>
       </v-col>
     </v-row>
@@ -68,6 +69,10 @@ const props = defineProps({
   filters: {
     type: Object,
     required: true,
+  },
+  csvButton:{
+    type: Boolean,
+    default: false
   },
   extraFields: {
     type: Object,

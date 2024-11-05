@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Services\CsvExportService;
 use App\Http\Requests\RadioRequest;
 use App\Repositories\LogRepository;
-use App\Services\CsvExportService;
 use App\Repositories\RadioRepository;
 
 class RadioController extends Controller {
@@ -146,6 +147,29 @@ class RadioController extends Controller {
 
         return inertia('radios/GetMapaRadios', ['data' => $data]);
     }
+    public function baseTrack(Request $request)
+    {
+        $startDate = $request->input('startD') ?? Carbon::now()->subDays(15)->format('Y-m-d');
+        $endDate = $request->input('endD') ?? Carbon::now()->format('Y-m-d');
+        $username = $request->input('username');
+        
+        // Chama o método do repositório para obter os dados de acesso dos MACs
+        $macData = $this->radioRepository->getTrackedMacAccessData($startDate, $endDate, 10, $username);
+      // \dd($macData);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Dados de Acesso dos MACs',
+                'data' => $macData,
+            ]);
+        }
+
+        // Retorna os dados para a view com Inertia
+        return Inertia::render('radios/RastrearRadiosUso', [
+            'macData' => $macData
+        ]);
+    }
+    
     public function track(Request $request)
     {
         

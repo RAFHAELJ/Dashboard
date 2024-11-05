@@ -91,7 +91,47 @@ class RadioRepository  {
                     ->paginate();
     }
    
-    
+    public function getTrackedMacAccessData($startDate = null, $endDate = null)
+{
+    // Definindo o período padrão para 15 dias antes da data atual, se não especificado
+    $startDate = $startDate ?? Carbon::now()->subDays(15)->format('Y-m-d');
+    $endDate = $endDate ?? Carbon::now()->format('Y-m-d');
+
+    // Consulta para obter contagem de acessos, total de upload e download por MAC
+    $result = RadAcct::select(
+            'calledstationid as mac',
+            DB::raw('COUNT(*) as access_count'),
+            DB::raw('SUM(acctinputoctets) as total_upload'),    // Total de upload
+            DB::raw('SUM(acctoutputoctets) as total_download')  // Total de download
+        )
+        ->whereBetween(DB::raw('DATE(acctstarttime)'), [$startDate, $endDate]) // Período
+        ->whereNotNull('calledstationid')
+        ->groupBy('calledstationid')
+        ->get();
+
+    return $result->map(function ($data) {
+        return [
+            'mac' => $data->mac,
+            'access_count' => $data->access_count,
+            'total_upload' => $this->formatBytes($data->total_upload),
+            'total_download' => $this->formatBytes($data->total_download),
+        ];
+    });
+}
+
+// Função para formatar bytes
+private function formatBytes($bytes)
+{
+    if ($bytes >= 1073741824) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        return number_format($bytes / 1024, 2) . ' KB';
+    } else {
+        return $bytes . ' bytes';
+    }
+}
    
     
     public function getGeoRadio()

@@ -160,7 +160,7 @@
             <v-col cols="12">
               <v-file-input
                 v-model="form.imagem"
-                label="Upload de Imagem"
+                label="Upload tamnaho maximo 340x620 "
                 accept="image/*"
                 prepend-icon="mdi-image"
                 :show-size="true"
@@ -213,7 +213,7 @@
             <v-col cols="6">
               <v-file-input
                 v-model="form.capa"
-                label="Upload de Capa (Imagem)"
+                label="Upload maximo 300x620"
                 accept="image/*"
                 prepend-icon="mdi-image"
                 :show-size="true"

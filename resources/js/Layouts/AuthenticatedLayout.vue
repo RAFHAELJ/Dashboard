@@ -1,5 +1,5 @@
 <template>
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
 
   <v-app class="rounded rounded-md">
     <v-app-bar scroll-behavior="elevate" elevation="5" color="#2f2f2f">
@@ -68,7 +68,8 @@
           </template>
           <v-list-item v-if="canAccess('mapaRadios', 'ler')" title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
           <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Controle Radios" @click="navigateTo('/radios/')"></v-list-item>
-          <v-list-item v-if="canAccess('rastrearRadio', 'rastrear')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
+          <v-list-item v-if="canAccess('rastrearUsoRadio', 'ler')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
+          <v-list-item v-if="canAccess('rastrearRadio', 'ler')" title="Usabilidade Radios" @click="navigateTo('/radios/basetrack')"></v-list-item>
         </v-list-group>
 
         <!-- Usuários Menu -->
