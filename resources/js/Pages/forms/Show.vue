@@ -8,7 +8,7 @@ const { props } = usePage();
 const form = ref(props.form || {});
 </script>
 
-<template>
+<template> 
   <Head title="Visualização de Formulário" />
 
   <AuthenticatedLayout>
