@@ -211,6 +211,12 @@ const filteredCampanhas = computed(() => {
                 alt="Imagem da campanha"
                 max-height="150"
               ></v-img>
+              <v-img
+                v-if="campanha.capa"
+                :src="`/storage/${campanha.capa}`"
+                alt="Imagem da campanha"
+                max-height="150"
+              ></v-img>
               <video
                 v-if="campanha.video"
                 controls

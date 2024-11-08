@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Intervention\Image\Facades\Image;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
 class CampanhaRequest extends FormRequest
 {
@@ -76,6 +77,10 @@ class CampanhaRequest extends FormRequest
                 if ($imagemImage->width() !== 340 || $imagemImage->height() !== 620) {
                     $validator->errors()->add('imagem', 'A imagem deve ter exatamente 340x620 pixels.');
                 }
+            }
+            if ($validator->errors()->isNotEmpty()) {
+               
+                throw new ValidationException($validator);
             }
         });
     }

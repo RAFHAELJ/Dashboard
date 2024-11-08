@@ -25,9 +25,9 @@ class AccessDataController extends Controller
 
     public function index()
     {
-       // dd(Auth::user());
+       
         $accessData = $this->accessDataRepository->findByType('controller');
-//\dd($accessData);
+
         if (request()->wantsJson()) {
             return response()->json($accessData);
         }

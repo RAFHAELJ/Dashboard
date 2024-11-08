@@ -187,9 +187,11 @@ export default {
     return ''; // Retorna sem máscara como padrão
   },
   cleanValue(value) {
-    // Remove todos os caracteres não numéricos
-    return value.replace(/\D/g, '');
-  },
+  if (typeof value !== 'string') {
+    return ''; // Retorna uma string vazia se o valor não for uma string
+  }
+  return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+},
  
     async handleLogin() {
       let username = '';

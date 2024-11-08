@@ -89,7 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
     Route::get('users/trocar-senha', [UserController::class, 'showChangePasswordForm'])->name('password.change');
-    Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('password.update');
+    Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('senha.update');
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
     Route::post('/update-region-connection', [AccessDataController::class, 'updateRegionConnection'])->name('update.region.connection');
     Route::resource('accessData', AccessDataController::class);

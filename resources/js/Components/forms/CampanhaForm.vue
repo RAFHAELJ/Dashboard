@@ -119,7 +119,7 @@
     <v-col cols="12">
       <v-file-input
         v-model="form.capa"
-        label="Upload de Capa (Imagem)"
+        label="Upload de Capa tamanho exato 340x620"
         accept="image/*"
         prepend-icon="mdi-image"
         :show-size="true"
@@ -330,7 +330,7 @@ const props = defineProps({
 });
 const dynamicForm = ref(null);
 const snackbar = reactive({ show: false, text: '', timeout: 3000 });
-const emit = defineEmits(['cancel']);
+const emit = defineEmits(['cancel', 'formSubmitted']);
 const form = reactive({
   ...props.formData,
 
@@ -406,7 +406,9 @@ const submitForm = async () => {
       method: 'POST',
       body: formData,
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json' // Assegura que Laravel responda em JSON
+
        
       }
     });
@@ -430,6 +432,7 @@ const submitForm = async () => {
       // Fecha a modal após o sucesso
       setTimeout(() => {
         emit('cancel'); // Emite o evento para fechar a modal
+        window.location.reload();
       }, 500);
     } else {
       const responseData = await response.json();

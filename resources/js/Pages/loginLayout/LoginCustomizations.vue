@@ -570,8 +570,7 @@ onMounted(() => {
   if (isEditMode.value) {
     loadElements();
   }
-  
-  
+
   interact('.draggable').draggable({
     listeners: {
       move(event) {
@@ -586,61 +585,53 @@ onMounted(() => {
       },
       end(event) {
         const target = event.target;
+        const elementId = parseInt(target.getAttribute('data-id'), 10);
 
-        // Pegue o ID do elemento
-        const elementId = parseInt(target.getAttribute('data-id'), 10);      
-        
+        // Recupera as posições finais do elemento
+        const deltaX = parseFloat(target.getAttribute('data-x')) || 0;
+        const deltaY = parseFloat(target.getAttribute('data-y')) || 0;
+        const initialLeft = parseFloat(target.style.left) || 0;
+        const initialTop = parseFloat(target.style.top) || 0;
+
+        const newLeft = initialLeft + deltaX;
+        const newTop = initialTop + deltaY;
+
+        // Pega as dimensões da área de pré-visualização
+        const previewContainer = target.closest('.preview-background');
+        const containerWidth = previewContainer.offsetWidth;
+        const containerHeight = previewContainer.offsetHeight;
+
+        // Verifica se o elemento está fora dos limites
+        if (
+          newLeft + target.offsetWidth < 0 ||   // Fora da esquerda
+          newTop + target.offsetHeight < 0 ||   // Fora do topo
+          newLeft > containerWidth ||           // Fora da direita
+          newTop > containerHeight              // Fora da base
+        ) {
+          console.log('Elemento fora dos limites');
+          // Remove o elemento se estiver fora dos limites
+          previewElements.value = previewElements.value.filter(
+            element => element.id !== elementId
+          );
+          return;
+        }
+
+        // Caso contrário, salva as novas posições
         const element = previewElements.value.find(el => el.id === elementId);
-        
-        
         if (element) {
-          // Recupere as posições finais
-          const deltaX = parseFloat(target.getAttribute('data-x')) || 0;
-          const deltaY = parseFloat(target.getAttribute('data-y')) || 0;
-          const initialLeft = parseFloat(target.style.left) || 0;
-          const initialTop = parseFloat(target.style.top) || 0;
-
-          // Calcule as novas posições
-          const newLeft = initialLeft + deltaX;
-          const newTop = initialTop + deltaY;
-
-          // Atualize o estado do Vue com as novas posições
           element.left = newLeft;
           element.top = newTop;
-
-          // Resetar os valores temporários para evitar acúmulo de valores de transformação
           target.style.transform = 'none';
           target.setAttribute('data-x', 0);
           target.setAttribute('data-y', 0);
-
-          // Aplique as novas posições diretamente
           target.style.left = `${newLeft}px`;
           target.style.top = `${newTop}px`;
         }
       },
     },
   });
-
-  interact('.resizable').resizable({
-    edges: { left: true, right: true, bottom: true, top: true },
-    listeners: {
-      move(event) {
-        const target = event.target;
-        const { width, height } = event.rect;
-
-        target.style.width = width + 'px';
-        target.style.height = height + 'px';
-
-        const elementId = parseInt(target.getAttribute('data-id'));
-        const element = previewElements.value.find(el => el.id === elementId);
-        if (element) {
-          element.width = width;
-          element.height = height;
-        }
-      },
-    },
-  });
 });
+
 
 
 // Função para retornar a máscara baseada no método de login
