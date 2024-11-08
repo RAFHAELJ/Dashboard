@@ -39,7 +39,7 @@ class FaqController extends Controller
     {
      
     
-        $created = $this->faqRepository->store($request->only('nome', 'texto'));
+        $created = $this->faqRepository->store($request->only('nome', 'texto', 'regiao'));
         $this->logRepository->createLog(auth()->id(), 'Adcionado Nova FAQ', $request->regiao);
     
         if ($created) {
@@ -54,7 +54,7 @@ class FaqController extends Controller
         
      
        
-        $updated = $this->faqRepository->updateFaq($id, $request->only('nome', 'texto'));
+        $updated = $this->faqRepository->updateFaq($id, $request->only('nome', 'texto', 'regiao'));
         $this->logRepository->createLog(auth()->id(), 'Atualizado FAQ', $request->regiao);
         if ($updated) {
             return 'ok';

@@ -11,6 +11,12 @@
             <v-btn  v-if="canAccess('FAQ','gravar')" color="primary" @click="addNewFaq" class="mb-4">Adicionar Nova FAQ</v-btn>
 
             <!-- Seleção de FAQ por nome -->
+            <RegioesSelect
+            v-model="selectedRegiao"
+            label="Selecione a Região"
+            :rules="[v => !!v || 'Região é obrigatória']"            
+            :style="{ marginTop: '20px' }"
+          />
             <v-select
               v-model="selectedFaq"
               :items="faqList"
@@ -71,12 +77,14 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import RegioesSelect from '@/Components/RegioesSelect.vue';
 
 // Pega as props da página usando Inertia.js
 const { props } = usePage();
 
 const faq = reactive({ texto: props.faq?.texto || '' });
 const faqName = ref(props.faq?.nome || '');
+const selectedRegiao = ref(props.faq?.regiao || null);
 const faqList = ref(props.faqList || []);
 const selectedFaq = ref(null);
 
@@ -133,6 +141,7 @@ const loadFaq = async () => {
     const data = await response.json();
     faq.texto = data.texto;
     faqName.value = data.nome;
+    selectedRegiao.value = data.regiao;
 
     if (editor.value) {
       editor.value.commands.setContent(data.texto);
@@ -145,6 +154,7 @@ const loadFaq = async () => {
 // Função para adicionar nova FAQ
 const addNewFaq = () => {
   selectedFaq.value = null;
+  selectedRegiao.value ='';
   faqName.value = '';
   faq.texto = '';
   
@@ -173,7 +183,7 @@ const saveFaq = async () => {
         'Content-Type': 'application/json',
         'X-CSRF-TOKEN': csrfToken,
       },
-      body: JSON.stringify({ nome: faqName.value, texto: faq.texto }),
+      body: JSON.stringify({ nome: faqName.value, texto: faq.texto, regiao: selectedRegiao.value }),
     });
 
     if (response.ok) {

@@ -298,7 +298,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import RegioesSelect from '../RegioesSelect.vue'; // ajuste o caminho se necessário
+import RegioesSelect from '../RegioesSelect.vue'; 
 const errors = reactive({});
 const props = defineProps({
   formData: {

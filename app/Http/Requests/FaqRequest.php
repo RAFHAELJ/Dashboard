@@ -16,6 +16,7 @@ class FaqRequest extends FormRequest
         return [
             'nome' => 'required|string',
             'texto' => 'required|string',
+            'regiao' => 'required',
         ];
     }
 }

@@ -21,7 +21,10 @@ class Regiao extends Model
     {
         return $this->hasMany(User::class, 'regiao');
     }
-
+    public function faq()
+    {
+        return $this->hasMany(Faq::class, 'regiao');
+    }
     public function radios()
     {
         return $this->hasMany(Radio::class, 'regiao');
