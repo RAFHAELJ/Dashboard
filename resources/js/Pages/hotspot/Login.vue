@@ -251,7 +251,14 @@ export default {
     },
 
     async handleHelpAccount() {
-      console.log('Ajuda acionada');
+      const customizationId = this.screenData?.id;
+
+if (!customizationId) {
+  console.error('ID de customização não encontrado.');
+  return;
+}
+
+this.$inertia.visit(`/hotspot/${this.region}/faq/${customizationId}`);
     },
 
     elementStyle(element, index) {

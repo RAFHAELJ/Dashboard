@@ -348,7 +348,7 @@ export default {
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 20px;
 }
 .continue-button {
   position: absolute;
@@ -357,7 +357,7 @@ export default {
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
   padding: 8px 10px;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
 }
 .open-form-button {

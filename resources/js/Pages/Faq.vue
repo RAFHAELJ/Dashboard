@@ -111,17 +111,69 @@ const editor = useEditor({
 });
 
 // Funções para manipulação do editor
+// Funções para manipulação do editor
 const setBold = () => {
-  if (editor.value) {
-    editor.value.chain().focus().toggleBold().run();
-  }
+  editor.value && editor.value.chain().focus().toggleBold().run();
 };
 
 const setItalic = () => {
-  if (editor.value) {
-    editor.value.chain().focus().toggleItalic().run();
+  editor.value && editor.value.chain().focus().toggleItalic().run();
+};
+
+const setBlockquote = () => {
+  editor.value && editor.value.chain().focus().toggleBlockquote().run();
+};
+
+const setLink = () => {
+  const url = prompt('Insira a URL');
+  if (url) {
+    editor.value && editor.value.chain().focus().setLink({ href: url }).run();
   }
 };
+
+const setUnlink = () => {
+  editor.value && editor.value.chain().focus().unsetLink().run();
+};
+
+const undo = () => {
+  editor.value && editor.value.chain().focus().undo().run();
+};
+
+const redo = () => {
+  editor.value && editor.value.chain().focus().redo().run();
+};
+
+const setLeftAlign = () => {
+  editor.value && editor.value.chain().focus().setTextAlign('left').run();
+};
+
+const setCenterAlign = () => {
+  editor.value && editor.value.chain().focus().setTextAlign('center').run();
+};
+
+const setRightAlign = () => {
+  editor.value && editor.value.chain().focus().setTextAlign('right').run();
+};
+
+const setJustifyAlign = () => {
+  editor.value && editor.value.chain().focus().setTextAlign('justify').run();
+};
+
+const setOrderedList = () => {
+  editor.value && editor.value.chain().focus().toggleOrderedList().run();
+};
+
+const setBulletList = () => {
+  editor.value && editor.value.chain().focus().toggleBulletList().run();
+};
+
+const addImage = () => {
+  const url = prompt('Insira o URL da imagem');
+  if (url) {
+    editor.value && editor.value.chain().focus().setImage({ src: url }).run();
+  }
+};
+
 
 // Função para buscar o CSRF Token
 const getCsrfToken = () => {

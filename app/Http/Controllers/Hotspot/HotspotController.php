@@ -135,6 +135,16 @@ public function showRadiusLoginForm(Request $request, $region)
         'validation' => 'hotspot',
     ]);
 }
+public function showFaq(Request $request, $region,$id)
+{
+    //dd($id);
+    $faq = $this->hotspotRepository->showFaq($region)->first();
+    return Inertia::render('hotspot/Faq', [
+        'faq' => $faq ?? null,
+        'custom' => $this->loginCustomizationRepository->find($id),
+        
+    ]);
+}
 
 // Autenticação pelo RADIUS
 public function authenticateRadius(Request $request, $region)
@@ -148,7 +158,7 @@ public function authenticateRadius(Request $request, $region)
 
    
     if (!$result['success']) {
-        Log::info('Erro de autenticação: ' . $result['error']);
+        
         return redirect()->back()
             ->withErrors(['message' => $result['error']])
             ->withInput();

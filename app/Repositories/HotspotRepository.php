@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use Carbon\Carbon;
+use App\Models\Faq;
 use App\Models\Radio;
 use App\Models\Campanha;
 use App\Models\RadCheck;
@@ -312,6 +313,15 @@ class HotspotRepository
         // Retorno padrão se nenhuma condição for atendida
         return ['success' => false, 'message' => 'Tipo de autenticação desconhecido'];
     }
+
+    public function showFaq( $region)
+{;
+    $regiaoId = $this->regiaoRepository->getRegiaoId($region);
+   
+      $faq =  Faq::where('regiao', $regiaoId)->get();
+     // \dd($faq);
+    return $faq;
+}
     
     
 }

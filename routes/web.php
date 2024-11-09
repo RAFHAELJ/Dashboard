@@ -55,6 +55,7 @@ Route::prefix('hotspot/{region}')->middleware(['web','dynamic-db-hotspot','hotsp
     Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
     Route::get('/logon/{id}/{campanha_id}', [HotspotController::class, 'logon'])->name('hotspot.logon');
     Route::get('/new/{id}', [HotspotController::class, 'new'])->name('hotspot.new');
+    Route::get('/faq/{id}', [HotspotController::class, 'showFaq'])->name('hotspot.faq');
     Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
     Route::get('/logout', [HotspotController::class, 'logout'])->name('hotspot.logout');
