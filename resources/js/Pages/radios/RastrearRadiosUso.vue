@@ -18,6 +18,11 @@
         </v-btn>
       </FilterBar>
 
+      <!-- Indicador de Carregamento -->
+      <v-row v-if="loading" class="d-flex justify-center mb-3">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </v-row>
+
       <!-- Total de registros -->
       <v-row>
         <v-col cols="12" class="d-flex justify-center">
@@ -63,7 +68,6 @@ import FilterBar from '@/Components/FilterBar.vue';
 import { router } from '@inertiajs/vue3';
 import BarChart from '@/Components/BarChart.vue';
 
-// Funções de Data
 const getTodayDate = () => new Date().toISOString().split('T')[0];
 const getDateBefore = (days) => {
   const date = new Date();
@@ -71,7 +75,6 @@ const getDateBefore = (days) => {
   return date.toISOString().split('T')[0];
 };
 
-// Filtros e Estados
 const filters = ref({
   startD: getDateBefore(15),
   endD: getTodayDate(),
@@ -80,10 +83,10 @@ const filters = ref({
 });
 const macData = ref([]);
 const page = ref(1);
-const showGraphicModal = ref(false); // Controla a exibição da modal
+const loading = ref(false);
+const showGraphicModal = ref(false);
 const totalRecords = computed(() => macData.value.length);
 
-// Colunas da Tabela
 const headers = [
   { text: 'MAC', value: 'mac', title: 'MAC', key: 'mac' },
   { text: 'Acessos', value: 'access_count', title: 'Acessos', key: 'access_count' },
@@ -92,13 +95,11 @@ const headers = [
   { text: 'Consumo Total (MB)', value: 'total_consumption', title: 'Consumo Total (MB)', key: 'total_consumption' },
 ];
 
-// Função para converter GB/MB para MB
 const convertToMB = (size) => {
   const [value, unit] = size.split(" ");
   return parseFloat(value) * (unit === "GB" ? 1024 : 1);
 };
 
-// Dados formatados para a tabela
 const formattedData = computed(() => 
   macData.value.map((data) => ({
     mac: data.mac,
@@ -109,8 +110,6 @@ const formattedData = computed(() =>
   }))
 );
 
-
-// Dados para o gráfico
 const chartData = computed(() => {
   return {
     labels: macData.value.map((item) => item.mac),
@@ -120,7 +119,7 @@ const chartData = computed(() => {
         backgroundColor: 'blue',
         data: macData.value.map(
           (item) => (convertToMB(item.total_upload) + convertToMB(item.total_download)) / 1024
-        ), // Convertendo para GB
+        ),
       },
       {
         label: 'Acessos',
@@ -130,6 +129,7 @@ const chartData = computed(() => {
     ]
   };
 });
+
 const maxConsumptionGB = computed(() => {
   return (
     Math.max(
@@ -138,29 +138,27 @@ const maxConsumptionGB = computed(() => {
   );
 });
 
-
-
-
-
-// Função para buscar dados de uso e consumo
-const fetchMacData = () => {
-  router.get('/radios/basetrack', {
-    startD: filters.value.startD,
-    endD: filters.value.endD,
-    mac: filters.value.mac,
-    region: filters.value.region,
-    page: page.value,
-  }, {
-    preserveState: true,
-    replace: true,
-    onSuccess: (pageData) => {
-      macData.value = pageData.props.macData || [];
-      console.log("Dados recebidos para macData:", macData.value);
-    }
-  });
+const fetchMacData = async () => {
+  loading.value = true;
+  try {
+    await router.get('/radios/basetrack', {
+      startD: filters.value.startD,
+      endD: filters.value.endD,
+      mac: filters.value.mac,
+      region: filters.value.region,
+      page: page.value,
+    }, {
+      preserveState: true,
+      replace: true,
+      onSuccess: (pageData) => {
+        macData.value = pageData.props.macData || [];
+      }
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
-// Função de exportação para CSV
 const exportToCSV = () => {
   const csvContent = [
     ["MAC", "Acessos", "Total Upload", "Total Download", "Consumo Total (MB)"],
@@ -178,17 +176,15 @@ const exportToCSV = () => {
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", "mac_data_report.csv");
+  link.setAttribute("download", "Relatorio de Uso.csv");
   link.click();
 };
 
-// Função de busca
 const handleSearch = () => {
   page.value = 1;
   fetchMacData();
 };
 
-// Inicializar a busca de dados
 onMounted(() => {
   fetchMacData();
 });

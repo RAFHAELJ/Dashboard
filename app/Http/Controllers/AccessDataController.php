@@ -172,9 +172,7 @@ class AccessDataController extends Controller
 
     public function destroy($id)
     {
-        try {
-           
-              
+        try {             
            
             $this->accessDataRepository->delete($id);
             $this->logRepository->createLog(Auth::id(), "Deletado acesso {$id}");
@@ -217,7 +215,7 @@ public function updateRegionConnection(Request $request)
 
 public function showStatistics(AccessDataRepository $accessDataRepo)
 {
-    // Tenta buscar os dados no cache
+    
     $statistics = Cache::remember('statistics_cache', 60, function () use ($accessDataRepo) {
         $totalDatabases = $accessDataRepo->getTotalDatabases();
         $totalControllers = $accessDataRepo->getTotalControllers();

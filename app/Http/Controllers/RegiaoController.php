@@ -19,7 +19,6 @@ class RegiaoController extends Controller
         $this->logRepository = $logRepository;
     }
 
-    // Index (exibição)
     public function index()
     {
         $regioes = $this->regiaoRepository->all();
@@ -36,10 +35,10 @@ class RegiaoController extends Controller
     }
     
 
-    // Criar nova região
+   
     public function store(Request $request)
     {
-        // Validações
+  
         $validatedData = $request->validate([
             'cidade' => 'required|string|max:255',
             'bairros' => 'required|string|max:255',
@@ -62,20 +61,19 @@ class RegiaoController extends Controller
                 'error' => 'Erro ao criar a região: ' . $e->getMessage()
             ]);
         }
-    }
-    
+    }   
 
     
     public function update(Request $request, $id)
     {
-        // Validações
+      
         $validatedData = $request->validate([
             'cidade' => 'required|string|max:255',
             'bairros' => 'required|string|max:255',
         ]);
     
         try {
-            // Atualização da região
+            
             $regiao = $this->regiaoRepository->update($id, $validatedData);
             $this->logRepository->createLog(auth()->id(), 'Atualização de Regiao', $request->regiao);
     
@@ -91,10 +89,9 @@ class RegiaoController extends Controller
                 'error' => 'erro ao atualizar a região: ' . $e->getMessage()
             ]);
         }
-    }
-    
+    } 
 
-    // Excluir uma região
+  
     public function destroy($id)
     {
         try {

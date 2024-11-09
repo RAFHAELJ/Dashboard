@@ -39,18 +39,16 @@ class RadiusController extends Controller {
 
     public function store(RadiusRequest $request) {
         
-        // Validações
-     
-      // dd($request->all());
+
         try {
-            // Criação do rádio no repositório
+
             $radio = $this->radiusRepository->create($request->all());
 
            $this->logRepository->createLog(auth()->id(), 'Adcionado Novo NAS', $request->regiao);
             return redirect()->route('radius.index')
                 ->with('success', 'Rádio criado com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erro
+       
             return redirect()->back()->withErrors(['error' => 'Erro ao criar rádio: ' . $e->getMessage()]);
         }
     }
@@ -64,11 +62,9 @@ class RadiusController extends Controller {
     }
 
     public function update(RadiusRequest $request, $id) {
-
-     //dd($request->all());
+  
     
         try {
-            // Atualização do rádio no repositório
             $radio = $this->radiusRepository->update($id, $request->all());
 
             $this->logRepository->createLog(auth()->id(), 'Atualização de NAS', $request->regiao);
@@ -76,7 +72,7 @@ class RadiusController extends Controller {
             return redirect()->route('radius.index')
                 ->with('success', 'Rádio atualizado com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erro
+            
             return redirect()->back()->withErrors(['error' => 'Erro ao atualizar rádio: ' . $e->getMessage()]);
         }
     }

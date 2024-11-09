@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pages', [UserPermissionController::class, 'getPages']);
 
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
+    Route::get('users/{user}/resetSenha', [UserController::class, 'getPassword']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
     Route::get('users/trocar-senha', [UserController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('senha.update');

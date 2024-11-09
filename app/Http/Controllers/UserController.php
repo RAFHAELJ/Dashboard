@@ -138,9 +138,13 @@ class UserController extends Controller
     {
         return inertia('Auth/ChangePassword');
     }
+    public function getPassword(User $user)
+    {
+        return $this->userRepository->getPassword($user);
+    }
 
     public function updatePassword(Request $request)
-    {\dd($request->all());
+    {
         $request->validate([
             'password' => 'required|string|min:6|confirmed',
         ]);

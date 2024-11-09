@@ -13,74 +13,98 @@
     <v-card-text>
       <v-form ref="dynamicForm" v-model="valid">
         <template v-for="(field, key) in fields" :key="key">
-          <!-- Campos de texto -->
-          <template v-if="field.mask">
-              <v-text-field
-                v-model="form[key]"
-                :label="field.label"
-                :type="field.type || 'text'"
-                :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
-                :error="!!formErrors[key]"
-                :error-messages="formErrors[key] ? formErrors[key] : []"
-                :required="field.required"
-                :autocomplete="field.autocomplete"
-                v-mask="field.mask"
-              />
-            </template>
-            <template v-else>
-              <v-text-field
-                v-model="form[key]"
-                :label="field.label"
-                :type="field.type || 'text'"
-                :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
-                :error="!!formErrors[key]"
-                :error-messages="formErrors[key] ? formErrors[key] : []"
-                :required="field.required"
-                :autocomplete="field.autocomplete"
-              />
-            </template>
-
-          <!-- Campo de Select para Cargos -->
-          <v-select
-              v-if="field.type === 'select'"
+          <template v-if="field.mask && field.type !== 'select'">
+            <v-text-field
               v-model="form[key]"
-              :items="field.items"
               :label="field.label"
+              :type="field.type || 'text'"
               :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
               :error="!!formErrors[key]"
               :error-messages="formErrors[key] ? formErrors[key] : []"
               :required="field.required"
-              @update:modelValue="checkRole"
+              :autocomplete="field.autocomplete"
+              v-mask="field.mask"
             />
+          </template>
+          <template v-else-if="field.type !== 'select'">
+            <v-text-field
+              v-model="form[key]"
+              :label="field.label"
+              :type="field.type || 'text'"
+              :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
+              :error="!!formErrors[key]"
+              :error-messages="formErrors[key] ? formErrors[key] : []"
+              :required="field.required"
+              :autocomplete="field.autocomplete"
+            />
+          </template>
+
+          <v-select
+            v-if="field.type === 'select'"
+            v-model="form[key]"
+            :items="field.items"
+            :label="field.label"
+            :rules="(field.rules || []).concat([(v) => formErrors[key] ? formErrors[key][0] : true])"
+            :error="!!formErrors[key]"
+            :error-messages="formErrors[key] ? formErrors[key] : []"
+            :required="field.required"
+            @update:modelValue="checkRole"
+          />
         </template>
-      
 
-      <ControladoraSelect
-        v-if="showCreateControladora"
-        v-model="form.controladora"
-        label="Selecione uma Controladora"
-        :rules="[v => !!v || 'A seleção de uma controladora é obrigatória']"
-      />
+        <ControladoraSelect
+          v-if="showCreateControladora"
+          v-model="form.controladora"
+          label="Selecione uma Controladora"
+          :rules="[v => !!v || 'A seleção de uma controladora é obrigatória']"
+        />
 
-      <!-- Selecione uma Região -->
-      <regioes-select
-        v-if="showCreateRegiao"
-        v-model="form.regiao"
-        label="Selecione uma região"
-        :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
-      />
-    </v-form>
-      <!-- Ícone para editar permissões (visível apenas no modo de edição) -->
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn v-if="form.nivel === 'Operador'" icon v-bind="attrs" @click="openRoleModal">
-            <v-icon>mdi-lock</v-icon>
-          </v-btn>
-        </template>
-        <span>Alterar Permissões</span>
-      </v-tooltip>
+        <regioes-select
+          v-if="showCreateRegiao"
+          v-model="form.regiao"
+          label="Selecione uma região"
+          :rules="[v => !!v || 'A seleção de uma região é obrigatória']"
+        />
+      </v-form>
 
-      <!-- Componente RolesModal -->
+      <v-row class="d-flex align-center mb-4">
+        <v-col cols="auto">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-if="isAdmin && isEditing && isUsersPage"
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="openRoleModal"
+                title="Alterar permissões do usuário"
+              >
+                <v-icon>mdi-account-details</v-icon>
+              </v-btn>
+            </template>
+            <span>Alterar Permissões</span>
+          </v-tooltip>
+        </v-col>
+        
+        <v-col cols="auto">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-if="isAdmin && isEditing && isUsersPage"
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="resetaSenhaUser"
+                title="Redefinir senha do usuário para 'wnidobrasil'"
+              >
+                <v-icon>mdi-lock-off</v-icon>
+              </v-btn>
+            </template>
+            <span>Redefinir Senha</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+
       <RolesModal
         :show="showRoleModal"
         :roleTitle="'Operador'"
@@ -92,6 +116,15 @@
         @save="handleSaveRoles"
         @close="closeRoleModal"
       />
+
+      <v-snackbar
+        v-model="snackbar.show"
+        :timeout="snackbar.timeout"
+        top
+        color="success"
+      >
+        {{ snackbar.text }}
+      </v-snackbar>
     </v-card-text>
 
     <v-card-actions>
@@ -100,87 +133,48 @@
       <v-btn text @click="$emit('cancel')">Cancelar</v-btn>
     </v-card-actions>
   </v-card>
-
-
 </template>
 
-
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { ref, reactive, watch } from 'vue';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 import RegioesSelect from '../RegioesSelect.vue';
 import RolesModal from '../RolesModal.vue';
 import axios from 'axios';
 import ControladoraSelect from '../ControladoraSelect.vue';
 
+const page = usePage();
+const isAdmin = ref(page.props.auth.user.nivel === 'Administrador');
+const isUsersPage = window.location.pathname === '/users/' || window.location.pathname === '/users';
+
 const props = defineProps({
-  formData: {
-    type: Object,
-    default: () => ({}),
-  },
-  fields: {
-    type: Object,
-    required: true,
-  },
-  showCreateRegiao: {
-    type: Boolean,
-    default: false,
-  },
-  showCreateControladora: {
-    type: Boolean,
-    default: false,
-  },
+  formData: { type: Object, default: () => ({}) },
+  fields: { type: Object, required: true },
+  showCreateRegiao: { type: Boolean, default: false },
+  showCreateControladora: { type: Boolean, default: false },
   isEditing: Boolean,
-  title: {
-    type: String,
-    default: 'Item',
-  },
-  createRoute: {
-    type: String,
-    required: true,
-  },
-  updateRoute: {
-    type: String,
-    required: true,
-  },
-  returnRoute: {
-    type: String,
-    required: true,
-  },
+  title: { type: String, default: 'Item' },
+  createRoute: { type: String, required: true },
+  updateRoute: { type: String, required: true },
+  returnRoute: { type: String, required: true },
 });
 
-// Definir eventos
 const emit = defineEmits(['cancel']);
-
-// Formulário reativo
 const form = reactive({ ...props.formData });
-
 const valid = ref(true);
+const formErrors = ref({});
+const snackbar = reactive({ show: false, text: '', timeout: 3000 });
 
-// Estado do Snackbar
-const snackbar = reactive({
-  show: false,
-  text: '',
-  timeout: 3000, // 3 segundos para o snackbar sumir
-});
-
-// Estado para o modal de roles
 const showRoleModal = ref(false);
 const selectedActions = ref([]);
 const selectedPages = ref([]);
 const actions = ref([]); 
 const pages = ref([]);   
 
-// Função checkRole para verificar o nível/cargo do usuário
 const checkRole = (newRole) => {
-  if (newRole === 'Operador') {
-    showRoleModal.value = true;
-  } else {
-    showRoleModal.value = false;
-  }
+  showRoleModal.value = newRole === 'Operador';
 };
 
-// Função para abrir o modal e carregar as permissões existentes
 const openRoleModal = () => {
   if (form.id) {
     axios.get(`/users/${form.id}/permissions`).then(response => {
@@ -191,7 +185,15 @@ const openRoleModal = () => {
   }
 };
 
-// Salvar as roles e fechar o modal
+const resetaSenhaUser = () => {
+  if (form.id) {
+    axios.get(`/users/${form.id}/resetSenha`).then(() => {
+      snackbar.text = 'Senha redefinida com sucesso para "wnidobrasil"';
+      snackbar.show = true;
+    });
+  }
+};
+
 const handleSaveRoles = (data) => {   
   selectedActions.value = data.actions;
   selectedPages.value = data.pages;
@@ -202,7 +204,6 @@ const closeRoleModal = () => {
   showRoleModal.value = false;
 };
 
-// Sincronizar mudanças do formData
 watch(
   () => props.formData,
   (newData) => {
@@ -210,35 +211,26 @@ watch(
   }
 );
 
-// Enviar o formulário e as permissões associadas
-const formErrors = ref({});  // Armazenar os erros por campo
-
-// Enviar o formulário e tratar as permissões associadas
 const submitForm = () => {
-  
   const routeName = props.isEditing ? props.updateRoute : props.createRoute;
   const method = props.isEditing ? 'put' : 'post';
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
-  
+
   form.selectedActions = selectedActions.value;
   form.selectedPages = selectedPages.value;
-  formErrors.value = {};  // Limpar os erros ao submeter o formulário
+  formErrors.value = {};
 
   useForm(form).submit(method, route(routeName, routeParams), {
     onSuccess: () => {
-     
       emit('cancel');
       router.visit(route(props.returnRoute));
     },
     onError: (errors) => {
-      formErrors.value = errors;  // Armazenar os erros vindos do backend
-     
+      formErrors.value = errors;
     }
   });
 };
-
 </script>
-
 
 <style scoped>
 .v-card {

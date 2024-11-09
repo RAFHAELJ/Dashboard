@@ -23,14 +23,10 @@ class PageController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Valide e salve os dados editados
+        
         $request->validate([
             'content' => 'required|string',
         ]);
-
-        // Aqui você deve salvar os dados no banco de dados
-        // Exemplo fictício:
-        // Page::find($id)->update(['content' => $request->input('content')]);
 
         return redirect()->route('edit.page', ['id' => $id])->with('success', 'Página atualizada com sucesso!');
     }
