@@ -16,10 +16,10 @@ class FormController extends Controller
         $this->formRepository = $formRepository;
     }
 
-    // Listar formulários
+    
     public function index(Request $request)
     {
-       // \dd($request->all());
+       
         $forms = $this->formRepository->getAllForms();
 
         if ($request->wantsJson()) {
@@ -28,17 +28,17 @@ class FormController extends Controller
 
         
         return Inertia::render('forms/ViewForm', [
-            'forms' => $forms // Passa para o componente Vue
+            'forms' => $forms 
         ]);
     }
 
-    // Criar formulário
+    
     public function store(FormsRequest $request)
     {
-      // \dd($request->all());
+      
         $form = $this->formRepository->createForm($request->all());
 
-        // Verifica se é uma chamada AJAX ou Inertia
+       
         if ($request->wantsJson()) {
             return response()->json($form, 201);
         }
@@ -46,7 +46,7 @@ class FormController extends Controller
         return redirect()->route('forms.index')->with('success', 'Formulário criado com sucesso.');
     }
 
-    // Mostrar formulário
+    
     public function show($id, Request $request)
     {
         $form = $this->formRepository->getFormById($id);
@@ -58,7 +58,7 @@ class FormController extends Controller
         return inertia('Forms/Show', ['form' => $form]);
     }
 
-    // Atualizar formulário
+   
     public function update(FormsRequest $request, $id)
     {
         $form = $this->formRepository->updateForm($id, $request->validated());
@@ -70,7 +70,7 @@ class FormController extends Controller
         return redirect()->route('forms.index')->with('success', 'Formulário atualizado com sucesso.');
     }
 
-    // Deletar formulário
+   
     public function destroy($id, Request $request)
     {
         $this->formRepository->deleteForm($id);

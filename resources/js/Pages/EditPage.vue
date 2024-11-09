@@ -90,7 +90,7 @@
     const css = editor.value.getCss();
     
     try {
-      const response = await fetch(route('save.page'), {
+      const response = await fetch(route('save.page',[], true), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

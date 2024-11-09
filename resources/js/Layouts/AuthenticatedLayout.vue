@@ -1,8 +1,10 @@
 <template>
+
+
   <v-app class="rounded rounded-md">
     <v-app-bar scroll-behavior="elevate" elevation="5" color="#2f2f2f">
       <template v-slot:prepend>
-        <img src="/images/LogoSf.png" alt="Logo" class="w-16 h-12">
+        <img src="../../images/LogoSf.png" alt="Logo" class="w-16 h-12">
         <!-- Aqui você pode adicionar mais elementos no menu superior se necessário -->
       </template>
 
@@ -66,7 +68,8 @@
           </template>
           <v-list-item v-if="canAccess('mapaRadios', 'ler')" title="Mapa de Radios" @click="navigateTo('/radios/mapaRadio')"></v-list-item>
           <v-list-item v-if="canAccess('incluirRadios', 'gravar')" title="Controle Radios" @click="navigateTo('/radios/')"></v-list-item>
-          <v-list-item v-if="canAccess('rastrearRadio', 'rastrear')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
+          <v-list-item v-if="canAccess('rastrearRadio', 'ler')" title="Rastrear Radios" @click="navigateTo('/radios/track')"></v-list-item>
+          <v-list-item v-if="canAccess('rastrearUsoRadio', 'ler')" title="Usabilidade Radios" @click="navigateTo('/radios/basetrack')"></v-list-item>
         </v-list-group>
 
         <!-- Usuários Menu -->
@@ -83,12 +86,12 @@
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-bullhorn" title="Campanhas"></v-list-item>
           </template>
-          <v-list-item v-if="canAccess('campanhas', 'gravar')" title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item>
+          <!--v-list-item v-if="canAccess('campanhas', 'gravar')" title="Adicionar Campanha" @click="navigateTo('/campanhas/adicionar')"></v-list-item-->
           <v-list-item v-if="canAccess('campanhas', 'ler')" title="Listar Campanhas" @click="navigateTo('/campanhas/')"></v-list-item>
         </v-list-group>
 
         <!-- Personalizar Hotspot -->
-        <v-list-group v-if="canAccess('hotspot')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
+        <v-list-group v-if="canAccess('login_customizations')" v-model="menuStates.personalizaHotSpot" value="Personalizar Hotspot">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-cellphone-settings" title="Personalizar Hotspot"></v-list-item>
           </template>
@@ -103,15 +106,16 @@
           </template>
           <v-list-item v-if="canAccess('database', 'ler')" title="Database" @click="navigateTo('/database')"></v-list-item>
           <v-list-item v-if="canAccess('controladora', 'ler')" title="Controladora" @click="navigateTo('/controladora')"></v-list-item>
+          <v-list-item v-if="canAccess('radius', 'ler')" title="Radius" @click="navigateTo('/radius')"></v-list-item>
           <v-list-item v-if="canAccess('regioes', 'ler')" title="Lista Regiões" @click="navigateTo('/regioes/')"></v-list-item>
         </v-list-group>
 
         <!-- Controladoras Menu -->
-        <v-list-group v-if="canAccess('Controladoras')" v-model="menuStates.ConfiguracoesControladora" value="Controladoras">
+        <v-list-group v-if="canAccess('controladora')" v-model="menuStates.ConfiguracoesControladora" value="Controladoras">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-router-wireless-settings" title="Controladoras"></v-list-item>
           </template>
-          <v-list-item v-if="canAccess('listaControladoras', 'ler')" title="Config Controladoras" @click="navigateTo('/controladora/controladora')"></v-list-item>
+          <v-list-item v-if="canAccess('controladora', 'ler')" title="Config Controladoras" @click="navigateTo('/controladora/controladora')"></v-list-item>
         </v-list-group>
 
         <!-- Radius Menu -->
@@ -119,7 +123,7 @@
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-server" title="Radius"></v-list-item>
           </template>
-          <v-list-item v-if="canAccess('radius', 'ler')" title="Lista Radius" @click="navigateTo('/radius/lista')"></v-list-item>
+          <!--v-list-item v-if="canAccess('radius', 'ler')" title="Lista Radius" @click="navigateTo('/radius/lista')"></v-list-item-->
           <v-list-item v-if="canAccess('radius', 'ler')" title="Adiciona Nas" @click="navigateTo('/radius/')"></v-list-item>
         </v-list-group>
 

@@ -1,61 +1,81 @@
 <script setup>
 import { ref } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
-import UserForm from '@/Components/forms/UserForm.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
+// Obtendo o ID do usuário a partir das props do Inertia
 const { props } = usePage();
-const userId = props.auth.user.id; // Obtém o ID do usuário logado
+const userId = props.auth?.user?.id || null;
 console.log('ID do usuário:', userId);
-const isEditing = ref(false); // Não estamos editando um usuário existente, mas sim alterando a senha
-const formData = ref({
-    user_id: userId || null, // Garante que user_id seja definido
-    password: '',
-    password_confirmation: '',
-});
 
+// Variáveis para armazenar os dados da senha
+const password = ref('');
+const passwordConfirmation = ref('');
+const errors = ref({});
 
-// Função para enviar a nova senha ao backend
+// Função para enviar a nova senha ao backend usando o método PUT
 const handleSubmit = () => {
-    router.post(route('password.update'), formData.value, {
-        onSuccess: () => {
-            formData.value.password = '';
-            formData.value.password_confirmation = '';
-        }
-    });
-};
+    // Resetando erros
+    errors.value = {};
 
-const fields = {
-    password: { 
-        label: 'Nova Senha', 
-        rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], 
-        required: true, 
-        type: 'password',
-        autocomplete: 'new-password'
-    },
-    password_confirmation: {
-        label: 'Confirmação da Senha',
-        rules: [(v) => !!v || 'A confirmação da senha é obrigatória'],
-        required: true,
-        type: 'password',
-        autocomplete: 'new-password'
-    }
+    // Enviando a nova senha ao backend usando o método PUT
+    router.put(route('password.update'), {
+        password: password.value,
+        password_confirmation: passwordConfirmation.value,
+    }, {
+        onSuccess: () => {
+            alert('Senha atualizada com sucesso!');
+            password.value = '';
+            passwordConfirmation.value = '';
+        },
+        onError: (responseErrors) => {
+            errors.value = responseErrors;
+            console.error('Erro ao atualizar a senha:', responseErrors);
+        },
+    });
 };
 </script>
 
 <template>
-  <v-container class="fill-height" fluid>
-    <v-card elevation="2" max-width="700" class="mx-auto pa-4"> <!-- Ajuste do tamanho -->
-      <v-card-title class="text-h5">Trocar Senha</v-card-title>
-      <v-card-text>
-        <UserForm 
-          :formData="formData"
-          :fields="fields"
-          :isEditing="isEditing"
-          @submit="handleSubmit"
-          submitLabel="Salvar"
-          cancelLabel="Cancelar"
-        />
-      </v-card-text>
-    </v-card>
-  </v-container>
+  <AuthenticatedLayout>
+    <v-container class="fill-height" fluid>
+      <v-card elevation="2" max-width="500" class="mx-auto pa-4">
+        <v-card-title class="text-h5">Trocar Senha</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="handleSubmit">
+            <!-- Campo para a nova senha -->
+            <v-text-field
+              v-model="password"
+              label="Nova Senha"
+              :error-messages="errors.password"
+              type="password"
+              required
+              autocomplete="new-password"
+            />
+            
+            <!-- Campo para confirmar a nova senha -->
+            <v-text-field
+              v-model="passwordConfirmation"
+              label="Confirmação da Senha"
+              :error-messages="errors.password_confirmation"
+              type="password"
+              required
+              autocomplete="new-password"
+            />
+            
+            <!-- Botões de ação -->
+            <v-card-actions class="justify-end">
+              <v-btn color="primary" @click="handleSubmit">Salvar</v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.fill-height {
+  min-height: 100vh;
+}
+</style>

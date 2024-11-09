@@ -12,8 +12,20 @@ const headers = [
   { text: 'Data', value: 'data', sortable: true, title: 'Data', key: 'data' },
   { text: 'Usuário', value: 'user.name', sortable: true, title: 'Usuário', key: 'user.name' },
   { text: 'Ação', value: 'acao', sortable: true, title: 'Ação', key: 'acao' },
+
  
 ];
+const handleCreate = () => {
+  // Lógica para criação
+};
+
+const handleEdit = (item) => {
+  // Lógica para edição
+};
+
+const handleDelete = (item) => {
+  // Lógica para exclusão
+};
 
 </script>
 
@@ -29,7 +41,12 @@ const headers = [
           searchPlaceholder="Pesquisar Logs"
           :showCreateButton="false"
           :item-key="'id'"
-          :canAccess="canAccess" 
+          :canAccess="canAccess"             
+          :createRoute="'/caminho/para/criar'" 
+          @create="handleCreate"
+          @edit="handleEdit"
+          @delete="handleDelete"
+          
         />
       </v-container>
     </template>

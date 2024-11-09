@@ -25,9 +25,9 @@ class AccessDataController extends Controller
 
     public function index()
     {
-       // dd(Auth::user());
+       
         $accessData = $this->accessDataRepository->findByType('controller');
-//\dd($accessData);
+
         if (request()->wantsJson()) {
             return response()->json($accessData);
         }
@@ -49,6 +49,19 @@ class AccessDataController extends Controller
 
         return Inertia::render('configuracao/ControllerList', [
             'controladora' => $controllers,
+        ]);
+    }
+
+    public function indexRadius()
+    {
+        $radius = $this->accessDataRepository->findByType('radius');
+       
+        if (request()->wantsJson()) {
+            return response()->json($radius);
+        }
+
+        return Inertia::render('configuracao/RadiusList', [
+            'radius' => $radius,
         ]);
     }
     public function show($id)
@@ -88,6 +101,8 @@ class AccessDataController extends Controller
                 $this->logRepository->createLog(Auth::id(), "Adcionado Nova base de dados {$request->nome} ", $request->regiao);
             }else if ($request->input('type') === 'controller') {
                 $this->logRepository->createLog(Auth::id(), "Adcionado Nova controladora {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'radius') {
+                $this->logRepository->createLog(Auth::id(), "Adcionado Novo radius {$request->nome} ", $request->regiao);
             }
 
             if ($request->wantsJson()) {
@@ -104,6 +119,9 @@ class AccessDataController extends Controller
             } elseif ($request->input('type') === 'controller') {
                 return redirect()->route('controladora.index')
                     ->with('success', 'Configuração de controladora criada com sucesso!');
+            }elseif ($request->input('type') === 'radius') {
+                return redirect()->route('radius.index')
+                    ->with('success', 'Configuração de radius criada com sucesso!');
             }
         } catch (\Exception $e) {
             return Inertia::render('Error', [
@@ -123,6 +141,11 @@ class AccessDataController extends Controller
                 $this->logRepository->createLog(Auth::id(), "Atualização de base de dados {$request->nome} ", $request->regiao);
             }else if ($request->input('type') === 'controller') {
                 $this->logRepository->createLog(Auth::id(), "Atualização de controladora {$request->nome} ", $request->regiao);
+            }else if ($request->input('type') === 'radius') {
+                $this->logRepository->createLog(Auth::id(), "atualizada Novo radius {$request->nome} ", $request->regiao);
+            }elseif ($request->input('type') === 'radius') {
+                return redirect()->route('radius.index')
+                    ->with('success', 'Configuração de radius atualizada com sucesso!');
             }
 
             if ($request->wantsJson()) {
@@ -149,9 +172,7 @@ class AccessDataController extends Controller
 
     public function destroy($id)
     {
-        try {
-           
-              
+        try {             
            
             $this->accessDataRepository->delete($id);
             $this->logRepository->createLog(Auth::id(), "Deletado acesso {$id}");
@@ -194,7 +215,7 @@ public function updateRegionConnection(Request $request)
 
 public function showStatistics(AccessDataRepository $accessDataRepo)
 {
-    // Tenta buscar os dados no cache
+    
     $statistics = Cache::remember('statistics_cache', 60, function () use ($accessDataRepo) {
         $totalDatabases = $accessDataRepo->getTotalDatabases();
         $totalControllers = $accessDataRepo->getTotalControllers();

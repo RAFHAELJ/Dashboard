@@ -1,142 +1,199 @@
 <template>
   <AuthenticatedLayout>
     <v-container>
-      <!-- Usando o componente FilterBar -->
+      <!-- Filtros de Data e Inputs Adicionais -->
       <FilterBar
         :filters="filters"
-        @update:filters="(newFilters) => filters = newFilters"
+        @update:filters="(newFilters) => (filters = newFilters)"
         @search="handleSearch"
       >
-        <!-- Inputs adicionais, ex: MAC, Região -->
-        <v-col cols="12" sm="6" md="3">
-          <v-select
-          v-model="form.radios"
-          :items="radios"
-          :label="fields.radio.label"
-          :rules="fields.radio.rules"
-          multiple
-          item-title="radio"
-          item-value="id"
-        ></v-select>
-        </v-col>
-
-        <v-col cols="12" sm="6" md="3">
-          <v-text-field
-            v-model="filters.region"
-            label="Região"
-            prepend-inner-icon="mdi-map-marker"
-            outlined
-            dense
-            hide-details
-          ></v-text-field>
-        </v-col>
+        <v-btn @click="exportToCSV" color="primary" small rounded class="py-1 mx-1" style="min-width: 100px">
+          <v-icon left>mdi-file-download</v-icon>
+          Exportar
+        </v-btn>
+        
+        <v-btn @click="showGraphicModal = true" color="success" small rounded class="py-1 mx-1" style="min-width: 100px">
+          <v-icon left>mdi-chart-bar</v-icon>
+          Gráfico
+        </v-btn>
       </FilterBar>
 
-      <!-- Exibindo o total de registros -->
+      <!-- Indicador de Carregamento -->
+      <v-row v-if="loading" class="d-flex justify-center mb-3">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </v-row>
+
+      <!-- Total de registros -->
       <v-row>
         <v-col cols="12" class="d-flex justify-center">
           <p>Total de registros: {{ totalRecords }}</p>
         </v-col>
       </v-row>
 
-      <!-- Usando o componente ReportDisplay -->
-      <ReportDisplay
-        :reports="users"
-        :page="page"
-        :lastPage="lastPage"
-        @page-change="handlePageChange"
-      />
+      <!-- Tabela de Relatório -->
+      <v-data-table
+        :headers="headers"
+        :items="formattedData"
+        class="elevation-1"
+        :items-per-page="10"
+      >
+        <template v-slot:[`item.total_consumption`]="{ item }">
+          {{ item.total_consumption }} MB
+        </template>
+      </v-data-table>
+
+      <!-- Modal para o Gráfico -->
+      <v-dialog v-model="showGraphicModal" max-width="2200px">
+        <v-card>
+          <v-card-title class="text-h6">Consumo Total por MAC (MB)</v-card-title>
+          <v-card-text>
+            <div class="chart-container">
+              <BarChart :chart-data="chartData" :maxConsumptionGB="maxConsumptionGB" />
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red darken-1" text @click="showGraphicModal = false">Fechar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </AuthenticatedLayout>
 </template>
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import FilterBar from '@/Components/FilterBar.vue';
-import ReportDisplay from '@/Components/ReportDisplay.vue';
 import { router } from '@inertiajs/vue3';
+import BarChart from '@/Components/BarChart.vue';
 
-// Função para obter a data de hoje e 15 dias antes
-const getTodayDate = () => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
-};
-
+const getTodayDate = () => new Date().toISOString().split('T')[0];
 const getDateBefore = (days) => {
   const date = new Date();
   date.setDate(date.getDate() - days);
   return date.toISOString().split('T')[0];
 };
 
-// Filtros e estados
 const filters = ref({
-  startD: getDateBefore(15), // 15 dias atrás
-  endD: getTodayDate(),      // Data de hoje
-  username: '',
+  startD: getDateBefore(15),
+  endD: getTodayDate(),
   mac: '',
   region: ''
 });
-
-const radios = ref([]);
-const users = ref([]);
+const macData = ref([]);
 const page = ref(1);
-const lastPage = ref(1);
-const totalRecords = ref(0);
+const loading = ref(false);
+const showGraphicModal = ref(false);
+const totalRecords = computed(() => macData.value.length);
 
-// Função para buscar relatórios
-const fetchReports = () => {
-  router.get('/radios/track', {
-    startD: filters.value.startD,
-    endD: filters.value.endD,
-    username: filters.value.username,
-    mac: filters.value.mac,
-    region: filters.value.region,
-    page: page.value,
-  }, {
-    preserveState: true,
-    replace: true,
-    onSuccess: (pageData) => {
-      users.value = pageData.props.users.data;
-      lastPage.value = pageData.props.users.last_page;
-      totalRecords.value = pageData.props.users.total;
-    },
-  });
+const headers = [
+  { text: 'MAC', value: 'mac', title: 'MAC', key: 'mac' },
+  { text: 'Acessos', value: 'access_count', title: 'Acessos', key: 'access_count' },
+  { text: 'Total Upload', value: 'total_upload', title: 'Total Upload', key: 'total_upload' },
+  { text: 'Total Download', value: 'total_download', title: 'Total Download', key: 'total_download' },
+  { text: 'Consumo Total (MB)', value: 'total_consumption', title: 'Consumo Total (MB)', key: 'total_consumption' },
+];
+
+const convertToMB = (size) => {
+  const [value, unit] = size.split(" ");
+  return parseFloat(value) * (unit === "GB" ? 1024 : 1);
 };
 
-const fetchRadios = async () => {
-  try {
-    const response = await fetch(route('radios.index'), {
-      headers: { 'Accept': 'application/json' },
-    });
+const formattedData = computed(() => 
+  macData.value.map((data) => ({
+    mac: data.mac,
+    access_count: data.access_count,
+    total_upload: data.total_upload,
+    total_download: data.total_download,
+    total_consumption: (convertToMB(data.total_upload) + convertToMB(data.total_download)).toFixed(2),
+  }))
+);
 
-    if (response.ok) {
-      const radiosData = await response.json();
-      radios.value = radiosData.data;
-     // radios: props.formData.radios ? JSON.parse(props.formData.radios).map(item => parseInt(item)) : [],
-    } else {
-      console.error('Erro ao buscar rádios:', response.statusText);
-    }
-  } catch (error) {
-    console.error('Erro ao buscar rádios:', error);
+const chartData = computed(() => {
+  return {
+    labels: macData.value.map((item) => item.mac),
+    datasets: [
+      {
+        label: 'Consumo Total (GB)',
+        backgroundColor: 'blue',
+        data: macData.value.map(
+          (item) => (convertToMB(item.total_upload) + convertToMB(item.total_download)) / 1024
+        ),
+      },
+      {
+        label: 'Acessos',
+        backgroundColor: 'green',
+        data: macData.value.map((item) => item.access_count || 0),
+      }
+    ]
+  };
+});
+
+const maxConsumptionGB = computed(() => {
+  return (
+    Math.max(
+      ...macData.value.map(item => (convertToMB(item.total_upload) + convertToMB(item.total_download)) / 1024)
+    ) * 1.1
+  );
+});
+
+const fetchMacData = async () => {
+  loading.value = true;
+  try {
+    await router.get('/radios/basetrack', {
+      startD: filters.value.startD,
+      endD: filters.value.endD,
+      mac: filters.value.mac,
+      region: filters.value.region,
+      page: page.value,
+    }, {
+      preserveState: true,
+      replace: true,
+      onSuccess: (pageData) => {
+        macData.value = pageData.props.macData || [];
+      }
+    });
+  } finally {
+    loading.value = false;
   }
 };
 
-// Função para iniciar a busca sempre na página 1
+const exportToCSV = () => {
+  const csvContent = [
+    ["MAC", "Acessos", "Total Upload", "Total Download", "Consumo Total (MB)"],
+    ...formattedData.value.map(data => [
+      data.mac,
+      data.access_count,
+      data.total_upload,
+      data.total_download,
+      `${data.total_consumption} MB`
+    ])
+  ]
+  .map(row => row.join(","))
+  .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", "Relatorio de Uso.csv");
+  link.click();
+};
+
 const handleSearch = () => {
   page.value = 1;
-  fetchReports();
+  fetchMacData();
 };
 
-// Função para lidar com a mudança de página
-const handlePageChange = (newPage) => {
-  page.value = newPage;
-  fetchReports();
-};
-
-// Busca inicial de relatórios quando o componente é montado
 onMounted(() => {
-  fetchReports();
-  fetchRadios
+  fetchMacData();
 });
 </script>
+
+<style scoped>
+.chart-container {
+  position: relative;
+  height: 500px;
+  width: 100%;
+}
+</style>

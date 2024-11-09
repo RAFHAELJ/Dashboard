@@ -15,7 +15,7 @@ class AccessDataRequest extends FormRequest
     public function rules()
     {
         return [
-            'type' => 'required|in:controller,database',
+            'type' => 'required|in:controller,database,radius',
             'nome' => 'required|string',
             
             // Campos específicos para 'controller'

@@ -9,6 +9,7 @@ const { props } = usePage();
 const loginConfigurations = ref(props.customizations || []);
 
 const search = ref('');
+const isEditModalOpen = ref(false);
 
 const handleEditItem = (config) => {
     router.visit(route('login_customizations.edit', config.id)); 

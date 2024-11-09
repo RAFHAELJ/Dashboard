@@ -117,7 +117,7 @@ const handleDeleteItem = (item) => {
             title="Usuário"
             createRoute="users.store"
             updateRoute="users.update"
-            returnRoute="users.index"
+            returnRoute="users.index"           
             @cancel="closeEditModal"
           />
         </v-dialog>

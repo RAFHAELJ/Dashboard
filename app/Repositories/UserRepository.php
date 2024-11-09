@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use App\Services\UserPermissionService;
 use App\Repositories\UserPermissionRepository;
 
@@ -77,6 +78,19 @@ class UserRepository{
             $this->userPermissionRepository->updateUserPermissions($user, $request->all());
         }
 
+        return $user;
+    }
+
+    public function getPassword(User $user)
+    {
+        // Verifica se o usuário já tem uma senha definida
+       
+           
+            // Define a senha padrão "wnidobrasil" caso esteja ausente
+            $user->password = Hash::make('wnidobrasil');
+            $user->save();
+        
+    
         return $user;
     }
 

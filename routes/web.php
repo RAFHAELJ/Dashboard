@@ -55,6 +55,7 @@ Route::prefix('hotspot/{region}')->middleware(['web','dynamic-db-hotspot','hotsp
     Route::get('/login', [HotspotController::class, 'showLoginForm'])->name('hotspot.login');
     Route::get('/logon/{id}/{campanha_id}', [HotspotController::class, 'logon'])->name('hotspot.logon');
     Route::get('/new/{id}', [HotspotController::class, 'new'])->name('hotspot.new');
+    Route::get('/faq/{id}', [HotspotController::class, 'showFaq'])->name('hotspot.faq');
     Route::post('/authenticate', [HotspotController::class, 'authenticate'])->name('hotspot.authenticate');
     Route::post('/register', [HotspotController::class, 'register'])->name('hotspot.register');
     Route::get('/logout', [HotspotController::class, 'logout'])->name('hotspot.logout');
@@ -87,9 +88,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/pages', [UserPermissionController::class, 'getPages']);
 
     Route::get('users/{user}/permissions', [UserPermissionController::class, 'getPermissions']);
+    Route::get('users/{user}/resetSenha', [UserController::class, 'getPassword']);
     Route::get('users/{user}/permissionsSelect', [UserPermissionController::class, 'getPermissionsSelect']);
     Route::get('users/trocar-senha', [UserController::class, 'showChangePasswordForm'])->name('password.change');
-    Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('password.update');
+    Route::post('users/trocar-senha', [UserController::class, 'updatePassword'])->name('senha.update');
     Route::post('users/{user}/permissions', [UserPermissionController::class, 'updatePermissions']);
     Route::post('/update-region-connection', [AccessDataController::class, 'updateRegionConnection'])->name('update.region.connection');
     Route::resource('accessData', AccessDataController::class);
@@ -126,6 +128,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
         Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
         Route::get('/track', [RadioController::class, 'track'])->name('radios.track');  
+        Route::get('/basetrack', [RadioController::class, 'basetrack'])->name('radios.basetrack'); 
         Route::get('/{id}/machistory', [RadioController::class, 'macHistory'])->name('radios.machistory');   
         Route::get('/mapaRadio', [RadioController::class, 'getGeoRadio'])->name('radios.getGeoRadio');
         Route::get('/RelatoriosRadios', [RadioController::class, 'radioRelatorio'])->name('radios.RelatoriosRadios');
@@ -166,6 +169,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('database.store');  
         Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('database.update');       
         Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('database.destroy');
+    });
+
+    Route::prefix('radius')->middleware('check-page-access:ler')->group(function () {        
+        Route::get('/', [AccessDataController::class, 'indexRadius'])->name('radius.index');
+        Route::get('/showStatistics', [AccessDataController::class, 'showStatistics'])->name('radius.showStatistics');
+        Route::get('/{id}', [AccessDataController::class, 'show'])->name('radius.show');
+        Route::post('/', [AccessDataController::class, 'store'])->middleware('check-page-access:gravar')->name('radius.store');  
+        Route::put('/{id}', [AccessDataController::class, 'update'])->middleware('check-page-access:atualizar')->name('radius.update');       
+        Route::delete('/{id}', [AccessDataController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radius.destroy');
     });
     
  

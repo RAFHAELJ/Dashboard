@@ -46,14 +46,27 @@
       </template>
 
       <!-- Botões de Ação -->
-      <v-col cols="12" sm="12" md="4" class="d-flex justify-end">
-        <v-btn @click="onSearch" color="primary" small rounded class="py-1 me-2">
+      <v-col cols="12" sm="12" md="4" class="d-flex justify-end align-center">
+        <!-- Loading Spinner sempre visível para teste -->
+        <v-progress-circular
+          v-show="true"  
+          indeterminate
+          color="primary"
+          class="me-4"
+          :size="24" 
+          v-if="loading"
+          >Careregando</v-progress-circular>
+        
+        <v-btn @click="onSearch" color="primary" small rounded class="py-1 me-2" :disabled="loading">
           <v-icon left>mdi-magnify</v-icon>
           Buscar
         </v-btn>
-        <v-btn :href="exportUrl" color="secondary" small rounded class="py-1">
+        
+        <slot></slot>
+        
+        <v-btn :href="exportUrl" color="secondary" small rounded class="py-1 mx-1" style="min-width: 100px" v-if="csvButton" :disabled="loading">
           <v-icon left>mdi-file-download</v-icon>
-          Exportar CSV
+          Exportar
         </v-btn>
       </v-col>
     </v-row>
@@ -63,11 +76,14 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 
-
 const props = defineProps({
   filters: {
     type: Object,
     required: true,
+  },
+  csvButton: {
+    type: Boolean,
+    default: false,
   },
   extraFields: {
     type: Object,
@@ -79,6 +95,7 @@ const emit = defineEmits(['update:filters', 'search']);
 
 // Cópia local dos filtros
 const internalFilters = ref({ ...props.filters });
+const loading = ref(false); // Estado de carregamento
 
 // Observa mudanças no filtro externo para refletir no interno
 watch(
@@ -102,12 +119,17 @@ watch(
   { deep: true }
 );
 
-// Função de busca
-const onSearch = () => {
+// Função de busca com loading
+const onSearch = async () => {
+  loading.value = true;
   emit('search', internalFilters.value); // Emite os filtros atuais ao buscar
+
+  // Simula uma operação assíncrona com espera para visualização do loading
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
+  
+  loading.value = false; // Desativa o estado de carregamento após a busca
 };
 
-const exportUrl = computed(() => {
-  return route('radios.export', props.filters);
-});
+// URL de exportação
+const exportUrl = computed(() => route('radios.export', props.filters));
 </script>

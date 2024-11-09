@@ -4,31 +4,12 @@
       <!-- Usando o componente FilterBar -->
       <FilterBar
         :filters="filters"
+        :csv-button="true"
         @update:filters="(newFilters) => filters = newFilters"
         @search="handleSearch"
       >
         <!-- Inputs adicionais, ex: MAC, Região -->
-        <v-col cols="12" sm="6" md="3">
-          <v-text-field
-            v-model="filters.mac"
-            label="MAC"
-            prepend-inner-icon="mdi-network"
-            outlined
-            dense
-            hide-details
-          ></v-text-field>
-        </v-col>
-
-        <v-col cols="12" sm="6" md="3">
-          <v-text-field
-            v-model="filters.region"
-            label="Região"
-            prepend-inner-icon="mdi-map-marker"
-            outlined
-            dense
-            hide-details
-          ></v-text-field>
-        </v-col>
+       
       </FilterBar>
 
       <!-- Exibindo o total de registros -->

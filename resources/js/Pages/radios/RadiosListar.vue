@@ -108,7 +108,7 @@ const handleDeleteItem = (item) => {
           :items="radios"
           :columnTitles="['radio','mac']"
           searchPlaceholder="Pesquisar Usuários Radio"
-          createButtonLabel="Add Radios Radio"
+          createButtonLabel="Adicionar Radio"
           @create="handleCreateItem"
           @edit="handleEditItem"
           @delete="handleDeleteItem"

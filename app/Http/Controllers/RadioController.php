@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Services\CsvExportService;
 use App\Http\Requests\RadioRequest;
 use App\Repositories\LogRepository;
-use App\Services\CsvExportService;
 use App\Repositories\RadioRepository;
 
 class RadioController extends Controller {
@@ -39,12 +40,11 @@ class RadioController extends Controller {
     {
         $radios = $this->radioRepository->all();
     
-        // Verifica se a requisição quer um JSON (via fetch, axios, etc.)
+       
         if (request()->wantsJson()) {
             return response()->json($radios);
-        }
-    
-        // Se não for uma requisição JSON, renderize a página normalmente com Inertia
+        }    
+      
         return Inertia::render('radios/RadiosListar', [
             'radios' => $radios
         ]);
@@ -86,19 +86,18 @@ class RadioController extends Controller {
 }
 
 
-    public function store(RadioRequest $request) {
+    public function store(RadioRequest $request) {     
         
-        // Validações
      
        
         try {
-            // Criação do rádio no repositório
+            
             $radio = $this->radioRepository->create($request->all());
             $this->logRepository->createLog(auth()->id(), "Adcionado Novo Rádio {$request->radio} ", $request->regiao);
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio criado com sucesso!');
         } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erro
+           
             return redirect()->back()->withErrors(['error' => 'Erro ao criar rádio: ' . $e->getMessage()]);
         }
     }
@@ -112,20 +111,16 @@ class RadioController extends Controller {
     }
 
     public function update(RadioRequest $request, $id) {
-
      
     
-        try {
-            
-            // Atualização do rádio no repositório
+        try {            
+          
             $radio = $this->radioRepository->update($id, $request->all());
             $this->logRepository->createLog(auth()->id(), "Atualização de Rádio {$request->radio} ", $request->regiao);
     
             return redirect()->route('radios.index')
                 ->with('success', 'Rádio atualizado com sucesso!');
-        } catch (\Exception $e) {
-            // Captura a exceção e redireciona com erro
-            //\dd($e);
+        } catch (\Exception $e) {            
             return Inertia::render('Error', [
                 'error' => 'Erro ao atualizar rádio: ' . $e->getMessage()
             ]);
@@ -146,9 +141,30 @@ class RadioController extends Controller {
 
         return inertia('radios/GetMapaRadios', ['data' => $data]);
     }
-    public function track(Request $request)
+    public function baseTrack(Request $request)
     {
+        $startDate = $request->input('startD') ?? Carbon::now()->subDays(15)->format('Y-m-d');
+        $endDate = $request->input('endD') ?? Carbon::now()->format('Y-m-d');
+        $username = $request->input('username');
         
+       
+        $macData = $this->radioRepository->getTrackedMacAccessData($startDate, $endDate, 10, $username);
+      
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Dados de Acesso dos MACs',
+                'data' => $macData,
+            ]);
+        }
+
+        return Inertia::render('radios/RastrearRadiosUso', [
+            'macData' => $macData
+        ]);
+    }
+    
+    public function track(Request $request)
+    {        
         $startDate = $request->input('startD');
         $endDate = $request->input('endD');
         $username = $request->input('username');
@@ -163,7 +179,6 @@ class RadioController extends Controller {
                 'data' => $usersFinal,
             ]);
         }
-
         
         return Inertia::render('radios/RastrearRadios', [
             'users' => $usersFinal

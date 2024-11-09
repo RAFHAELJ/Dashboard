@@ -91,6 +91,8 @@ export default {
     let customization = props.login;
     let validation = props.validation;
 
+    
+
     if (typeof customization.login_method === 'string') {
       customization.login_method = JSON.parse(customization.login_method);
     }
@@ -107,6 +109,7 @@ export default {
 
     return {
       screenData,
+      validation,
     };
   },
   data() {
@@ -184,9 +187,11 @@ export default {
     return ''; // Retorna sem máscara como padrão
   },
   cleanValue(value) {
-    // Remove todos os caracteres não numéricos
-    return value.replace(/\D/g, '');
-  },
+  if (typeof value !== 'string') {
+    return ''; // Retorna uma string vazia se o valor não for uma string
+  }
+  return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+},
  
     async handleLogin() {
       let username = '';
@@ -195,6 +200,7 @@ export default {
       let loginUrl = ''; 
      
 
+      
       this.screenData.elements.forEach(element => {
         if (element.type === 'input') {
           username = element.value;
@@ -203,6 +209,7 @@ export default {
           password = this.cleanValue(element.value);
         }
       });
+     
       if(this.validation === 'controller') {
         loginUrl = `/hotspot/${this.region}/authenticate`;
 
@@ -244,7 +251,14 @@ export default {
     },
 
     async handleHelpAccount() {
-      console.log('Ajuda acionada');
+      const customizationId = this.screenData?.id;
+
+if (!customizationId) {
+  console.error('ID de customização não encontrado.');
+  return;
+}
+
+this.$inertia.visit(`/hotspot/${this.region}/faq/${customizationId}`);
     },
 
     elementStyle(element, index) {

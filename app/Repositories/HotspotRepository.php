@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use Carbon\Carbon;
-use App\Models\Radio;
+use App\Models\Faq;
 use App\Models\Campanha;
 use App\Models\RadCheck;
 use App\Models\RadioDash;
@@ -10,11 +10,9 @@ use App\Helpers\CpfHelper;
 use App\Models\AccessData;
 use App\Models\MacHistory;
 use App\Models\LoginCustomization;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Repositories\RegiaoRepository;
-use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\Process\Process;
 
 class HotspotRepository
 {
@@ -33,7 +31,6 @@ class HotspotRepository
 
     public function registerUser(array $data, $region)
     {
-        // Limpar e validar o CPF
         $cpf = CpfHelper::clearNumbers($data['cpf']);
         $telefone = CpfHelper::clearNumbers($data['telefone']);
 
@@ -41,48 +38,41 @@ class HotspotRepository
             return ['success' => false, 'error' => 'CPF inválido'];
         }
 
-        // Verificar se o e-mail é válido
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'error' => 'E-mail inválido'];
         }
 
-        // Verificar se o e-mail já está registrado
-        $existingEmail = RadCheck::where('UserName', $data['email'])->first();
-        if ($existingEmail) {
+        if (RadCheck::where('UserName', $data['email'])->exists()) {
             return ['success' => false, 'error' => 'Este e-mail já está registrado'];
         }
 
-        // Verificar se o nome de usuário já está registrado
-        $existingUser = RadCheck::where('UserName', $data['nome'])->first();
-        if ($existingUser) {
+        if (RadCheck::where('UserName', $data['nome'])->exists()) {
             return ['success' => false, 'error' => 'Este usuário já está registrado'];
         }
 
-        // Criar um novo registro no RadCheck
         $radcheck = new RadCheck();
-        $radcheck->UserName = $data['email'];
-        $radcheck->nome = $data['nome'];
-        $radcheck->Attribute = 'Cleartext-Password';
-        $radcheck->op = ':=';
-        $radcheck->sexo = $data['sexo'];
-        $radcheck->Value = $data['cpf'];
-        $radcheck->senha = $data['senha'];
-        $radcheck->cpf = $cpf;
-        $radcheck->telefone = $telefone;
-        $radcheck->email = $data['email'];
-        $radcheck->data_criacao = now();
-        $radcheck->ultimo_acesso = now();
+        $radcheck->fill([
+            'UserName' => $data['email'],
+            'nome' => $data['nome'],
+            'Attribute' => 'Cleartext-Password',
+            'op' => ':=',
+            'sexo' => $data['sexo'],
+            'Value' => $cpf,
+            'senha' => $data['senha'],
+            'cpf' => $cpf,
+            'telefone' => $telefone,
+            'email' => $data['email'],
+            'data_criacao' => now(),
+            'ultimo_acesso' => now(),
+        ]);
         $radcheck->save();
 
-        // Gerar a senha PAP (opcional)
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['senha']);
-
         return ['success' => true, 'region_id' => $region];
     }
 
     public function authenticateUser(array $data, $region, $authType = 'database')
     {
-        
         $regiaoId = $this->regiaoRepository->getRegiaoId($region);
 
         if ($authType === 'database') {
@@ -97,101 +87,90 @@ class HotspotRepository
     private function getSaveUserDatabase($data)
     {
         $user = RadCheck::where('UserName', $data['username'])->first();
-    
+
         if (!$user) {
             return ['success' => false, 'error' => 'E-mail não cadastrado'];
         }
-    
+
         if ($user->Value !== $data['password']) {
             return ['success' => false, 'error' => 'Senha incorreta'];
         }
-    
+
         $user->ultimo_acesso = now();
         $user->save();
-    
+
         return ['success' => true, 'user' => $user];
     }
-    
+
     private function authenticateWithDatabase(array $data, $regiaoId)
     {
         $response = $this->getSaveUserDatabase($data);
-    
-        // Se houver erro, retornar para o frontend
+
         if (!$response['success']) {
             return [
                 'success' => false,
                 'error' => $response['error']
             ];
         }
-    
-        // Se a autenticação foi bem-sucedida, prosseguir com a lógica posterior
+
         return $this->handlePostAuthentication($response['user'], $data, $regiaoId, 'database');
     }
-    
 
     private function authenticateWithRadius(array $data, $regiaoId)
     {
-
         $response = $this->getSaveUserDatabase($data);
-    
-        // Se houver erro, retornar para o frontend
+
         if (!$response['success']) {
             return [
                 'success' => false,
                 'error' => $response['error']
             ];
         }
+
         $accessData = AccessData::where('regiao', $regiaoId)->where('type', 'radius')->first();
-    
+
         if (!$accessData) {
             return ['success' => false, 'error' => 'Configuração de autenticação RADIUS não encontrada'];
         }
-    
-        $pythonScriptPath = app_path('radius/radius_auth.py');
-    
-        // Criar o processo para executar o script Python
+
         $process = new Process([
             'python3',
-            $pythonScriptPath,
+            app_path('radius/radius_auth.py'),
             $data['username'],
             $data['password'],
             $accessData->senha,
             $accessData->ip
         ]);
-    
-        // Executar o processo e esperar o resultado
+
         $process->run();
-       
-        // Verificar se o processo falhou
+
         if (!$process->isSuccessful()) {
-            Log::error('Falha ao executar o script Python:', [
+            Log::error('Falha ao executar o script Python', [
                 'error' => $process->getErrorOutput(),
                 'output' => $process->getOutput(),
             ]);
-            return ['success' => false, 'error' => 'Falha na execução do script de autenticação RADIUS'];        }
-    
-        
-        $output = $process->getOutput();      
+            return ['success' => false, 'error' => 'Falha na execução do script de autenticação RADIUS'];
+        }
+
+        $output = $process->getOutput();
         $response = json_decode($output, true);
-    
+
         if (json_last_error() !== JSON_ERROR_NONE || !$response) {
-            
             return ['success' => false, 'error' => 'Resposta inválida do script de autenticação RADIUS'];
         }
-    
+
         if (!$response['success']) {
             return ['success' => false, 'error' => $response['message']];
         }
-   
-        // Retornar o sucesso da autenticação
+
         return $this->handlePostAuthentication(null, $data, $regiaoId, 'radius');
     }
-    private function handlePostAuthentication($user = null, $data, $regiaoId , $authType )
+
+    private function handlePostAuthentication($user = null, $data, $regiaoId, $authType)
     {
-       
         $macradio = Session::get('hotspot.session.macradio');
         if (!$macradio) {
-            return ['success' => false, 'error' => 'Rede Hotspost não selecionada, Verifique e desactive o a internet movel e tente novamente'];
+            return ['success' => false, 'error' => 'Rede Hotspot não selecionada. Verifique e desative a internet móvel e tente novamente'];
         }
 
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
@@ -213,21 +192,10 @@ class HotspotRepository
             $radiosCamp = RadioDash::whereIn('id', $radios)->get();
 
             foreach ($radiosCamp as $radio) {
-                if ($radio->mac === $macRadio) {
-                    $today = now()->format('Y-m-d');
-                    if ($campanha->comeco <= $today && $campanha->fim >= $today) {
-                        return $campanha->id;
-                    }
-                }
-
-                $macHistory = MacHistory::where('radio_id', $radio->id)
-                    ->where(function ($query) use ($macRadio) {
-                        $query->where('mac_novo', $macRadio)
-                              ->orWhere('mac_antigo', $macRadio);
-                    })
-                    ->first();
-
-                if ($macHistory) {
+                if ($radio->mac === $macRadio || MacHistory::where('radio_id', $radio->id)->where(function ($query) use ($macRadio) {
+                    $query->where('mac_novo', $macRadio)
+                          ->orWhere('mac_antigo', $macRadio);
+                })->exists()) {
                     $today = now()->format('Y-m-d');
                     if ($campanha->comeco <= $today && $campanha->fim >= $today) {
                         return $campanha->id;
@@ -241,6 +209,7 @@ class HotspotRepository
 
     private function generateRedirectUrl($data, $pappassword, $regiaoId, $authType)
     {
+       
 
         $sessionTimeout = 3600;
         // Capturar informações da sessão
@@ -309,6 +278,15 @@ class HotspotRepository
         // Retorno padrão se nenhuma condição for atendida
         return ['success' => false, 'message' => 'Tipo de autenticação desconhecido'];
     }
+
+    public function showFaq( $region)
+{;
+    $regiaoId = $this->regiaoRepository->getRegiaoId($region);
+   
+      $faq =  Faq::where('regiao', $regiaoId)->get();
+     
+    return $faq;
+}
     
     
 }

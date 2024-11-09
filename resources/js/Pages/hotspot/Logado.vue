@@ -43,13 +43,14 @@
                       class="video-cover"
                       @click="campanha.tipo === 'video' ? startVideo() : null"
                       cover
+                      
                     ></v-img>
                   </v-col>
                 </v-row>
 
                 <!-- Logo exibida junto ao botão do formulário, com posição customizada -->
                 <v-img
-                  v-if="showFormButton && topCard && campanha.tipo !== 'video'"
+                  v-if="showFormButton && topCard && campanha.tipo !== 'video'&& campanha.tipo !== 'imagem'"
                   :src="`/storage/${topCard.image}`"
                   :style="logoStyle"
                   class="logo-image"
@@ -95,6 +96,7 @@
                   class="ad-content"
                   @click="handleAdClick"
                   cover
+                  :style="{ width: '100%', height: '100%' }"
                 ></v-img>
 
                 <!-- Relógio de contagem regressiva -->
@@ -112,7 +114,7 @@
                   v-if="remainingTime === 0"
                   class="continue-button"
                   @click="handleContinue"
-                  color="success"
+                  
                   dark
                 >
                   Continuar
@@ -154,10 +156,10 @@ export default {
 
 
     const previewStyles = computed(() => ({
-      width: isMobile.value ? '98%' : '360px',
-      height: isMobile.value ? '98%' : '740px',
+      width: isMobile.value ? '100%' : '340px',
+      height: isMobile.value ? '100%' : '680px',
       border: 'none',
-      position: 'relative',
+      position: 'absolute',
       overflow: 'hidden',
       display: 'flex',
       alignItems: 'center',
@@ -346,16 +348,16 @@ export default {
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 20px;
 }
 .continue-button {
   position: absolute;
-  bottom: 20px;
+  bottom: 80px;
   right: 20px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   color: #fff;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 8px 10px;
+  border-radius: 20px;
   cursor: pointer;
 }
 .open-form-button {

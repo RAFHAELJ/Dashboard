@@ -72,7 +72,12 @@ import dayjs from 'dayjs';
 import CardForm from '@/Components/forms/CardForm.vue';
 
 const { props } = usePage();
-const cards = ref(props.cards || []);
+const cards = ref(
+  props.cards?.map((card, index) => ({
+    ...card,
+    id: card.id || `card-${index}`, // Garante uma chave única para cada card
+  })) || []
+);
 
 const notes = ref([]);
 const cardDialog = ref(false);
@@ -82,6 +87,10 @@ const cardsData = ref({
   novosUsers: 0,
   totalAcessos: 0
 });
+
+const getItemKey = (item, index) => {
+  return item.id || `default-key-${index}`;
+};
 
 const fetchFixedCardsData = async () => {
   try {

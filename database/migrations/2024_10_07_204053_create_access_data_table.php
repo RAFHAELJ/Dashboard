@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('access_data', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['controller', 'database']);
+            $table->enum('type', ['controller', 'database','radius']);
             $table->string('nome')->nullable();
             $table->string('ip', 255)->nullable();
             $table->integer('porta')->nullable();

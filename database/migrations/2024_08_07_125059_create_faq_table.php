@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('faq', function (Blueprint $table) {
             $table->id();
             $table->text('texto');
+            $table->integer('regiao');
             $table->timestamps();
         });
     }

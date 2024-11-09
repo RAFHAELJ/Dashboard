@@ -86,7 +86,7 @@ const handleDeleteItem = (item) => {
 
 const fetchRadios = async () => {
   try {
-    const response = await fetch(route('radios.index'), {
+    const response = await fetch(route('radios.index',[], true), {
       headers: { 'Accept': 'application/json' },
     });
 

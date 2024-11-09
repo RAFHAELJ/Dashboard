@@ -119,7 +119,7 @@
     <v-col cols="12">
       <v-file-input
         v-model="form.capa"
-        label="Upload de Capa (Imagem)"
+        label="Upload de Capa tamanho exato 340x620"
         accept="image/*"
         prepend-icon="mdi-image"
         :show-size="true"
@@ -160,7 +160,7 @@
             <v-col cols="12">
               <v-file-input
                 v-model="form.imagem"
-                label="Upload de Imagem"
+                label="Upload tamnaho maximo 340x620 "
                 accept="image/*"
                 prepend-icon="mdi-image"
                 :show-size="true"
@@ -213,7 +213,7 @@
             <v-col cols="6">
               <v-file-input
                 v-model="form.capa"
-                label="Upload de Capa (Imagem)"
+                label="Upload maximo 300x620"
                 accept="image/*"
                 prepend-icon="mdi-image"
                 :show-size="true"
@@ -298,7 +298,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import RegioesSelect from '../RegioesSelect.vue'; // ajuste o caminho se necessário
+import RegioesSelect from '../RegioesSelect.vue'; 
 const errors = reactive({});
 const props = defineProps({
   formData: {
@@ -330,7 +330,7 @@ const props = defineProps({
 });
 const dynamicForm = ref(null);
 const snackbar = reactive({ show: false, text: '', timeout: 3000 });
-const emit = defineEmits(['cancel']);
+const emit = defineEmits(['cancel', 'formSubmitted']);
 const form = reactive({
   ...props.formData,
 
@@ -402,11 +402,13 @@ const submitForm = async () => {
   const routeParams = props.isEditing ? { id: props.formData.id } : {};
 
   try {
-    const response = await fetch(route(routeName, routeParams), {
+    const response = await fetch(route(routeName, routeParams, true), {
       method: 'POST',
       body: formData,
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        'Accept': 'application/json' // Assegura que Laravel responda em JSON
+
        
       }
     });
@@ -430,6 +432,7 @@ const submitForm = async () => {
       // Fecha a modal após o sucesso
       setTimeout(() => {
         emit('cancel'); // Emite o evento para fechar a modal
+        window.location.reload();
       }, 500);
     } else {
       const responseData = await response.json();
