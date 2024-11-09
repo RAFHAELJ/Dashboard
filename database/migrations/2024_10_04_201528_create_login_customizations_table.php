@@ -20,11 +20,11 @@ return new class extends Migration
             $table->string('background_value')->nullable(); // Cor ou caminho da imagem de fundo
             $table->string('login_button_text'); // Texto do botão de login
             $table->string('login_button_color'); // Cor do botão de login
-            $table->json('login_method')->nullable(); // Métodos de login (e.g., Email, Nome, etc.)
-            $table->json('login_password_method')->nullable(); // Métodos de senha (e.g., CPF, Telefone, etc.)            
+            $table->text('login_method')->nullable(); // Métodos de login (e.g., Email, Nome, etc.)
+            $table->text('login_password_method')->nullable(); // Métodos de senha (e.g., CPF, Telefone, etc.)            
             $table->string('input_color'); // Cor dos campos de input
             $table->string('background_image')->nullable(); // Caminho da imagem de fundo
-            $table->json('elements'); // Dados dos elementos da página (JSON)
+            $table->text('elements'); // Dados dos elementos da página (JSON)
             $table->string('region')->unique(); // Região associada ao layout
             $table->string('username')->nullable(); // Nome do usuário associado
             $table->timestamps(); // Criação e atualização

@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('facebook');
             $table->string('twitter');
             $table->string('instagram');
-            $table->json('caditens');
-            $table->json('faq');
+            $table->text('caditens');
+            $table->text('faq');
             $table->timestamps();
         });
     }

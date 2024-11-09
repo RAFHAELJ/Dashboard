@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('login_customizations', function (Blueprint $table) {
             // Adicionando o campo 'social_networks' do tipo JSON
-            $table->json('social_networks')->nullable()->after('elements');
+            $table->text('social_networks')->nullable()->after('elements');
             
             // Adicionando o campo 'caditens' do tipo JSON
-            $table->json('caditens')->nullable()->after('social_networks');
+            $table->text('caditens')->nullable()->after('social_networks');
         });
     }
 
