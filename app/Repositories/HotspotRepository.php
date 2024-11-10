@@ -243,7 +243,7 @@ class HotspotRepository
             }
             //edge core
             if ($emac) {
-                return "$linklogin/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword) . "&emac=" . urlencode($emac);
+                return "$linklogin/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($data['password']) . "&emac=" . urlencode($emac);
             }
     
             return Session::get('hotspot.session.linklogin') . '?username=' . urlencode($data['username']) . '&password=' . urlencode($data['password']);
