@@ -43,10 +43,16 @@ const deleteUsuarios = async (id) => {
     }
   }
 };
-
-const handleViewItem = (item) => {
-  console.log('Visualizar item:', item);
+const fetchPage = (page) => {  
+  router.get(route('usuarios.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      usuarios.value = page.props.usuarios;
+    },
+  });
 };
+
+
 
 const handleCreateItem = () => {
   isEditing.value = false;
@@ -61,8 +67,7 @@ const handleCreateItem = () => {
   isEditModalOpen.value = true;
 };
 
-const handleEditItem = (item) => {
-  console.log('Editar item:', item);
+const handleEditItem = (item) => { 
  
   isEditing.value = true;
   editUsuarios.value = { ...item };
@@ -96,7 +101,8 @@ const handleDeleteItem = (item) => {
         @delete="handleDeleteItem"
         :item-key="'id'"
         :canAccess="canAccess" 
-          createRoute="usuarios"
+        createRoute="usuarios"
+        @page-changed="fetchPage"
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <UsuariosForm

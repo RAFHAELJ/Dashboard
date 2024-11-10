@@ -61,6 +61,15 @@ const handleCreateItem = () => {
   isEditModalOpen.value = true;
 };
 
+const fetchPage = (page) => {  
+  router.get(route('users.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      users.value = page.props.users;
+    },
+  });
+};
+
 const handleEditItem = (item) => {
   isEditing.value = true;
   editUser.value = { 
@@ -98,6 +107,7 @@ const handleDeleteItem = (item) => {
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="users"
+          @page-changed="fetchPage"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
           <UserForm

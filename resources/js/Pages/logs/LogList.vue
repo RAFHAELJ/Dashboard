@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage,router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DataList from '@/Components/DataList.vue';
 
@@ -15,6 +15,14 @@ const headers = [
 
  
 ];
+const fetchPage = (page) => {  
+  router.get(route('logs.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      logs.value = page.props.logs;
+    },
+  });
+};
 const handleCreate = () => {
   // Lógica para criação
 };
@@ -46,6 +54,7 @@ const handleDelete = (item) => {
           @create="handleCreate"
           @edit="handleEdit"
           @delete="handleDelete"
+          @page-changed="fetchPage"
           
         />
       </v-container>

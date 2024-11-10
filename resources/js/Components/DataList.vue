@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import AddButton from './AddButton.vue';  
-import ActionMenu from './ActionMenu.vue'; 
+import AddButton from './AddButton.vue';
+import ActionMenu from './ActionMenu.vue';
 
 const props = defineProps({
   headers: {
@@ -44,38 +44,52 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-   canAccess: {
+  canAccess: {
     type: Function,
-    required: true
+    required: true,
   },
   createRoute: {
     type: String,
     required: true,
   },
-   showLink: {
+  showLink: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  showControladoraLink: { 
+  showControladoraLink: {
     type: Boolean,
-    default: false
+    default: false,
   },
   onCustomAction: {
     type: Function,
     default: null,
-  }
+  },
 });
 
 const search = ref('');
+const currentPage = ref(props.items.current_page || 1);
+const totalRecords = computed(() => props.items.total || 1);
+const itemsPerPage = ref(10); 
 
+const emit = defineEmits(['page-changed']); 
 const filteredItems = computed(() => {
   const searchValue = search.value.toLowerCase();
-  const items = props.items.data || []; 
+  const items = props.items.data || [];
+
+  if (!searchValue) {
+    return items; 
+  }
+
   return items.filter((item) => {
-    return Object.values(item).some(value =>
+    return Object.values(item).some((value) =>
       String(value).toLowerCase().includes(searchValue)
     );
   });
+});
+
+
+watch(currentPage, (newPage) => {
+  emit('page-changed', newPage); 
 });
 
 const handleDeleteItem = (item) => {
@@ -91,20 +105,14 @@ const handleCreateItem = () => {
 };
 
 const handlePrint = () => {
-  // Seleciona o elemento da tabela
-  const table = document.querySelector('table'); // Ajuste o seletor para sua tabela
-
+  const table = document.querySelector('table');
   if (table) {
-    // Cria uma nova janela temporária
     const printWindow = window.open('', '', 'width=800,height=600');
-    
-    // Adiciona o conteúdo da tabela na nova janela
     printWindow.document.write(`
       <html>
         <head>
           <title>Imprimir Tabela</title>
           <style>
-            /* Estilos de impressão */
             table {
               width: 100%;
               border-collapse: collapse;
@@ -123,74 +131,56 @@ const handlePrint = () => {
         </body>
       </html>
     `);
-
-    // Executa o comando de impressão
-    printWindow.document.close(); // Necessário para que o conteúdo seja renderizado
-    printWindow.focus(); // Garante que a nova janela está ativa
+    printWindow.document.close();
+    printWindow.focus();
     printWindow.print();
     printWindow.close();
   }
 };
 
 const tableHeight = computed(() => {
-  return `calc(100vh - 160px)`;  // Você já tem isso, só precisa garantir que está definido corretamente
+  return `calc(100vh - 160px)`;
 });
 
 const handleExportCSV = () => {
-  const items = props.items.data || []; // Dados da tabela
-
+  const items = props.items.data || [];
   if (items.length === 0) {
     console.log("Nenhum dado para exportar");
     return;
   }
+ 
+ // const totalPages = computed(() => props.items.last_page || 1);
 
-  // Cria o cabeçalho do CSV a partir dos headers
+
   const headers = props.headers.map(header => header.text).join(',');
-
-  // Cria o corpo do CSV a partir dos dados da tabela
-  const rows = items.map(item => {
-    return Object.values(item).join(',');
-  }).join('\n');
-
-  // Junta o cabeçalho e o corpo
+  const rows = items.map(item => Object.values(item).join(',')).join('\n');
   const csvContent = `${headers}\n${rows}`;
 
-  // Cria um blob com o conteúdo CSV
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-
-  // Cria um link temporário para iniciar o download do CSV
   const link = document.createElement('a');
   link.setAttribute('href', url);
   link.setAttribute('download', 'tabela_exportada.csv');
   document.body.appendChild(link);
-
-  // Dispara o clique no link para baixar o arquivo
   link.click();
-
-  // Remove o link temporário
   document.body.removeChild(link);
 };
-
+const updatePage = (page) => {  
+  currentPage.value = page; 
+  emit('page-changed', page); 
+};
 
 watch(() => props.items, (newItems) => {
-  console.log('Itens paginados atualizados:', newItems);
+  currentPage.value = newItems.current_page; 
 });
 
 const openControladora = (controladora) => {
   if (!controladora.ip) return;
 
-  const isIPAddress = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(controladora.ip);
-
-  const url = isIPAddress && controladora.porta
-    ? `http://${controladora.ip}:${controladora.porta}`
-    : `https://${controladora.ip}`;
-
+  const isIPAddress = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)$/.test(controladora.ip);
+  const url = isIPAddress && controladora.porta ? `http://${controladora.ip}:${controladora.porta}` : `https://${controladora.ip}`;
   window.open(url, '_blank');
 };
-
-
-
 </script>
 
 <template>
@@ -211,48 +201,39 @@ const openControladora = (controladora) => {
               class="search-field"
             ></v-text-field>
 
-            <!-- Espaço para manter os botões à direita -->
             <v-spacer></v-spacer>
 
             <!-- Botões de ação à direita -->
             <div class="d-flex align-center">
-              <!-- Botão de adicionar -->
               <AddButton
                 v-if="showCreateButton && canAccess(props.createRoute, 'gravar')"
                 :label="createButtonLabel"
                 @click="handleCreateItem"
                 class="me-2"
               />
-
-              <!-- Menu de ações com opções de imprimir e exportar CSV -->
-              <ActionMenu
-                @print="handlePrint"
-                @exportCsv="handleExportCSV"
-              />
+              <ActionMenu @print="handlePrint" @exportCsv="handleExportCSV" />
             </div>
           </v-card-title>
 
           <v-divider></v-divider>
 
-          <!-- Tabela de dados -->
-          <v-data-table
-            :headers="props.headers"
-            :items="filteredItems"
-            :item-key="props.itemKey"
-            class="elevation-1"
-            :height="tableHeight"
-          >
-            <!-- Títulos das colunas -->
-            <template v-slot:columnTitles>
-              <v-col v-for="(title, index) in props.columnTitles" :key="index">
-                {{ title }}
-              </v-col>
-            </template>
+          <!-- Tabela de dados com paginação integrada -->
+          <v-data-table-server
+              :headers="props.headers"
+              :items="filteredItems"
+              :item-key="props.itemKey"
+              class="elevation-1"
+              :height="tableHeight"
+              :page="currentPage" 
+              :items-length="totalRecords"
+              :items-per-page="itemsPerPage"            
+              @update:page="updatePage"
+            >
 
             <template v-slot:item.controladora.nome="{ item }" v-if="showControladoraLink">
               <td>
                 <span
-                  v-if=" item.controladora"
+                  v-if="item.controladora"
                   style="color: blue; cursor: pointer"
                   @click="openControladora(item.controladora)"
                   class="controladora-link"
@@ -263,64 +244,52 @@ const openControladora = (controladora) => {
                   Não disponível
                 </span>
               </td>
-            </template>           
+            </template>
 
-            <!-- Ações de edição e exclusão -->
             <template v-slot:item.actions="{ item }">
-                <!-- Botão para abrir o modal de histórico de MACs -->
-                <v-btn
-                  v-if="props.onCustomAction"
-                  icon="mdi-information-slab-circle-outline"
-                  variant="plain"
-                  density="compact"
-                  @click="props.onCustomAction(item)"
-                ></v-btn>
               <v-btn
-               v-if="canAccess(props.createRoute, 'atualizar')"
+                v-if="props.onCustomAction"
+                icon="mdi-information-slab-circle-outline"
+                variant="plain"
+                density="compact"
+                @click="props.onCustomAction(item)"
+              ></v-btn>
+              <v-btn
+                v-if="canAccess(props.createRoute, 'atualizar')"
                 variant="plain"
                 density="compact"
                 icon="mdi-pencil-outline"
                 @click="handleEditItem(item)"
               ></v-btn>
               <v-btn
-              v-if="canAccess(props.createRoute, 'excluir')"
+                v-if="canAccess(props.createRoute, 'excluir')"
                 variant="plain"
                 density="compact"
                 icon="mdi-trash-can-outline"
                 @click="handleDeleteItem(item)"
               ></v-btn>
-              
             </template>
-
-            <!-- Paginação -->
-            <template v-slot:footer>
-              <v-pagination
-                v-model="props.items.current_page"
-                :length="props.items.last_page"
-                :total-visible="7"
-              ></v-pagination>
-            </template>
-          </v-data-table>
+          </v-data-table-server>
+          
+          <!-- Exibição de Total de Registros -->
+          <div class="d-flex justify-end pa-2">
+           
+          </div>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
+
 <style scoped>
-
-
 .v-card {
   background-color: #f8f9fa;
 }
-
-/* Campo de busca */
 .search-field {
   max-width: 300px;
   margin-right: 10px;
 }
-
-/* Espaçamento entre botões */
 .me-2 {
   margin-right: 10px;
 }

@@ -87,6 +87,14 @@ const savecontroladora = async () => {
     console.error('Erro ao salvar a controladora:', error);
   }
 };
+const fetchPage = (page) => {  
+  router.get(route('controladora.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      controladora.value = page.props.controladora;
+    },
+  });
+};
 </script>
 
   

@@ -77,6 +77,14 @@ const closeEditModal = () => {
 const handleDeleteItem = (item) => {
   deleteDatabase(item.id);
 };
+const fetchPage = (page) => {  
+  router.get(route('databases.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      databases.value = page.props.databases;
+    },
+  });
+};
 
 
 </script>
@@ -99,6 +107,7 @@ const handleDeleteItem = (item) => {
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="database"
+          @page-changed="fetchPage"
         />
 
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">

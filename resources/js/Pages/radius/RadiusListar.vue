@@ -47,10 +47,14 @@
       }
     }
   };
-  
-  const handleViewItem = (item) => {
-    console.log('Visualizar item:', item);
-  };
+  const fetchPage = (page) => {  
+  router.get(route('radius.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      radius.value = page.props.radius;
+    },
+  });
+};
   
   const handleCreateItem = () => {
     isEditing.value = false;
@@ -102,6 +106,7 @@
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="radius"
+          @page-changed="fetchPage"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <RadiusForm

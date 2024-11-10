@@ -76,7 +76,14 @@ const closeEditModal = () => {
 const handleDeleteItem = (item) => {
   deleteRadius(item.id);
 };
-
+const fetchPage = (page) => {  
+  router.get(route('radius.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      radius.value = page.props.radius;
+    },
+  });
+};
 
 </script>
 
@@ -98,6 +105,7 @@ const handleDeleteItem = (item) => {
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="radius"
+          @page-changed="fetchPage"
         />
 
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">

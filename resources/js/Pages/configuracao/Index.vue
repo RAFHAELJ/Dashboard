@@ -57,6 +57,14 @@ const handleEditItem = (item) => {
 const closeEditModal = () => {
   isEditModalOpen.value = false;
 };
+const fetchPage = (page) => {  
+  router.get(route('regioes.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      regioes.value = page.props.regioes;
+    },
+  });
+};
 
 const handleDeleteItem = (item) => {
   deleteRegiao(item.id);
@@ -81,6 +89,7 @@ const handleDeleteItem = (item) => {
         :item-key="'id'"
         :canAccess="canAccess" 
         createRoute="regioes"
+        @page-changed="fetchPage"
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <RegiaoForm

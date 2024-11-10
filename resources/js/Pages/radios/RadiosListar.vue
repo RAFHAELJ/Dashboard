@@ -59,10 +59,15 @@ const deleteRadios = async (id) => {
     }
   }
 };
-
-const handleViewItem = (item) => {
-  console.log('Visualizar item:', item);
+const fetchPage = (page) => {  
+  router.get(route('radios.index', { page }), {
+    preserveState: true, // Mantém o estado da página
+    onSuccess: (page) => {
+      radios.value = page.props.radios;
+    },
+  });
 };
+
 
 const handleCreateItem = () => {
   isEditing.value = false;
@@ -117,6 +122,7 @@ const handleDeleteItem = (item) => {
           createRoute="radios"
           :showControladoraLink="true"
           :onCustomAction="openHistoryModal"
+          @page-changed="fetchPage"
         />
         <!-- Adicione o modal de histórico de MACs -->
         <MacHistoryModal
