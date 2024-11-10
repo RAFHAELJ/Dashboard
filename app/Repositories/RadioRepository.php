@@ -17,7 +17,7 @@ class RadioRepository  {
 
     public function all() {
         
-        return RadioDash::with(['regiao','controladora'])->paginate();
+        return RadioDash::with(['regiao','controladora'])->paginate(1000);
     }
 
     public function radioRelatorio(Request $request)
