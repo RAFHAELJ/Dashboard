@@ -45,9 +45,8 @@
         </v-col>
       </template>
 
-      <!-- Botões de Ação -->
-      <v-col cols="12" sm="12" md="4" class="d-flex justify-end align-center">
-        <!-- Loading Spinner sempre visível para teste -->
+      
+      <v-col cols="12" sm="12" md="4" class="d-flex justify-end align-center">       
         <v-progress-circular
           v-show="true"  
           indeterminate

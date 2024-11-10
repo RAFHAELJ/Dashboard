@@ -13,24 +13,21 @@ class LoginCustomizationRepository
     {
         $this->model = $model;
     }
-
-    // Recupera todas as customizações
+   
     public function getAll()
     {
         return $this->model->all();
     }
-
-    // Recupera uma customização por ID ou lança exceção se não encontrar
+   
     public function find($id)
     {
         
         return $this->model->findOrFail($id);
     }
 
-    // Cria uma nova customização de login
     public function create(array $data)
     {
-        // Verifica se os campos que podem ser arrays precisam ser convertidos em JSON
+        
         if (isset($data['login_method']) && is_array($data['login_method'])) {
             $data['login_method'] = json_encode($data['login_method']);
         }
@@ -49,7 +46,7 @@ class LoginCustomizationRepository
     }
     
 
-    // Atualiza uma customização existente
+    
     public function update($id, array $data)
     {
            // Verifica se os campos que podem ser arrays precisam ser convertidos em JSON

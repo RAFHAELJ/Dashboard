@@ -23,7 +23,7 @@ class RadioRepository  {
     public function radioRelatorio(Request $request)
     {
         
-        $query = Radio::query();
+        $query = RadioDash::query();
     
         
         if ($request->has('name') && !empty($request->name)) {
@@ -137,7 +137,7 @@ private function formatBytes($bytes)
     public function getGeoRadio()
     {
         return Cache::remember('geo_radio_data', 1, function () {
-            $radios = Radio::all(['id', 'mac', 'geo']);
+            $radios = RadioDash::all(['id', 'mac', 'geo']);
             
             if ($radios->isEmpty()) {
                 return [
@@ -242,7 +242,7 @@ private function formatBytes($bytes)
 
     public function updateMarker($id, $geo)
     {
-        $radio = Radio::find($id);
+        $radio = RadioDash::find($id);
 
         if ($radio) {
             $radio->geo = $geo;
@@ -324,7 +324,7 @@ private function formatBytes($bytes)
     }
         public function getTotalRadios()
     {
-        return Radio::count();
+        return RadioDash::count();
     }
 
     public function getTotalNovosUsersHoje()

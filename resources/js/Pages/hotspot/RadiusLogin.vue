@@ -100,9 +100,7 @@ export default {
       customization.login_password_method = JSON.parse(customization.login_password_method);
     }
 
-    const screenData = customization;
-
-    console.log("Dados de login recebidos e processados:", screenData);
+    const screenData = customization; 
 
     return {
       screenData,

@@ -22,14 +22,20 @@
                 ></v-img>
 
                 <!-- Botão "Continuar" na tela padrão -->
-                <v-btn
-                  class="continue-button"
-                  @click="handleContinue"
-                  color="success"
-                  dark
-                >
-                  Continuar
-                </v-btn>
+                <v-btn @click="handleContinue">
+                    <template v-if="isLoading">
+                      <v-progress-circular 
+                      v-show="true"  
+                      indeterminate
+                      color="primary"
+                      class="me-4"
+                      :size="24" 
+                  ></v-progress-circular>
+                    </template>
+                    <template v-else>
+                      Continuar
+                    </template>
+                  </v-btn>
               </template>
 
               <!-- Se houver campanha definida, exibir a tela da campanha -->
@@ -132,6 +138,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
+
 export default {
   setup() {
     const { props } = usePage();
@@ -153,6 +160,7 @@ export default {
     const isVideoPlaying = ref(false);
     const isMobile = ref(window.innerWidth <= 768);
     const showFormButton = ref(false);
+    const isLoading = ref(false);
 
 
     const previewStyles = computed(() => ({
@@ -242,12 +250,16 @@ export default {
     };
 
     const handleContinue = () => {
-      // Redireciona para a URL de resposta do login
-      if (redirectUrl.value) {
-        window.location.href = redirectUrl.value;
-      } else {
-        console.error('URL de redirecionamento não encontrada');
-      }
+      isLoading.value = true;
+      
+      // Simule um atraso para garantir que o loading seja exibido (apenas para teste)
+      setTimeout(() => {
+        if (redirectUrl.value) {
+          window.location.href = redirectUrl.value;
+        } else {
+          console.error('URL de redirecionamento não encontrada');
+        }
+      }, 1000); // Remova este delay em produção
     };
 
 

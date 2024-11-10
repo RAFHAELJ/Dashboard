@@ -24,6 +24,8 @@ class CreateCardsTable extends Migration
             $table->text('annotations')->nullable(); // Para armazenar anotações
             $table->integer('position_x')->default(0); // Posição X na tela
             $table->integer('position_y')->default(0); // Posição Y na tela
+            $table->int('user_id');
+            $table->string('format',191)->default('line');
             $table->timestamps();
         });
     }
