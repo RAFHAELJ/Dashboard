@@ -222,6 +222,7 @@ class HotspotRepository
         $ga_cmac = Session::get('hotspot.session.ga_cmac');
         $ga_Qv = Session::get('hotspot.session.ga_Qv');
         $emac = Session::get('hotspot.session.emac');
+        $linklogin = Session::get('hotspot.session.linklogin');
     
         // Se o tipo de autenticação for 'database'
         if ($authType === 'database') {
@@ -242,7 +243,7 @@ class HotspotRepository
             }
             //edge core
             if ($emac) {
-                return "http://$uamip:$uamport/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword) . "&emac=" . urlencode($emac);
+                return "$linklogin/logon?username=" . urlencode($data['username']) . "&password=" . urlencode($pappassword) . "&emac=" . urlencode($emac);
             }
     
             return Session::get('hotspot.session.linklogin') . '?username=' . urlencode($data['username']) . '&password=' . urlencode($data['password']);
