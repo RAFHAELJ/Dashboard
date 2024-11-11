@@ -22,20 +22,13 @@
                 ></v-img>
 
                 <!-- Botão "Continuar" na tela padrão -->
-                <v-btn @click="handleContinue">
-                    <template v-if="isLoading">
-                      <v-progress-circular 
-                      v-show="true"  
-                      indeterminate
-                      color="primary"
-                      class="me-4"
-                      :size="24" 
-                  ></v-progress-circular>
-                    </template>
-                    <template v-else>
-                      Continuar
-                    </template>
-                  </v-btn>
+                <v-btn
+                  class="continue-button"
+                  @click="handleContinue"                  
+                  dark
+                >
+                  Continuar
+                </v-btn>
               </template>
 
               <!-- Se houver campanha definida, exibir a tela da campanha -->
@@ -128,6 +121,13 @@
               </template>
             </v-sheet>
           </v-card>
+                   <!-- Diálogo de carregamento ao centro -->
+                   <v-dialog v-model="isLoading" max-width="300" persistent>
+            <v-card class="d-flex flex-column align-center justify-center pa-4">
+              <v-progress-circular indeterminate color="primary" class="mb-4"></v-progress-circular>
+              <span>Carregando...</span>
+            </v-card>
+          </v-dialog>
         </v-col>
       </v-row>
     </v-container>
@@ -142,18 +142,14 @@ import { usePage } from '@inertiajs/vue3';
 export default {
   setup() {
     const { props } = usePage();
-    const campanha = props.campanha || null; // Pode ser null
-    const customization = props.login || {};
+    const campanha = props.campanha || null;     const customization = props.login || {};
     const elements = JSON.parse(customization.elements || '[]');
-    const redirectUrl = ref(props.url || null);
+    const redirectUrl = ref(props.url || null);       
    
-    // Pegando o primeiro elemento do tipo "topCard"
-    const topCard = elements.find((element) => element.type === 'topCard');
-    
+    const topCard = elements.find((element) => element.type === 'topCard');    
     const exibe_propaganda = true;
     const videoPlayer = ref(null);
-
-    // Tempo total e tempo de exibição da capa
+    
     const totalDuration = campanha?.duracao || 10;
     const capaDuration = Math.floor(totalDuration / 2);
     const remainingTime = ref(totalDuration);
@@ -161,7 +157,6 @@ export default {
     const isMobile = ref(window.innerWidth <= 768);
     const showFormButton = ref(false);
     const isLoading = ref(false);
-
 
     const previewStyles = computed(() => ({
       width: isMobile.value ? '100%' : '340px',
@@ -234,7 +229,7 @@ export default {
 
     const openFormInNewTab = async () => {
   if (campanha?.urlForms) {
-    // Executa a função handleContinue e espera 2 segundos antes de abrir a nova aba
+    
     await handleContinue();
 
     setTimeout(() => {
@@ -250,18 +245,16 @@ export default {
     };
 
     const handleContinue = () => {
-      isLoading.value = true;
+      isLoading.value = true;  
       
-      // Simule um atraso para garantir que o loading seja exibido (apenas para teste)
-      setTimeout(() => {
+     
         if (redirectUrl.value) {
           window.location.href = redirectUrl.value;
         } else {
           console.error('URL de redirecionamento não encontrada');
         }
-      }, 1000); // Remova este delay em produção
+     
     };
-
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
@@ -292,7 +285,8 @@ export default {
       handleContinue,
       redirectUrl,
       openFormInNewTab,
-      handleVideoEnd,
+      handleVideoEnd,      
+      isLoading,
     };
   },
 };

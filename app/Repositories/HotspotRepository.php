@@ -25,9 +25,12 @@ class HotspotRepository
 
     public function login($regiao)
     {
-        $regiaoId = $this->regiaoRepository->getRegiaoId($regiao);
+        $regiaoId = $this->regiaoRepository->getRegiaoId($regiao);         
+            
+        
         return LoginCustomization::where('region', $regiaoId)->get();
     }
+   
 
     public function registerUser(array $data, $region)
     {
@@ -74,7 +77,7 @@ class HotspotRepository
     public function authenticateUser(array $data, $region, $authType = 'database')
     {
         $regiaoId = $this->regiaoRepository->getRegiaoId($region);
-
+        Session::put('DatausuarioWifiLogado', $data);
         if ($authType === 'database') {
             return $this->authenticateWithDatabase($data, $regiaoId);
         } elseif ($authType === 'radius') {
@@ -112,6 +115,7 @@ class HotspotRepository
                 'error' => $response['error']
             ];
         }
+        
 
         return $this->handlePostAuthentication($response['user'], $data, $regiaoId, 'database');
     }
@@ -162,8 +166,15 @@ class HotspotRepository
         if (!$response['success']) {
             return ['success' => false, 'error' => $response['message']];
         }
+       
 
         return $this->handlePostAuthentication(null, $data, $regiaoId, 'radius');
+    }
+    public function conectado($regiao){
+        $data = Session::get('DatausuarioWifiLogado');
+        $regiaoId = $this->regiaoRepository->getRegiaoId($regiao);   
+       
+        return $this->handlePostAuthentication(null, $data, $regiaoId, 'database');
     }
 
     private function handlePostAuthentication($user = null, $data, $regiaoId, $authType)
@@ -176,6 +187,10 @@ class HotspotRepository
         $pappassword = CpfHelper::papPass(Session::get('hotspot.session.challenge'), config('radius.uamsecret'), $data['password']);
         $campanha_id = $this->getActiveCampaign($macradio, $regiaoId);
         $url = $this->generateRedirectUrl($data, $pappassword, $regiaoId, $authType);
+        
+        Session::put('UrlusuarioWifiLogado', $url);
+       
+        
 
         return ['success' => true, 'url' => $url, 'campanha_id' => $campanha_id, 'region_id' => $regiaoId];
     }
