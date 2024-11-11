@@ -15,7 +15,21 @@ use Illuminate\Support\Facades\Cache;
 
 class RadioRepository  {
 
-    public function all() {
+    public function all(Request $request,int $per_page) {
+        if ($request->has('search')) {
+            $search = $request->search;
+            return RadioDash::when($search, function ($query) use ($search) {
+                $query->where('radio', 'like', "%{$search}%")
+                      ->orWhere('mac', 'like', "%{$search}%")
+                      ->orWhere('endereco', 'like', "%{$search}%")                   
+                      ;
+            })->paginate();
+    }  
+        
+        return RadioDash::with(['regiao','controladora'])->paginate($per_page);
+    }
+    public function indexSelect(Request $request) {
+
         
         return RadioDash::with(['regiao','controladora'])->paginate(1000);
     }

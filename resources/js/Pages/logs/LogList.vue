@@ -15,11 +15,27 @@ const headers = [
 
  
 ];
-const fetchPage = (page) => {  
-  router.get(route('logs.index', { page }), {
-    preserveState: true, // Mantém o estado da página
-    onSuccess: (page) => {
-      logs.value = page.props.logs;
+
+
+let debounceTimeout = null;
+const handleSearchUpdate = (newSearch) => {
+  search.value = newSearch;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {   
+   
+    fetchPage({ page: 1, itemsPerPage: 50 }); 
+  }, 1300);
+  
+};
+
+const fetchPage = ({ page, itemsPerPage }) => {  
+  
+  router.get(route('logs.index', { page, search: search.value, per_page:itemsPerPage }), {
+    preserveState: true,
+    onSuccess: (response) => {
+      logs.value = response.props.logs;
+     
     },
   });
 };
@@ -54,7 +70,8 @@ const handleDelete = (item) => {
           @create="handleCreate"
           @edit="handleEdit"
           @delete="handleDelete"
-          @page-changed="fetchPage"
+          @options-changed="fetchPage"
+          @search-updated="handleSearchUpdate"
           
         />
       </v-container>

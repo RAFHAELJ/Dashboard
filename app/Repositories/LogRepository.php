@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Log;
+use Illuminate\Http\Request;
 
 class LogRepository
 {
@@ -31,10 +32,16 @@ class LogRepository
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getAllLogs($perPage = 10)
+    public function getAllLogs(Request $request,int $per_page)
     {
+        if ($request->has('search')) {
+            $search = $request->search;
+            return Log::where(function($query) use ($search) {
+                $query->Where('acao', 'like', "%{$search}%");
+            })->paginate($per_page);
+    }
         return Log::with('user')
             ->orderBy('data', 'desc')
-            ->paginate($perPage);
+            ->paginate($per_page);
     }
 }

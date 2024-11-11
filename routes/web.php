@@ -126,7 +126,8 @@ Route::middleware('auth')->group(function () {
 
 
     Route::prefix('radios')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
-        Route::get('/', [RadioController::class, 'index'])->name('radios.index');   
+        Route::get('/', [RadioController::class, 'index'])->name('radios.index');  
+        Route::get('/indexSelect', [RadioController::class, 'indexSelect'])->name('radios.indexSelect');   
         Route::get('/track', [RadioController::class, 'track'])->name('radios.track');  
         Route::get('/basetrack', [RadioController::class, 'basetrack'])->name('radios.basetrack'); 
         Route::get('/{id}/machistory', [RadioController::class, 'macHistory'])->name('radios.machistory');   

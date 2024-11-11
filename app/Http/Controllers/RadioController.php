@@ -36,9 +36,24 @@ class RadioController extends Controller {
         $headers = ['ID', 'Nome', 'Início', 'Fim', 'Duração', 'Entrada', 'Saída', 'MAC', 'Usuário'];
         return $this->csvExportService->downloadCsv('Relatorio de acessos', $headers, $data);
     }
-    public function index()
+    public function index(Request $request,)
     {
-        $radios = $this->radioRepository->all();
+        $radios = $this->radioRepository->all($request,$request->input('per_page'));
+    
+       
+        
+        if (request()->wantsJson()) {
+            return response()->json($radios);
+        }    
+      
+        return Inertia::render('radios/RadiosListar', [
+            'radios' => $radios
+        ]);
+      
+    }
+    public function indexSelect(Request $request)
+    {
+        $radios = $this->radioRepository->indexSelect($request);
     
        
         if (request()->wantsJson()) {

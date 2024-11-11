@@ -6,11 +6,24 @@ namespace App\Repositories;
 use App\Models\RadAcct;
 use App\Models\Usuario;
 use App\Models\RadCheck;
+use Illuminate\Http\Request;
 
 class UsuarioRepository  {
 
-    public function all(){        
-        return RadCheck::paginate();
+    public function all(Request $request,int $per_page) {
+     
+        if ($request->has('search')) {
+            $search = $request->search;
+            return RadCheck::where(function($query) use ($search) {
+                $query->where('username', 'like', "%{$search}%")
+                      ->orWhere('value', 'like', "%{$search}%")
+                      ->orWhere('nome', 'like', "%{$search}%")
+                      ->orWhere('cpf', 'like', "%{$search}%");
+            })->paginate($per_page);
+            
+    }   
+
+        return RadCheck::paginate($per_page);
     }
 
     public function find($id) {

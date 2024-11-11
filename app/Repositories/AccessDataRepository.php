@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\AccessData;
+use Illuminate\Http\Request;
 
 class AccessDataRepository
 {
@@ -13,15 +14,15 @@ class AccessDataRepository
         $this->model = $accessData;
     }
 
-    public function all()
+    public function all(Request $request ,int $per_page)
     {
        
-        return $this->model->paginate(15);
+        return $this->model->paginate($per_page);
     }
 
-    public function findByType($type)
+    public function findByType($type,int $per_page)
     {
-        return $this->model->where('type', $type)->with('regiao')->paginate(15);
+        return $this->model->where('type', $type)->with('regiao')->paginate($per_page);
     }
 
     public function create(array $data)

@@ -57,11 +57,25 @@ const handleEditItem = (item) => {
 const closeEditModal = () => {
   isEditModalOpen.value = false;
 };
-const fetchPage = (page) => {  
-  router.get(route('regioes.index', { page }), {
-    preserveState: true, // Mantém o estado da página
-    onSuccess: (page) => {
-      regioes.value = page.props.regioes;
+let debounceTimeout = null;
+const handleSearchUpdate = (newSearch) => {
+  search.value = newSearch;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {   
+   
+    fetchPage({ page: 1, itemsPerPage: 50 }); // Recarrega a página inicial com novos resultados
+  }, 1300);
+  
+};
+
+const fetchPage = ({ page, itemsPerPage }) => {  
+  
+  router.get(route('regioes.index', { page, search: search.value, per_page:itemsPerPage }), {
+    preserveState: true,
+    onSuccess: (response) => {
+      regioes.value = response.props.regioes;
+     
     },
   });
 };
@@ -89,7 +103,9 @@ const handleDeleteItem = (item) => {
         :item-key="'id'"
         :canAccess="canAccess" 
         createRoute="regioes"
-        @page-changed="fetchPage"
+        @options-changed="fetchPage"
+        @search-updated="handleSearchUpdate"
+
       />
       <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
         <RegiaoForm

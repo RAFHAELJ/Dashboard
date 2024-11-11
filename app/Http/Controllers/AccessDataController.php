@@ -39,9 +39,9 @@ class AccessDataController extends Controller
 
 
     // Lista apenas controladoras
-    public function indexControllers()
+    public function indexControllers(Request $request)
     {
-        $controllers = $this->accessDataRepository->findByType('controller');
+        $controllers = $this->accessDataRepository->findByType('controller',$request->input('per_page'));
        
         if (request()->wantsJson()) {
             return response()->json($controllers);
@@ -52,9 +52,9 @@ class AccessDataController extends Controller
         ]);
     }
 
-    public function indexRadius()
+    public function indexRadius(Request $request)
     {
-        $radius = $this->accessDataRepository->findByType('radius');
+        $radius = $this->accessDataRepository->findByType('radius',$request->input('per_page'));
        
         if (request()->wantsJson()) {
             return response()->json($radius);
@@ -77,9 +77,9 @@ class AccessDataController extends Controller
         ]);
     }
     // Lista apenas bases de dados
-    public function indexDatabases()
+    public function indexDatabases(Request $request)
     {
-        $databases = $this->accessDataRepository->findByType('database');
+        $databases = $this->accessDataRepository->findByType('database',$request->input('per_page'));
 
         if (request()->wantsJson()) {
             return response()->json($databases);

@@ -25,10 +25,10 @@ class UserController extends Controller
         $this->logRepository = $logRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         
-        $users = $this->userRepository->all();
+        $users = $this->userRepository->all($request,$request->input('per_page'));
         return Inertia::render('usuarios/ListaUsuariosDashboard', [
             'users' => $users
         ]);

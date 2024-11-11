@@ -3,12 +3,20 @@
 namespace App\Repositories;
 
 use App\Models\Regiao;
+use Illuminate\Http\Request;
 
 class RegiaoRepository
 {
-    public function all()
+    public function all(Request $request ,int $per_page)
     {
-        return Regiao::paginate();
+        if ($request->has('search')) {
+            $search = $request->search;
+            return Regiao::where(function($query) use ($search) {
+                $query->where('cidade', 'like', "%{$search}%")
+                      ->orWhere('bairros', 'like', "%{$search}%");
+            })->paginate($per_page);
+    }
+        return Regiao::paginate($per_page);
     }
 
     public function create(array $data)

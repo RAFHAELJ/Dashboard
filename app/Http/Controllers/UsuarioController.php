@@ -15,11 +15,10 @@ class UsuarioController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function index()
-    {
+    public function index(Request $request)    {
         
-        $usuarios = $this->userRepository->all();
-        
+        $usuarios = $this->userRepository->all($request,$request->input('per_page'));
+       
         return Inertia::render('usuarios/ListaUsuariosRadio', [
             'usuarios' => $usuarios
         ]);

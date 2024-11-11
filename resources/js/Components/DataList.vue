@@ -9,7 +9,7 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Object, 
+    type: Object,
     required: true,
   },
   searchPlaceholder: {
@@ -64,16 +64,19 @@ const props = defineProps({
     type: Function,
     default: null,
   },
+  search: {
+    type: String,
+    default: '',
+  },
 });
 
-const search = ref('');
+const search = ref(props.search || ''); 
 const currentPage = ref(props.items.current_page || 1);
+const itemsPerPage = ref(props.items.per_page || 10);
 const totalRecords = computed(() => props.items.total || 1);
-const itemsPerPage = ref(10); 
-
-const emit = defineEmits(['page-changed']); 
+const emit = defineEmits(['options-changed', 'search-updated']);
 const filteredItems = computed(() => {
-  const searchValue = search.value.toLowerCase();
+  const searchValue = search.value.toLowerCase(); 
   const items = props.items.data || [];
 
   if (!searchValue) {
@@ -87,9 +90,11 @@ const filteredItems = computed(() => {
   });
 });
 
-
-watch(currentPage, (newPage) => {
-  emit('page-changed', newPage); 
+watch(search, (newSearch) => {
+  if (newSearch === undefined) {
+    search.value = ''; // Define um valor padrão se for undefined
+  }
+  emit('search-updated', newSearch || ''); 
 });
 
 const handleDeleteItem = (item) => {
@@ -148,9 +153,6 @@ const handleExportCSV = () => {
     console.log("Nenhum dado para exportar");
     return;
   }
- 
- // const totalPages = computed(() => props.items.last_page || 1);
-
 
   const headers = props.headers.map(header => header.text).join(',');
   const rows = items.map(item => Object.values(item).join(',')).join('\n');
@@ -165,23 +167,40 @@ const handleExportCSV = () => {
   link.click();
   document.body.removeChild(link);
 };
-const updatePage = (page) => {  
-  currentPage.value = page; 
-  emit('page-changed', page); 
+
+const updateOptions = (options) => {  
+  
+  const { page, itemsPerPage: newItemsPerPage } = options;  
+  if (currentPage.value !== page || itemsPerPage.value !== newItemsPerPage) {
+    currentPage.value = page;
+    itemsPerPage.value = newItemsPerPage;
+    emit('options-changed', { page: currentPage.value, itemsPerPage: itemsPerPage.value });
+
+  }
 };
 
 watch(() => props.items, (newItems) => {
-  currentPage.value = newItems.current_page; 
+  currentPage.value = newItems.current_page;
+  itemsPerPage.value = newItems.per_page;
 });
 
 const openControladora = (controladora) => {
   if (!controladora.ip) return;
 
-  const isIPAddress = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)$/.test(controladora.ip);
+  const isIPAddress = /^(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)\.(25[0-5]|2[0-4][0-9][0-9]?)$/.test(controladora.ip);
   const url = isIPAddress && controladora.porta ? `http://${controladora.ip}:${controladora.porta}` : `https://${controladora.ip}`;
   window.open(url, '_blank');
 };
+const clearFilters = () => {
+  search.value = '';
+  currentPage.value = 1; 
+  fetchPage({ page: 1, itemsPerPage: itemsPerPage.value }); 
+};
+const fetchPage = ({ page, itemsPerPage }) => {
+  emit('options-changed', { page, itemsPerPage }); 
+};
 </script>
+
 
 <template>
   <v-container fluid fill-height>
@@ -189,7 +208,6 @@ const openControladora = (controladora) => {
       <v-col cols="12">
         <v-card flat class="rounded-lg shadow" elevation="5">
           <v-card-title class="d-flex align-center justify-between flex-wrap pe-2">
-            <!-- Campo de busca à esquerda -->
             <v-text-field
               v-model="search"
               density="compact"
@@ -200,10 +218,17 @@ const openControladora = (controladora) => {
               single-line
               class="search-field"
             ></v-text-field>
+            <v-btn
+            text
+            color="primary"
+            class="me-2"
+            @click="clearFilters"
+          >
+            Limpar Filtros
+          </v-btn>
 
             <v-spacer></v-spacer>
 
-            <!-- Botões de ação à direita -->
             <div class="d-flex align-center">
               <AddButton
                 v-if="showCreateButton && canAccess(props.createRoute, 'gravar')"
@@ -217,7 +242,6 @@ const openControladora = (controladora) => {
 
           <v-divider></v-divider>
 
-          <!-- Tabela de dados com paginação integrada -->
           <v-data-table-server
               :headers="props.headers"
               :items="filteredItems"
@@ -225,9 +249,9 @@ const openControladora = (controladora) => {
               class="elevation-1"
               :height="tableHeight"
               :page="currentPage" 
+              :items-per-page="itemsPerPage"
               :items-length="totalRecords"
-              :items-per-page="itemsPerPage"            
-              @update:page="updatePage"
+              @update:options="updateOptions"
             >
 
             <template v-slot:item.controladora.nome="{ item }" v-if="showControladoraLink">
@@ -270,17 +294,11 @@ const openControladora = (controladora) => {
               ></v-btn>
             </template>
           </v-data-table-server>
-          
-          <!-- Exibição de Total de Registros -->
-          <div class="d-flex justify-end pa-2">
-           
-          </div>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
-
 
 <style scoped>
 .v-card {
@@ -293,19 +311,4 @@ const openControladora = (controladora) => {
 .me-2 {
   margin-right: 10px;
 }
-
-
-</style>
-
-<style scoped>
-.v-card {
-  background-color: #f8f9fa;
-}
-
-.search-field {
-  max-width: 300px;
-  margin-right: 10px;
-}
-
-
 </style>

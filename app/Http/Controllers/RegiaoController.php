@@ -19,9 +19,9 @@ class RegiaoController extends Controller
         $this->logRepository = $logRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $regioes = $this->regiaoRepository->all();
+        $regioes = $this->regiaoRepository->all($request,$request->input('per_page'));
     
         
         if (request()->wantsJson()) {

@@ -61,11 +61,25 @@ const handleCreateItem = () => {
   isEditModalOpen.value = true;
 };
 
-const fetchPage = (page) => {  
-  router.get(route('users.index', { page }), {
-    preserveState: true, // Mantém o estado da página
-    onSuccess: (page) => {
-      users.value = page.props.users;
+let debounceTimeout = null;
+const handleSearchUpdate = (newSearch) => {
+  search.value = newSearch;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {   
+   
+    fetchPage({ page: 1, itemsPerPage: 50 }); // Recarrega a página inicial com novos resultados
+  }, 1300);
+  
+};
+
+const fetchPage = ({ page, itemsPerPage }) => {  
+  
+  router.get(route('users.index', { page, search: search.value, per_page:itemsPerPage }), {
+    preserveState: true,
+    onSuccess: (response) => {
+      users.value = response.props.users;
+     
     },
   });
 };
@@ -96,6 +110,7 @@ const handleDeleteItem = (item) => {
     <template v-slot="{ canAccess }"> <!-- Recebe a função canAccess via slot -->
       <v-container fluid fill-height>
         <DataList
+           :search="search"
           :headers="headers"
           :items="users"
           :columnTitles="[]"
@@ -107,7 +122,8 @@ const handleDeleteItem = (item) => {
           :item-key="'id'"
           :canAccess="canAccess" 
           createRoute="users"
-          @page-changed="fetchPage"
+          @options-changed="fetchPage"
+          @search-updated="handleSearchUpdate"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
           <UserForm

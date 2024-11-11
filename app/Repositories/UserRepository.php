@@ -20,8 +20,16 @@ class UserRepository{
         $this->userPermissionService = $userPermissionService;
     }
 
-    public function all() {
-        $users = User::byRegiao()->with('regioes')->paginate();       
+    public function all(Request $request,int $per_page) {
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            return User::where(function($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+            })->paginate($per_page);
+    }
+        $users = User::byRegiao()->with('regioes')->paginate($per_page);       
         return $users;
         
     }

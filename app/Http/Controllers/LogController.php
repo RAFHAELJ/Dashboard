@@ -23,7 +23,7 @@ class LogController extends Controller
      */
     public function index(Request $request)
     {
-        $logs = $this->logRepository->getAllLogs();
+        $logs = $this->logRepository->getAllLogs($request,$request->input('per_page'));
 
         if ($request->wantsJson()) {
             return response()->json($logs);

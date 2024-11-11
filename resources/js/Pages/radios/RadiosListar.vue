@@ -59,11 +59,27 @@ const deleteRadios = async (id) => {
     }
   }
 };
-const fetchPage = (page) => {  
-  router.get(route('radios.index', { page }), {
-    preserveState: true, // Mantém o estado da página
-    onSuccess: (page) => {
-      radios.value = page.props.radios;
+
+
+let debounceTimeout = null;
+const handleSearchUpdate = (newSearch) => {
+  search.value = newSearch;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(() => {   
+   
+    fetchPage({ page: 1, itemsPerPage: 50 }); 
+  }, 1300);
+  
+};
+
+const fetchPage = ({ page, itemsPerPage }) => {  
+  
+  router.get(route('radios.index', { page, search: search.value, per_page:itemsPerPage }), {
+    preserveState: true,
+    onSuccess: (response) => {
+      usuarios.value = response.props.radios;
+     
     },
   });
 };
@@ -109,6 +125,7 @@ const handleDeleteItem = (item) => {
     <template v-slot="{ canAccess }">
       <v-container fluid fill-height>
         <DataList
+          :search="search"
           :headers="headers"
           :items="radios"
           :columnTitles="['radio','mac']"
@@ -121,8 +138,10 @@ const handleDeleteItem = (item) => {
           :canAccess="canAccess" 
           createRoute="radios"
           :showControladoraLink="true"
-          :onCustomAction="openHistoryModal"
-          @page-changed="fetchPage"
+          :onCustomAction="openHistoryModal"         
+          @options-changed="fetchPage"
+          @search-updated="handleSearchUpdate"
+
         />
         <!-- Adicione o modal de histórico de MACs -->
         <MacHistoryModal
