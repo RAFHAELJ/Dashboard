@@ -132,7 +132,7 @@ const handleDeleteItem = (item) => {
             :fields="{
               name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
               email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
-              nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'View', 'Relatorio'] },
+              nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'Supervisor'] },
               ...( !isEditing ? {
                   password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
                   password_confirmation: {label: 'Confirmar Senha',rules: [
