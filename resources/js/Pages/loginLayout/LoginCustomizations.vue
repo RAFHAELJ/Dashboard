@@ -12,11 +12,11 @@ const topImageFormData = ref(null);
 const backgroundImageFormData = ref(null);
 const errorMessage = ref(null); 
 const { props } = usePage();
-const previewElements = ref([]); // Inicializar os elementos de preview
+const previewElements = ref([]); 
 const topCardHeight = ref(150);
 const topCardWidth = ref(400);
-const topCardTop = ref(0);    // Posição inicial top
-const topCardLeft = ref(0);   // Posição inicial left
+const topCardTop = ref(0);    
+const topCardLeft = ref(0);   
 const fontSize = ref(16);
 const textColor = ref('#000000');
 const textColorButon = ref('#000000');
@@ -32,19 +32,19 @@ const showTextColorPicker = ref(false);
 const showTextColorButtonPicker = ref(false);
 const previewTopImage = ref(null);
 const backgroundImage = ref(null);
-const textBoxWidth = ref(200); // Largura inicial da caixa de texto
-const textBoxHeight = ref(100); // Altura inicial da caixa de text
+const textBoxWidth = ref(200); 
+const textBoxHeight = ref(100); 
 const imageTamanho = ref(50); 
 const customization = props.customization; 
 const directives = {
-  mask,  // Registrando a diretiva v-mask
+  mask,  
 };
 const isEditMode = ref(!!customization);
 
 
 const handleCreateAccount = () => {
   console.log("Botão 'Criar nova conta' foi clicado.");
-  // Aqui você pode adicionar lógica para a criação de uma nova conta
+  
 };
 
 const form = ref({
@@ -98,8 +98,6 @@ const socialNetworks = ref([
 const showInsertItemsModal = ref(false);
 const showSocialModal = ref(false);
 
-
-// Função para carregar os dados da base de dados no form
 const loadCustomizationData = (customizationData) => {
   form.value.id = customizationData.id;
   form.value.layout_name = customizationData.layout_name;
@@ -110,22 +108,16 @@ const loadCustomizationData = (customizationData) => {
   form.value.login_button_text = customizationData.login_button_text;
   form.value.login_button_color = customizationData.login_button_color;
   form.value.backgroundImage = customizationData.background_image;
-  form.value.regiao = customizationData.region;
-
-  // Converter login_method de string JSON para array (se não for nulo)
+  form.value.regiao = customizationData.region;  
   form.value.login_method = customizationData.login_method ? JSON.parse(customizationData.login_method) : [];
-
-  // Converter login_password_method de string JSON para array (se não for nulo)
-  //console.log('login_password_method:', customizationData.login_password_method);
   form.value.login_password_method = 
   typeof customizationData.login_password_method === 'string' 
     ? JSON.parse(customizationData.login_password_method) 
     : customizationData.login_password_method || [];
-
-  // Converter caditens de string JSON para objeto (se não for nulo)
+ 
   if (customizationData.caditens) {
     const parsedCaditens = JSON.parse(customizationData.caditens);
-    // Convertendo os valores de string para boolean
+   
     form.value.caditens = Object.keys(parsedCaditens).reduce((acc, key) => {
       acc[key] = parsedCaditens[key] === "true";
       return acc;
@@ -143,20 +135,18 @@ const loadCustomizationData = (customizationData) => {
     };
   }
 
-  // Converter social_networks de string JSON para array (se não for nulo)
+ 
   if (customizationData.social_networks) {
-    const parsedSocialNetworks = JSON.parse(customizationData.social_networks);
-    // Atualizar socialNetworks.value com os dados vindos do banco
+    const parsedSocialNetworks = JSON.parse(customizationData.social_networks);   
     socialNetworks.value = parsedSocialNetworks.map(network => ({
       name: network.name,
-      on: network.on === "true", // Convertendo para boolean
+      on: network.on === "true", 
       key: network.key || '',
       secret: network.secret || '',
       url: network.url || '',
     }));
   }
-
-  // Atualizar as variáveis globais de ajuste do form com base nos valores dos elementos
+  
   if (customizationData.elements) {
     const parsedElements = JSON.parse(customizationData.elements);
 
@@ -182,8 +172,7 @@ const loadCustomizationData = (customizationData) => {
         form.value.textColor = element.color || form.value.textColor;
       }
     });
-
-    // Popula o form.value.elements para manter a estrutura de elementos
+   
     form.value.elements = parsedElements.map(element => {
       const baseElement = {
         id: element.id,
@@ -236,33 +225,25 @@ const loadCustomizationData = (customizationData) => {
   }
 };
 
-
-
 const resolveImageSource = (element) => {
-  // Verifica se existe uma imagem base64 (geralmente para pré-visualização)
+  
   if (previewTopImage.value) {
     return previewTopImage.value;
-  }
- 
-  // Se não houver base64, utiliza o caminho da imagem salva no banco de dados
+  } 
+
   if (element) {
     return element.startsWith('data:image') ? element : `/storage/${element}`;
   }
-
-  // Caso nenhum dos dois esteja disponível, retorna uma imagem padrão ou null
+ 
   return null;
 };
 
-
-
-
-// Carregar os elementos do customization para o preview
 const loadElements = () => {
   if (customization && customization.elements) {
     loadCustomizationData(customization);  
-    // Parsea o array de elementos armazenado como string
+    
     previewElements.value = JSON.parse(customization.elements);
-    // Atualiza os checkboxes com base nos elementos carregados
+    
     form.value.types.conta = !!previewElements.value.find(el => el.type === 'input' || el.type === 'inputPassword');
     form.value.types.rede_social = !!previewElements.value.find(el => el.type === 'social');
     form.value.types.login_click = !!previewElements.value.find(el => el.type === 'button');
@@ -302,8 +283,6 @@ const handleLoginMethodChange = () => {
   });
 };
 
-
-
 const handlePasswordMethodChange = () => {
  
   // Remover elementos de senha que não estão mais selecionados
@@ -329,7 +308,6 @@ const handlePasswordMethodChange = () => {
   });
 };
 
-
 const handleTopImageUpload = (event) => {  
   const file = event.target.files[0];
 
@@ -349,7 +327,7 @@ const handleTopImageUpload = (event) => {
 
     // Cria uma instância de FormData e adiciona o arquivo de imagem
     const formData = new FormData();
-    formData.append('imagem', file);  // 'imagem' é o nome do campo do arquivo a ser enviado
+    formData.append('imagem', file); 
 
     // Armazena o formData para ser usado posteriormente ao enviar o formulário
     topImageFormData.value = formData;
@@ -379,7 +357,6 @@ const handleBackgroundImageUpload = (event) => {
     backgroundImageFormData.value = formData;
   }
 };
-
 
 const handleToggleConta = () => {
   if (form.value.types.conta) {
@@ -412,7 +389,6 @@ const saveSocialConfig = () => {
   showSocialModal.value = false;
 };
 
-
 const handleToggleLoginClick = () => {
   if (form.value.types.login_click) {
     previewElements.value.push({
@@ -426,10 +402,6 @@ const handleToggleLoginClick = () => {
     removePreviewElement('button');
   }
 };
-
-
-
-
 // Adicionar topCard ao previewElements
 previewElements.value.push({
   id: 12, // ID único
@@ -440,9 +412,6 @@ previewElements.value.push({
   height: form.value.imageTamanho,
   
 });
-
-
-
 
 const addContaInputs = () => {
   const baseTop = 100;
@@ -462,7 +431,6 @@ const addContaInputs = () => {
     shape: form.value.input_shape,
     opacity: form.value.input_opacity,
   });
-
 
   previewElements.value.push({
     id: previewElements.value.length + 1,
@@ -519,8 +487,6 @@ const addContaInputs = () => {
     text: 'Texto editável',
   });
 };
-
-
 const removePreviewElement = (type, label = null) => {
   previewElements.value = previewElements.value.filter(
     element => element.type !== type || (label && element.label !== label)
@@ -536,8 +502,6 @@ const previewStyles = ref({
   borderRadius: '12px',
 });
 
-
-
 const backgroundStyles = computed(() => {
   if (form.value.background_type === 'Imagem') {
     // Verifica se existe uma imagem em base64 para pré-visualização
@@ -547,8 +511,7 @@ const backgroundStyles = computed(() => {
         backgroundSize: 'cover', 
         backgroundPosition: 'center'
       };
-    }
-   
+    }   
     // Se não houver base64, verifica se existe uma imagem salva no banco de dados (URL)
     if (form.value.backgroundImage && !form.value.backgroundImage.startsWith('data:image')) {
       return {
@@ -557,14 +520,12 @@ const backgroundStyles = computed(() => {
         backgroundPosition: 'center'
       };
     }
-  }
-  
+  }  
   // Caso o tipo seja "Cor" ou não haja imagem, retorna a cor de fundo
   return {
     backgroundColor: form.value.background_value || '#ffffff'  // Define um valor padrão se necessário
   };
 });
-
 
 onMounted(() => {
   if (isEditMode.value) {
@@ -577,30 +538,24 @@ onMounted(() => {
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
         target.style.transform = `translate(${x}px, ${y}px)`;
-
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
       },
       end(event) {
         const target = event.target;
         const elementId = parseInt(target.getAttribute('data-id'), 10);
-
         // Recupera as posições finais do elemento
         const deltaX = parseFloat(target.getAttribute('data-x')) || 0;
         const deltaY = parseFloat(target.getAttribute('data-y')) || 0;
         const initialLeft = parseFloat(target.style.left) || 0;
         const initialTop = parseFloat(target.style.top) || 0;
-
         const newLeft = initialLeft + deltaX;
         const newTop = initialTop + deltaY;
-
         // Pega as dimensões da área de pré-visualização
         const previewContainer = target.closest('.preview-background');
         const containerWidth = previewContainer.offsetWidth;
         const containerHeight = previewContainer.offsetHeight;
-
         // Verifica se o elemento está fora dos limites
         if (
           newLeft + target.offsetWidth < 0 ||   // Fora da esquerda
@@ -632,8 +587,6 @@ onMounted(() => {
   });
 });
 
-
-
 // Função para retornar a máscara baseada no método de login
 const getMaskForMethod = computed(() => {
   const loginMethod = form.value.login_method[0]; // Seleciona o primeiro método de login
@@ -655,10 +608,7 @@ const getMaskForPassword = computed(() => {
     return ''; // Senha Livre ou Data de Nascimento
   }
 });
-
-
 // Função para capturar o estado da tela e salvar como JSON
-
 const saveScreenAsJson = () => {
   const screenData = {
   layout_name: form.value.layout_name,
@@ -715,10 +665,7 @@ const saveScreenAsJson = () => {
     elevation: element.elevation || form.value.button_elevation,
     image: element.image || null,
   }))
-};
-
-
-  
+}; 
 
   // Criar uma instância de FormData para combinar screenData e arquivos de imagem
   const formData = new FormData();
@@ -778,7 +725,6 @@ const saveScreenAsJson = () => {
     formData.append('backgroundImage', backgroundImageFormData.value.get('backgroundImage'));  // Adiciona a imagem de fundo
   }
 
-
   const url = isEditMode.value ? `/login_customizations/${form.value.id}` : '/login_customizations'; // Se tem ID, então é edição
   const method = isEditMode.value ? 'post' : 'post'; // 'put' para atualizar, 'post' para inserir
   if (isEditMode.value) {
@@ -803,13 +749,6 @@ const saveScreenAsJson = () => {
     errorMessage.value = 'Erro ao salvar customização: ' + (error.response?.data?.message || error.message || 'Erro desconhecido');
   });
 };
-
-
-
-
-
-
-
 // Função para baixar o arquivo JSON
 const downloadJsonFile = (jsonString, fileName) => {
   const blob = new Blob([jsonString], { type: 'application/json' });
@@ -821,7 +760,6 @@ const downloadJsonFile = (jsonString, fileName) => {
   link.click();
   document.body.removeChild(link);
 };
-
 </script>
 
 <template>
@@ -1205,20 +1143,13 @@ const downloadJsonFile = (jsonString, fileName) => {
                   <!-- Controles para Negrito e Itálico -->
                   <v-checkbox v-model="isBold" label="Negrito"></v-checkbox>
                   <v-checkbox v-model="isItalic" label="Itálico"></v-checkbox>
-          </v-card>  
-
-          
-
-        
+          </v-card>          
           </v-card> 
         </v-col>
       </v-row>
-
     </v-container>
   </AuthenticatedLayout>
 </template>
-
-
 
 <style scoped>
 .editable-text {
@@ -1252,9 +1183,6 @@ label {
   padding: 0;
   margin: 0;
 }
-
-
-
 .resizable {
   resize: both;
   overflow: auto;
@@ -1276,6 +1204,4 @@ label {
 .v-file-input {
   width: 300px;
 }
-
-
 </style>

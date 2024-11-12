@@ -39,7 +39,7 @@ class UserPermissionService
             case 'Operador':
                 return [
                     'pages' => [
-                        'dashboard', 'home', 'campanhas.index', 'campanhas.show'
+                        'dashboard', 'home', 'usuariosDash', 'usuarios','campanhas','controladora','incluirRadios','configurarRadio','radios'
                     ],
                     'permissions' => ['ler', 'gravar', 'atualizar']
                 ];
@@ -47,17 +47,17 @@ class UserPermissionService
             case 'Supervisor':
                 return [
                     'pages' => [
-                        'dashboard', 'home', 'campanhas.index', 'regioes.index'
+                        'dashboard', 'home', 'radios', 'mapaRadios','rastrearRadio','rastrearUsoRadio','usuarios','usuariosDash','configurarRadio','users','campanhas','login_customizations','controladora','faq','incluirRadios'
                     ],
-                    'permissions' => ['ler', 'alterar', 'gravar']
+                    'permissions' => ['ler', 'atualizar', 'gravar', 'excluir']
                 ];
 
             case 'Marketing':
                 return [
                     'pages' => [
-                        'estatisticas.index', 'estatisticas.show', 'edicao.index'
+                        'home', 'login_customizations', 'campanhas','dashboard'
                     ],
-                    'permissions' => ['ler', 'alterar']
+                    'permissions' => ['ler', 'atualizar','gravar','excluir']
                 ];
 
             default:

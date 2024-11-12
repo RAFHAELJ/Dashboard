@@ -140,8 +140,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { ref ,onMounted} from 'vue';
+import {  usePage } from '@inertiajs/vue3';
 import RegioesSelect from '@/Components/RegioesSelect.vue';
 
 const page = usePage();
@@ -190,6 +190,26 @@ const canAccess = (pageSlug, action = null) => {
 };
 
 const showingNavigationDropdown = ref(false);
+// Controle de inatividade
+let idleTime = 0;
+const sessionTimeout = 120 * 60 * 1000; // 120 minutos (2 horas)
+
+const resetIdleTime = () => { idleTime = 0; };
+document.onmousemove = resetIdleTime;
+document.onkeypress = resetIdleTime;
+
+onMounted(() => {
+  console.log('Component mounted.');
+  const interval = setInterval(() => {
+    idleTime += 5000;
+    if (idleTime >= sessionTimeout) {
+      localStorage.clear();    
+      
+      clearInterval(interval); 
+    }
+  }, 5000);
+});
+
 </script>
 
 <script>

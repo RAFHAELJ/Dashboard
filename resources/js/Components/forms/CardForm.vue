@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits } from 'vue';
+import { ref, reactive,  defineEmits } from 'vue';
 import { useForm } from '@inertiajs/vue3'; // Importa useForm do Inertia.js
 
 const isSaving = ref(false); // Estado para controlar o loading

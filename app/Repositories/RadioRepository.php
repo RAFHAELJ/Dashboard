@@ -23,7 +23,7 @@ class RadioRepository  {
                       ->orWhere('mac', 'like', "%{$search}%")
                       ->orWhere('endereco', 'like', "%{$search}%")                   
                       ;
-            })->paginate();
+            })->paginate($per_page);
     }  
         
         return RadioDash::with(['regiao','controladora'])->paginate($per_page);
