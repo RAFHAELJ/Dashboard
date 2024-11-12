@@ -84,10 +84,16 @@ public function isAdmin()
 {
     return $this->nivel === 'Administrador';
 }
+
 public function scopeByRegiao($query)
 {
-    if (Auth::check() && !Auth::user()->isAdmin()) {
-        $query->where('regiao', Auth::user()->regiao);
+    if (Auth::check()) {
+        if (!Auth::user()->isAdmin()) {
+            // Limita a visualização apenas à mesma região do usuário logado
+            $query->where('regiao', Auth::user()->regiao)
+                  // Exclui administradores da listagem para usuários não-administradores
+                  ->where('nivel', '!=', 'Administrador');
+        }
     }
 }
 }
