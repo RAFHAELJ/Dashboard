@@ -7,33 +7,16 @@
           cols="12"
         >
           <v-card class="preview-card" :style="previewStyles">
-            <v-sheet
-              class="preview-background"
-              :style="backgroundStyles"
-            >
-              <!-- Caso não haja campanha, exibir a tela padrão -->
+            <v-sheet class="preview-background" :style="backgroundStyles">
+              <!-- Tela padrão quando não há campanha -->
               <template v-if="!campanha || !campanha.id">
-                <!-- Exibir o TopCard (logo) na tela padrão -->
-                <v-img
-                  v-if="topCard"
-                  :src="`/storage/${topCard.image}`"
-                  :style="logoStyle"
-                  class="logo-image"
-                ></v-img>
-
-                <!-- Botão "Continuar" na tela padrão -->
-                <v-btn
-                  class="continue-button"
-                  @click="handleContinue"                  
-                  dark
-                >
-                  Continuar
-                </v-btn>
+                <v-img v-if="topCard" :src="`/storage/${topCard.image}`" :style="logoStyle" class="logo-image"></v-img>
+                <v-btn class="continue-button" @click="handleContinue" dark>Continuar</v-btn>
               </template>
 
-              <!-- Se houver campanha definida, exibir a tela da campanha -->
+              <!-- Tela da campanha -->
               <template v-else>
-                <!-- Capa da Campanha para Vídeo ou Formulário -->
+                <!-- Capa da campanha -->
                 <v-row class="d-flex justify-center">
                   <v-col cols="12" class="d-flex justify-center">
                     <v-img
@@ -42,26 +25,23 @@
                       class="video-cover"
                       @click="campanha.tipo === 'video' ? startVideo() : null"
                       cover
-                      
                     ></v-img>
                   </v-col>
                 </v-row>
 
-                <!-- Logo exibida junto ao botão do formulário, com posição customizada -->
+                <!-- Logo e botão do formulário -->
                 <v-img
-                  v-if="showFormButton && topCard && campanha.tipo !== 'video'&& campanha.tipo !== 'imagem'"
+                  v-if="showFormButton && topCard && campanha.tipo !== 'video' && campanha.tipo !== 'imagem'"
                   :src="`/storage/${topCard.image}`"
                   :style="logoStyle"
                   class="logo-image"
                 ></v-img>
-
-                <!-- Botão para abrir o Google Forms (Formulário) -->
                 <v-row class="d-flex justify-center mt-3" v-if="showFormButton">
                   <v-col cols="12" class="d-flex justify-center">
                     <v-btn
                       v-if="campanha.tipo === 'formulario' && campanha.urlForms"
                       class="open-form-button"
-                      @click="openFormInNewTab"
+                      @click="openFormInline"
                       color="primary"
                       dark
                     >
@@ -70,11 +50,8 @@
                   </v-col>
                 </v-row>
 
-                <!-- Vídeo da Campanha -->
-                <div
-                  v-if="campanha.tipo === 'video' && isVideoPlaying"
-                  class="video-container"
-                >
+                <!-- Conteúdo de vídeo e imagem -->
+                <div v-if="campanha.tipo === 'video' && isVideoPlaying" class="video-container">
                   <div class="video-wrapper">
                     <video
                       ref="videoPlayer"
@@ -87,8 +64,6 @@
                     ></video>
                   </div>
                 </div>
-
-                <!-- Imagem da Campanha -->
                 <v-img
                   v-if="campanha.tipo === 'imagem'"
                   :src="`/storage/${campanha.imagem}`"
@@ -99,30 +74,17 @@
                 ></v-img>
 
                 <!-- Relógio de contagem regressiva -->
-                <v-chip
-                  v-if="remainingTime > 0"
-                  class="timer"
-                  color="red"
-                  dark
-                >
-                  {{ remainingTime }}s
-                </v-chip>
+                <v-chip v-if="remainingTime > 0" class="timer" color="red" dark>{{ remainingTime }}s</v-chip>
 
-                <!-- Botão "Continuar" -->
-                <v-btn
-                  v-if="remainingTime === 0 && campanha.tipo !== 'formulario'"
-                  class="continue-button"
-                  @click="handleContinue"
-                  
-                  dark
-                >
+                <!-- Botão de Continuar -->
+                <v-btn v-if="remainingTime === 0 && campanha.tipo !== 'formulario'" class="continue-button" @click="handleContinue" dark>
                   Continuar
                 </v-btn>
               </template>
             </v-sheet>
           </v-card>
-                   <!-- Diálogo de carregamento ao centro -->
-                   <v-dialog v-model="isLoading" max-width="300" persistent>
+          <!-- Diálogo de carregamento ao centro -->
+          <v-dialog v-model="isLoading" max-width="300" persistent>
             <v-card class="d-flex flex-column align-center justify-center pa-4">
               <v-progress-circular indeterminate color="primary" class="mb-4"></v-progress-circular>
               <span>Carregando...</span>
@@ -138,18 +100,18 @@
 import { ref, computed, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
-
 export default {
   setup() {
     const { props } = usePage();
-    const campanha = props.campanha || null;     const customization = props.login || {};
+    const campanha = props.campanha || null;
+    const customization = props.login || {};
     const elements = JSON.parse(customization.elements || '[]');
-    const redirectUrl = ref(props.url || null);       
+    const redirectUrl = ref(props.url || null);
    
-    const topCard = elements.find((element) => element.type === 'topCard');    
+    const topCard = elements.find((element) => element.type === 'topCard');
     const exibe_propaganda = true;
     const videoPlayer = ref(null);
-    
+
     const totalDuration = campanha?.duracao || 10;
     const capaDuration = Math.floor(totalDuration / 2);
     const remainingTime = ref(totalDuration);
@@ -198,12 +160,10 @@ export default {
         if (remainingTime.value > 0 && campanha?.id) {
           remainingTime.value--;
 
-          // Mostrar o botão do formulário após o tempo de exibição da capa
           if (remainingTime.value === totalDuration - capaDuration) {
             showFormButton.value = true;
           }
 
-          // Quando o tempo da capa terminar, inicia o vídeo (se houver)
           if (remainingTime.value === capaDuration && campanha.tipo === 'video') {
             startVideo();
           }
@@ -226,17 +186,12 @@ export default {
       remainingTime.value = 0;
     };
 
-
-    const openFormInNewTab = async () => {
-  if (campanha?.urlForms) {
-    
-    await handleContinue();
-
-    setTimeout(() => {
-      window.open(campanha.urlForms, '_self');
-    }, 2000);
-  }
-};
+    const openFormInline = async () => {
+      if (campanha?.urlForms) {
+        await handleContinue();
+        window.location.href = campanha.urlForms;
+      }
+    };
 
     const handleAdClick = () => {
       if (campanha?.url) {
@@ -244,17 +199,41 @@ export default {
       }
     };
 
-    const handleContinue = () => {
-      isLoading.value = true;  
+    const handleContinue = async () => {
+  isLoading.value = true;
+  
+  if (redirectUrl.value) {
+    try {
+      // Envia a solicitação de autenticação em segundo plano
+      const response = await fetch(redirectUrl.value, {
+        method: 'POST', // Use o método adequado para autenticação, por exemplo, POST
+        headers: {
+          'Content-Type': 'application/json', // Ajuste os headers conforme necessário
+          // Inclua mais headers conforme a autenticação requer
+        },
+        // Inclua aqui os dados de autenticação se necessário
+        body: JSON.stringify({ /* dados de autenticação */ })
+      });
       
-     
-        if (redirectUrl.value) {
-          window.location.href = redirectUrl.value;
-        } else {
-          console.error('URL de redirecionamento não encontrada');
-        }
-     
-    };
+      if (!response.ok) {
+        console.error('Falha na autenticação', response.statusText);
+      }
+      
+      // Processa a resposta conforme necessário
+      const data = await response.json();
+      console.log('Autenticação realizada:', data);
+
+    } catch (error) {
+      console.error('Erro durante a autenticação:', error);
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    console.error('URL de redirecionamento não encontrada');
+    isLoading.value = false;
+  }
+};
+
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
@@ -284,8 +263,8 @@ export default {
       handleAdClick,
       handleContinue,
       redirectUrl,
-      openFormInNewTab,
-      handleVideoEnd,      
+      openFormInline,
+      handleVideoEnd,
       isLoading,
     };
   },
@@ -298,12 +277,6 @@ export default {
   max-width: 100%;
   height: auto;
   z-index: 10;
-}
-.no-padding {
-  padding: 0 !important;
-}
-.no-margin {
-  margin: 0 !important;
 }
 .fill-height {
   height: 100vh;
