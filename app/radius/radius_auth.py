@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("radius_auth")
 
 # Defina o caminho do arquivo de dicionário
-dictionary_path = "/var/www/Dashboard/app/radius/dictionary"
+dictionary_path = "/var/www/html/Dashboard/app/radius/dictionary"
 
 def authenticate(username, password, secret, server, port=1812):
     try:
@@ -42,12 +42,18 @@ def authenticate(username, password, secret, server, port=1812):
             logger.error("Resposta inesperada do servidor RADIUS.")
             return {"success": False, "message": "Resposta inesperada do servidor RADIUS"}
     except Exception as e:
-        logger.error(f"Erro inesperado durante a autenticação: {e}")
-        return {"success": False, "message": f"Erro inesperado: {e}"}
+        # Captura da exceção com mais detalhes
+        error_message = f"Erro inesperado durante a autenticação: {e} - Tipo de erro: {type(e).__name__}"
+        logger.error(error_message, exc_info=True)
+        return {"success": False, "message": error_message}
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Uso: python3 radius_auth.py <username> <password> <secret> <server>")
+        response = {
+            "success": False,
+            "message": "Uso incorreto: python3 radius_auth.py <username> <password> <secret> <server>"
+        }
+        print(json.dumps(response))
         sys.exit(1)
 
     username = sys.argv[1]

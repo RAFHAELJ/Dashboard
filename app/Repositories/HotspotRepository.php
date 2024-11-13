@@ -132,7 +132,7 @@ class HotspotRepository
         }
 
         $accessData = AccessData::where('regiao', $regiaoId)->where('type', 'radius')->first();
-
+    
         if (!$accessData) {
             return ['success' => false, 'error' => 'Configuração de autenticação RADIUS não encontrada'];
         }
@@ -143,7 +143,7 @@ class HotspotRepository
             $data['username'],
             $data['password'],
             $accessData->senha,
-            $accessData->ip
+            $accessData->db_host
         ]);
 
         $process->run();
@@ -269,11 +269,11 @@ class HotspotRepository
             $redirectUrl = '';
     
             if ($ga_srvr) {
-                $redirectUrl = "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi";
+                $redirectUrl = "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi/";
             } elseif ($uamip) {
-                $redirectUrl = "http://$uamip:$uamport/logon";
+                $redirectUrl = "http://$uamip:$uamport/logon/";
             }else if ($emac) {
-                $redirectUrl = "$linklogin/logon?";
+                $redirectUrl = "$linklogin/logon/";
 
             }
     
