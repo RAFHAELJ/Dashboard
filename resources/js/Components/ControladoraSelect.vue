@@ -34,7 +34,7 @@
   // Buscar controladoras da API
   const fetchControladoras = async () => {
     try {
-      const response = await axios.get('/controladora/controladora');
+      const response = await axios.get('/controladora');
       if (response.data && response.data.data) {
         controladoras.value = response.data.data;
   

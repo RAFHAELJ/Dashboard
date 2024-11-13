@@ -75,8 +75,7 @@
                 v-if="isAdmin && isEditing && isUsersPage"
                 icon
                 v-bind="attrs"
-                v-on="on"
-                @click="openRoleModal"
+                v-on:click="openRoleModal"
                 title="Alterar permissões do usuário"
               >
                 <v-icon>mdi-account-details</v-icon>
@@ -93,8 +92,7 @@
                 v-if="isAdmin && isEditing && isUsersPage"
                 icon
                 v-bind="attrs"
-                v-on="on"
-                @click="resetaSenhaUser"
+                v-on:click="resetaSenhaUser"
                 title="Redefinir senha do usuário para 'wnidobrasil'"
               >
                 <v-icon>mdi-lock-off</v-icon>

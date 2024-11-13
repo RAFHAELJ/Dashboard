@@ -6,6 +6,8 @@ import DataList from '@/Components/DataList.vue';
 import UserForm from '@/Components/forms/UserForm.vue';
 
 const { props } = usePage();
+const isAdmin = ref(props.auth.user.nivel === 'Administrador');
+const isSuper = ref(props.auth.user.nivel === 'Supervisor');
 const users = ref(props.users || []);
 const isEditModalOpen = ref(false);
 const isEditing = ref(false);
@@ -101,6 +103,16 @@ const closeEditModal = () => {
 const handleDeleteItem = (item) => {
   deleteUser(item.id);
 };
+const nivelOptions = computed(() => {
+  if (isAdmin.value) {
+    return ['Administrador', 'Operador', 'Marketing', 'Supervisor'];
+  } else if (isSuper.value) {
+    return ['Operador', 'Marketing', 'Supervisor'];
+  } else {
+    return ['Operador', 'Marketing'];
+  }
+});
+console.log(nivelOptions.value);
 </script>
 
 <template>
@@ -132,7 +144,7 @@ const handleDeleteItem = (item) => {
             :fields="{
               name: { label: 'Nome', rules: [(v) => !!v || 'Nome é obrigatório'], required: true,autocomplete: 'username' },
               email: { label: 'Email', rules: [(v) => !!v || 'Email é obrigatório', (v) => /.+@.+\..+/.test(v) || 'E-mail deve ser válido'], required: true ,autocomplete: 'email'},    
-              nivel: { label: 'Nivel', type: 'select', required: true, items: ['Administrador', 'Operador', 'Marketing', 'Supervisor'] },
+              nivel: { label: 'Nivel', type: 'select', required: true, items: nivelOptions },
               ...( !isEditing ? {
                   password: { label: 'Senha', rules: [(v) => v.length >= 6 || 'Senha deve ter no mínimo 6 caracteres'], required: true, type: 'password', autocomplete: 'new-password' },
                   password_confirmation: {label: 'Confirmar Senha',rules: [

@@ -23,10 +23,10 @@ class AccessDataController extends Controller
         $this->logRepository = $logRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
        
-        $accessData = $this->accessDataRepository->findByType('controller');
+        $accessData = $this->accessDataRepository->findByType('controller',$request->input('per_page'));
 
         if (request()->wantsJson()) {
             return response()->json($accessData);

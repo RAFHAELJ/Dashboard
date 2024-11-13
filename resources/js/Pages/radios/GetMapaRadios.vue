@@ -1,15 +1,22 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { onMounted, ref } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { onMounted, ref, onBeforeUnmount, nextTick } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import MarkerClusterer from "@google/markerclustererplus";
 
 const { props } = usePage();
 const mapInitialized = ref(false);
-const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXz'; // Substitua pela sua chave de API
-// 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'
+const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY';
+//'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'
+const markersCache = ref([]);
+const map = ref(null);
+const updateInterval = 120 * 60 * 1000; // Atualizar a cada 120 minutos
+let updateTimeout;
 
-// Função para carregar o script do Google Maps
+// Contadores de monitoramento
+const scriptLoadCounter = ref(0);
+const markerUpdateCounter = ref(0);
+
 const loadGoogleMapsScript = (callback) => {
   if (typeof google !== 'undefined' && google.maps) {
     callback();
@@ -20,24 +27,38 @@ const loadGoogleMapsScript = (callback) => {
   script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`;
   script.async = true;
   script.defer = true;
-  script.onload = callback;
+  script.onload = () => {
+    scriptLoadCounter.value++; // Incrementa o contador ao carregar o script
+    console.log(`Script do Google Maps carregado ${scriptLoadCounter.value} vezes.`);
+    callback();
+  };
   document.head.appendChild(script);
 };
 
-// Função para inicializar o mapa
 const initMap = () => {
-  if (!props || !props.data || !props.data.data) {
-    console.error("Dados dos rádios não estão disponíveis.");
-    return;
-  }
+  nextTick(() => {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error("Elemento do mapa não está disponível.");
+      return;
+    }
 
-  const mapCenter = props.data.center || { lat: -25.4284, lng: -49.2733 };
-  const map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 14,
-    center: mapCenter
+    const mapCenter = props.data.center || { lat: -25.4284, lng: -49.2733 };
+    map.value = new google.maps.Map(mapElement, {
+      zoom: 14,
+      center: mapCenter
+    });
+
+    loadMarkers();
+    mapInitialized.value = true;
   });
+};
 
-  // Criação de marcadores e cluster de marcadores
+const loadMarkers = () => {
+  clearMarkers(); // Limpa marcadores antigos
+  markerUpdateCounter.value++; // Incrementa o contador ao atualizar os marcadores
+  console.log(`Marcadores atualizados ${markerUpdateCounter.value} vezes.`);
+
   const markers = props.data.data.map((radio) => {
     const [lat, lng] = radio.geo.split(',').map(Number);
     return new google.maps.Marker({
@@ -46,29 +67,52 @@ const initMap = () => {
       title: `Radio: ${radio.mac}`
     });
   });
+  markersCache.value = markers; // Salva em cache
 
-  new MarkerClusterer(map, markers, {
-    imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
-  });
-
-  mapInitialized.value = true;
+  if (map.value) {
+    new MarkerClusterer(map.value, markersCache.value, {
+      imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"
+    });
+  }
 };
 
-// Carrega o script do Google Maps e inicializa o mapa ao montar o componente
+// Função para limpar marcadores antigos do mapa
+const clearMarkers = () => {
+  markersCache.value.forEach((marker) => marker.setMap(null));
+  markersCache.value = [];
+};
+
+const scheduleMarkerUpdates = () => {
+  updateTimeout = setInterval(() => {
+    loadMarkers(); // Recarrega os marcadores a cada intervalo
+  }, updateInterval);
+};
+
 onMounted(() => {
   loadGoogleMapsScript(() => {
     if (typeof google !== 'undefined' && google.maps) {
       initMap();
+      scheduleMarkerUpdates();
     } else {
       console.error("Google Maps não foi carregado corretamente.");
     }
   });
 });
 
+onBeforeUnmount(() => {
+  if (updateTimeout) {
+    clearInterval(updateTimeout); // Limpa o intervalo de atualização
+  }
+  clearMarkers(); // Limpa os marcadores ao desmontar o componente
+});
+
 const acessadoshj = props.data?.acessadoshj || 0;
 const acessadosontem = props.data?.acessadosontem || 0;
 const naoacessados = props.data?.naoacessados || 0;
 </script>
+
+
+
 
 <template>
   <AuthenticatedLayout>

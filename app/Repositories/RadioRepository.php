@@ -148,108 +148,94 @@ private function formatBytes($bytes)
 }
    
     
-    public function getGeoRadio()
-    {
-        return Cache::remember('geo_radio_data', 1, function () {
-            $radios = RadioDash::all(['id', 'mac', 'geo']);
-            
-            if ($radios->isEmpty()) {
-                return [
-                    'success' => false,
-                    'message' => 'Nenhum dado'
-                ];
-            }
-    
-            $newData = [];
-            $hoje = Carbon::today()->format('Y-m-d');
-            $ontem = Carbon::yesterday()->format('Y-m-d');
-            $tresDiasAtras = Carbon::today()->subDays(3)->format('Y-m-d');
-            $latitudes = [];
-            $longitudes = [];
-            
-            // Obter todos os acessos dos últimos 3 dias
-            $macs = $radios->pluck('mac')->toArray();
-            $acessos = RadAcct::whereIn('calledstationid', $macs)
-                ->where('acctstarttime', '>=', $tresDiasAtras)
-                ->whereNotNull('calledstationid')
-                ->where('calledstationid', '!=', '')
-                ->select('calledstationid', 'acctstarttime') 
-                ->get();
-                $acessos = $acessos->map(function ($acesso) {
-                    return [
-                        'calledstationid' => $acesso->calledstationid,
-                        'acctstarttime' => $acesso->acctstarttime,
-                    ];
-                });
-               // dd($hoje);   
-            $acessadosHj = 0;
-            $acessadosOntem = 0;
-            $naoAcessados = 0;
-
-            // Ajuste na contagem de acessos por período
-            foreach ($radios as $radio) {
-                $mac = $radio->mac;
-                $imagem = 'http://maps.google.com/mapfiles/ms/icons/white-dot.png';
-                
-                // Filtrar os acessos deste rádio específico
-                $acessosPorMac = $acessos->filter(function ($acesso) use ($mac) {
-                    return $acesso['calledstationid'] === $mac;
-                });
-            
-                // Filtrar os acessos para hoje
-                $acessosHoje = $acessosPorMac->filter(function ($acesso) use ($hoje) {
-                    return Carbon::parse($acesso['acctstarttime'])->isSameDay($hoje);
-                })->count();
-
-                  // Filtrar os acessos para ontem
-                  $acessosOntem = $acessosPorMac->filter(function ($acesso) use ($ontem) {
-                    return Carbon::parse($acesso['acctstarttime'])->isSameDay($ontem);
-                })->count();
-
-               // dd($acessosHoje);
-                if ($acessosHoje > 0) {
-                    $imagem = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
-                    $acessadosHj += $acessosHoje;
-                } else if ($acessosOntem > 0) {
-                    $imagem = 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png';
-                        $acessadosOntem += $acessosOntem;
-                }else  { 
-                    $imagem = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-                    $naoAcessados++;
-                   
-                }
-            
-                $latLong = explode(',', $radio->geo);
-                $latitudes[] = $latLong[0];
-                $longitudes[] = $latLong[1];
-            
-                $newData[] = [
-                    'id' => $radio->id,
-                    'mac' => $radio->mac,
-                    'acessos' => $acessosHoje,
-                    'img' => $imagem,
-                    'geo' => $radio->geo,
-                ];
-            }
-            
-
-    
-            $latCenter = array_sum($latitudes) / count($latitudes);
-            $lngCenter = array_sum($longitudes) / count($longitudes);
-    
+public function getGeoRadio()
+{
+    return Cache::remember('geo_radio_data', 120, function () {
+        $radios = RadioDash::all(['id', 'mac', 'geo']);
+        
+        if ($radios->isEmpty()) {
             return [
-                'acessadoshj' => $acessadosHj,
-                'acessadosontem' => $acessadosOntem,
-                'naoacessados' => $naoAcessados ,
-                'data' => $newData,
-                'center' => [
-                    'lat' => $latCenter,
-                    'lng' => $lngCenter,
-                ],
+                'success' => false,
+                'message' => 'Nenhum dado'
             ];
-        });
-    }
-    
+        }
+
+        $newData = [];
+        $hoje = Carbon::today()->format('Y-m-d');
+        $ontem = Carbon::yesterday()->format('Y-m-d');
+        $tresDiasAtras = Carbon::today()->subDays(3)->format('Y-m-d');
+        
+        $latitudes = [];
+        $longitudes = [];
+
+        // Obtém todos os MACs dos rádios de uma vez
+        $macs = $radios->pluck('mac')->toArray();
+
+        // Consulta única para obter todos os acessos relevantes
+        $acessos = RadAcct::whereIn('calledstationid', $macs)
+            ->where('acctstarttime', '>=', $tresDiasAtras)
+            ->select('calledstationid', 'acctstarttime') 
+            ->get()
+            ->groupBy('calledstationid'); // Agrupa acessos por MAC para facilitar o processamento
+
+        $acessadosHj = 0;
+        $acessadosOntem = 0;
+        $naoAcessados = 0;
+
+        foreach ($radios as $radio) {
+            $mac = $radio->mac;
+            $imagem = 'http://maps.google.com/mapfiles/ms/icons/white-dot.png';
+            
+            // Acessos filtrados para este rádio específico
+            $acessosPorMac = $acessos->get($mac, collect());
+
+            // Contagem de acessos para hoje e ontem
+            $acessosHoje = $acessosPorMac->filter(fn($acesso) => Carbon::parse($acesso['acctstarttime'])->isSameDay($hoje))->count();
+            $acessosOntem = $acessosPorMac->filter(fn($acesso) => Carbon::parse($acesso['acctstarttime'])->isSameDay($ontem))->count();
+
+            // Define a cor do marcador de acordo com os acessos
+            if ($acessosHoje > 0) {
+                $imagem = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
+                $acessadosHj += $acessosHoje;
+            } elseif ($acessosOntem > 0) {
+                $imagem = 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png';
+                $acessadosOntem += $acessosOntem;
+            } else {
+                $imagem = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                $naoAcessados++;
+            }
+
+            // Processa coordenadas para cálculo do centro
+            $latLong = explode(',', $radio->geo);
+            $latitudes[] = (float)$latLong[0];
+            $longitudes[] = (float)$latLong[1];
+
+            $newData[] = [
+                'id' => $radio->id,
+                'mac' => $radio->mac,
+                'acessos' => $acessosHoje,
+                'img' => $imagem,
+                'geo' => $radio->geo,
+            ];
+        }
+
+        // Cálculo do centro geográfico
+        $latCenter = array_sum($latitudes) / count($latitudes);
+        $lngCenter = array_sum($longitudes) / count($longitudes);
+
+        return [
+            'acessadoshj' => $acessadosHj,
+            'acessadosontem' => $acessadosOntem,
+            'naoacessados' => $naoAcessados,
+            'data' => $newData,
+            'center' => [
+                'lat' => $latCenter,
+                'lng' => $lngCenter,
+            ],
+        ];
+    });
+}
+
     
     
     
