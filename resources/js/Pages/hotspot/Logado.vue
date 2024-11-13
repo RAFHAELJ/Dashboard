@@ -110,7 +110,7 @@
 
                 <!-- Botão "Continuar" -->
                 <v-btn
-                  v-if="remainingTime === 0"
+                  v-if="remainingTime === 0 && campanha.tipo !== 'formulario'"
                   class="continue-button"
                   @click="handleContinue"
                   
