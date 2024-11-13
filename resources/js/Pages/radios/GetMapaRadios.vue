@@ -6,7 +6,7 @@ import MarkerClusterer from "@google/markerclustererplus";
 
 const { props } = usePage();
 const mapInitialized = ref(false);
-const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY';
+const googleMapsApiKey = 'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXz';
 //'AIzaSyDdU4d2Zw4bcg9hPC0gB6VY62uHQvJzXzY'
 const markersCache = ref([]);
 const map = ref(null);
