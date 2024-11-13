@@ -244,52 +244,17 @@ export default {
       }
     };
 
-    const handleContinue = async () => {
-  isLoading.value = true;  
-
-  if (redirectUrl.value) {
-    try {
-      // Exibe no console a URL para confirmação
-      console.log('Iniciando requisição para URL:', redirectUrl.value);
-
-      // Faz uma requisição GET para o URL (modifique para POST se necessário)
-      const response = await fetch(redirectUrl.value, {
-        method: 'GET', // ou 'POST', dependendo do que a sua URL exige
-        headers: {
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        },
-      });
-
-      // Verifica a resposta e decide o próximo passo
-      if (response.ok) {
-        // Se a resposta for 200 OK, significa que o acesso foi autorizado
-        const data = await response.json();
-        console.log('Resposta recebida:', data);
-
-        if (data.success) {
-          // Redireciona para o destino
+    const handleContinue = () => {
+      isLoading.value = true;  
+      
+     
+        if (redirectUrl.value) {
           window.location.href = redirectUrl.value;
         } else {
-          console.warn('Autorização negada. Detalhes:', data);
-          alert('Autorização negada. Por favor, verifique e tente novamente.');
+          console.error('URL de redirecionamento não encontrada');
         }
-      } else {
-        console.error(`Erro de resposta da URL: ${response.status}`);
-        alert('Ocorreu um problema ao acessar o recurso. Tente novamente mais tarde.');
-      }
-    } catch (error) {
-      console.error('Erro na requisição:', error);
-      alert('Erro de comunicação. Verifique sua conexão e tente novamente.');
-    } finally {
-      isLoading.value = false;
-    }
-  } else {
-    console.error('URL de redirecionamento não encontrada');
-    isLoading.value = false;
-  }
-};
-
+     
+    };
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
