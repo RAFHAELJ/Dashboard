@@ -119,12 +119,12 @@
         </v-list-group>
 
         <!-- Radius Menu -->
-        <v-list-group v-if="canAccess('radius')" v-model="menuStates.radius" value="Radius">
+        <v-list-group v-if="canAccess('nas')" v-model="menuStates.radius" value="Nas">
           <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" prepend-icon="mdi-server" title="Radius"></v-list-item>
+            <v-list-item v-bind="props" prepend-icon="mdi-server" title="Nas"></v-list-item>
           </template>
           <!--v-list-item v-if="canAccess('radius', 'ler')" title="Lista Radius" @click="navigateTo('/radius/lista')"></v-list-item-->
-          <v-list-item v-if="canAccess('radius', 'ler')" title="Adiciona Nas" @click="navigateTo('/radius/')"></v-list-item>
+          <v-list-item v-if="canAccess('Nas', 'ler')" title="Adiciona Nas." @click="navigateTo('/nas')"></v-list-item>
         </v-list-group>
 
         <!-- Outros Menus -->

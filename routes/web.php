@@ -142,13 +142,13 @@ Route::middleware('auth')->group(function () {
         
     });
 
-    Route::prefix('radius')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
-        Route::get('/', [RadiusController::class, 'index'])->name('radius.index');
-        Route::get('/lista', [RadiusController::class, 'lista'])->name('radius.lista');
-        Route::get('/{id}', [RadiusController::class, 'show'])->name('radius.show');
-        Route::post('/', [RadiusController::class, 'store'])->middleware('check-page-access:gravar')->name('radius.store');  
-        Route::put('/{id}', [RadiusController::class, 'update'])->middleware('check-page-access:atualizar')->name('radius.update');       
-        Route::delete('/{id}', [RadiusController::class, 'destroy'])->middleware('check-page-access:excluir')->name('radius.destroy');
+    Route::prefix('nas')->middleware('check-page-access:ler','set-dynamic-db')->group(function () {        
+        Route::get('/', [RadiusController::class, 'index'])->name('nas.index');
+        Route::get('/lista', [RadiusController::class, 'lista'])->name('nas.lista');
+        Route::get('/{id}', [RadiusController::class, 'show'])->name('nas.show');
+        Route::post('/', [RadiusController::class, 'store'])->middleware('check-page-access:gravar')->name('nas.store');  
+        Route::put('/{id}', [RadiusController::class, 'update'])->middleware('check-page-access:atualizar')->name('nas.update');       
+        Route::delete('/{id}', [RadiusController::class, 'destroy'])->middleware('check-page-access:excluir')->name('nas.destroy');
         
     });
 

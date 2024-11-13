@@ -6,7 +6,7 @@
   import RadiusForm from '@/Components/forms/UserForm.vue';
   
   const { props } = usePage();
-  const radius = ref(props.radius || []);
+  const nas = ref(props.radius || []);
   const isEditModalOpen = ref(false);
   const isEditing = ref(false);
   const editradius = ref({
@@ -40,18 +40,18 @@
       try {
         
         
-        await router.delete(route('radius.destroy', id));
-        radius.value = radius.value.filter(radius => radius.id !== id);
+        await router.delete(route('nas.destroy', id));
+        nas.value = nas.value.filter(nas => nas.id !== id);
       } catch (error) {
         console.error('Erro ao deletar radio:', error);
       }
     }
   };
   const fetchPage = (page) => {  
-  router.get(route('radius.index', { page }), {
+  router.get(route('nas.index', { page }), {
     preserveState: true, // Mantém o estado da página
     onSuccess: (page) => {
-      radius.value = page.props.radius;
+      nas.value = page.props.nas;
     },
   });
 };
@@ -89,23 +89,23 @@
   </script>
   
   <template>
-    <Head title="radius" />
+    <Head title="nas" />
   
     <AuthenticatedLayout>
       <template v-slot="{ canAccess }">
       <v-container fluid fill-height>
         <DataList
           :headers="headers"
-          :items="radius"
+          :items="nas"
           :columnTitles="['radio','mac']"
           searchPlaceholder="Pesquisar Usuários Radio"
-          createButtonLabel="Add radius Radio"
+          createButtonLabel="Add nas Radio"
           @create="handleCreateItem"
           @edit="handleEditItem"
           @delete="handleDeleteItem"
           :item-key="'id'"
           :canAccess="canAccess" 
-          createRoute="radius"
+          createRoute="nas"
           @page-changed="fetchPage"
         />
         <v-dialog v-model="isEditModalOpen" persistent max-width="600px">
@@ -114,7 +114,7 @@
           :formData="editradius"
           :fields="{
             nasname: { label: 'Nome curto nas', rules: [(v) => !!v || ' é obrigatório'], required: true },
-            shortname: { label: 'IP/Mascara 0.0.0.0/0', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' },
+            shortname: { label: 'IP/Mascara 0.0.0.0/0', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' , mask: '###.###.###.###/##' },
             type: { label: 'Type', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' },
             ports: { label: 'Porta', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' },            
             secret: { label: 'secret', rules: [(v) => !!v || 'Endereço é obrigatório'], required: true },
@@ -123,10 +123,10 @@
              
           }"
           :isEditing="isEditing"
-          title="Radius"
-          createRoute="radius.store"
-          updateRoute="radius.update"
-          returnRoute="radius.index"
+          title="Nas"
+          createRoute="nas.store"
+          updateRoute="nas.update"
+          returnRoute="nas.index"
           @cancel="closeEditModal"
         />
       </v-dialog>
