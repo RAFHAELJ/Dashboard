@@ -941,7 +941,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                 ></v-select>
               </template>
 
-              <v-checkbox
+              <!--v-checkbox
                 v-model="form.types.rede_social"
                 label="Rede Social"
                 @change="handleToggleRedeSocial"
@@ -960,7 +960,7 @@ const downloadJsonFile = (jsonString, fileName) => {
                 v-model="form.types.login_click"
                 label="Login com um click"
                 @change="handleToggleLoginClick"
-              ></v-checkbox>
+              ></v-checkbox-->
            </v-card>   
 
 
