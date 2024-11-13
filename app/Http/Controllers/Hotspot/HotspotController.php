@@ -51,7 +51,7 @@ class HotspotController extends Controller
     public function showLoginForm(Request $request, $region)
     {
 
-        $usuarioWifiLogado = Session::get('UrlusuarioWifiLogado');
+       /* $usuarioWifiLogado = Session::get('UrlusuarioWifiLogado');
 
         if ($usuarioWifiLogado) {           
             
@@ -60,7 +60,7 @@ class HotspotController extends Controller
             return Inertia::render('hotspot/Conectado', [
                 'redirectUrl' => $usuarioWifiLogado,
             ]);
-        }
+        }*/
         $login = $this->hotspotRepository->login($region)->first();
         return Inertia::render('hotspot/Login', [
             'login' => $login ?? null,
