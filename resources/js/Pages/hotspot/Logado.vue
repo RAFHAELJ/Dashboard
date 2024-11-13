@@ -233,7 +233,7 @@ export default {
     await handleContinue();
 
     setTimeout(() => {
-      window.open(campanha.urlForms, '_blank');
+      window.open(campanha.urlForms, '_self');
     }, 2000);
   }
 };
