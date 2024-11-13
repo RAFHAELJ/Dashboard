@@ -113,8 +113,8 @@
           :showCreateRegiao="false"
           :formData="editradius"
           :fields="{
-            nasname: { label: 'Nome curto nas', rules: [(v) => !!v || ' é obrigatório'], required: true },
-            shortname: { label: 'IP/Mascara 0.0.0.0/0', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' , mask: '###.###.###.###/##' },
+            nasname: { label: 'IP/Mascara 0.0.0.0/0', rules: [(v) => !!v || ' é obrigatório'], required: true ,mask: '###.###.###.###/##'},
+            shortname: { label: 'Nome curto nas', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text'  },
             type: { label: 'Type', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' },
             ports: { label: 'Porta', rules: [(v) => !!v || ' é obrigatório'], required: true, type: 'text' },            
             secret: { label: 'secret', rules: [(v) => !!v || 'Endereço é obrigatório'], required: true },
