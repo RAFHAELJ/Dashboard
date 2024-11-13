@@ -110,7 +110,7 @@
 
                 <!-- Botão "Continuar" -->
                 <v-btn
-                  v-if="remainingTime === 0 && campanha.tipo !== 'formulario'"
+                  v-if="remainingTime === 0"
                   class="continue-button"
                   @click="handleContinue"
                   
@@ -226,18 +226,17 @@ export default {
       remainingTime.value = 0;
     };
 
-    const openFormInNewTab = () => {
-  if (campanha?.urlForms) {
-    // Abre o formulário em uma nova aba imediatamente
-    window.open(campanha.urlForms, '_blank');
 
-    // Aguarda um curto período antes de iniciar o redirecionamento do login
-    setTimeout(async () => {
-      await handleContinue(); // Autentica e redireciona o usuário
-    }, 2000); // Ajuste o tempo conforme necessário
+    const openFormInNewTab = async () => {
+  if (campanha?.urlForms) {
+    
+    await handleContinue();
+
+    setTimeout(() => {
+      window.open(campanha.urlForms, '_blank');
+    }, 2000);
   }
 };
-
 
     const handleAdClick = () => {
       if (campanha?.url) {
@@ -245,17 +244,44 @@ export default {
       }
     };
 
-    const handleContinue = () => {
-      isLoading.value = true;  
-      
-     
-        if (redirectUrl.value) {
-          window.location.href = redirectUrl.value;
-        } else {
-          console.error('URL de redirecionamento não encontrada');
-        }
-     
-    };
+    const handleContinue = async () => {
+  isLoading.value = true;
+
+  try {
+    // Envia a requisição para a controller para verificar a autorização
+    const response = await fetch(redirectUrl.value, {
+      method: 'POST', // ou 'GET', dependendo da sua implementação
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+      },
+      body: JSON.stringify({ /* qualquer dado necessário para autorização */ }),
+    });
+
+    // Verifica se a autorização foi bem-sucedida
+    if (response.ok) {
+      const data = await response.json();
+
+      if (data.authorized) {
+        // Redireciona o usuário se a resposta for positiva
+        window.location.href = data.redirectUrl || redirectUrl.value;
+      } else {
+        console.error('Autorização negada');
+        alert('Autorização negada. Por favor, verifique seus dados e tente novamente.');
+      }
+    } else {
+      console.error('Erro na resposta da controller:', response.status);
+      alert('Ocorreu um erro. Tente novamente mais tarde.');
+    }
+  } catch (error) {
+    console.error('Erro ao tentar se comunicar com a controller:', error);
+    alert('Erro de comunicação. Verifique sua conexão e tente novamente.');
+  } finally {
+    // Esconde o indicador de carregamento ao final da operação
+    isLoading.value = false;
+  }
+};
+
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
