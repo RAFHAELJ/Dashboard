@@ -165,8 +165,8 @@ export default {
     const screenData = ref(customization || {});
     const logoUrl = customization.elements ? JSON.parse(customization.elements).find(e => e.type === 'topCard')?.image || null : null;
     const previewStyles = reactive({
-      width: '412px',
-      height: '915px',
+      width: '360px',
+      height: '740px',
       border: 'none',
       position: 'relative',
       overflow: 'hidden',
