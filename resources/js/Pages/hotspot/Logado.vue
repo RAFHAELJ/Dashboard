@@ -245,39 +245,47 @@ export default {
     };
 
     const handleContinue = async () => {
-  isLoading.value = true;
+  isLoading.value = true;  
 
-  try {
-    // Envia a requisição para a controller para verificar a autorização
-    const response = await fetch(redirectUrl.value, {
-      method: 'POST', // ou 'GET', dependendo da sua implementação
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-      },
-      body: JSON.stringify({ /* qualquer dado necessário para autorização */ }),
-    });
+  if (redirectUrl.value) {
+    try {
+      // Exibe no console a URL para confirmação
+      console.log('Iniciando requisição para URL:', redirectUrl.value);
 
-    // Verifica se a autorização foi bem-sucedida
-    if (response.ok) {
-      const data = await response.json();
+      // Faz uma requisição GET para o URL (modifique para POST se necessário)
+      const response = await fetch(redirectUrl.value, {
+        method: 'GET', // ou 'POST', dependendo do que a sua URL exige
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+      });
 
-      if (data.authorized) {
-        // Redireciona o usuário se a resposta for positiva
-        window.location.href = data.redirectUrl || redirectUrl.value;
+      // Verifica a resposta e decide o próximo passo
+      if (response.ok) {
+        // Se a resposta for 200 OK, significa que o acesso foi autorizado
+        const data = await response.json();
+        console.log('Resposta recebida:', data);
+
+        if (data.success) {
+          // Redireciona para o destino
+          window.location.href = redirectUrl.value;
+        } else {
+          console.warn('Autorização negada. Detalhes:', data);
+          alert('Autorização negada. Por favor, verifique e tente novamente.');
+        }
       } else {
-        console.error('Autorização negada');
-        alert('Autorização negada. Por favor, verifique seus dados e tente novamente.');
+        console.error(`Erro de resposta da URL: ${response.status}`);
+        alert('Ocorreu um problema ao acessar o recurso. Tente novamente mais tarde.');
       }
-    } else {
-      console.error('Erro na resposta da controller:', response.status);
-      alert('Ocorreu um erro. Tente novamente mais tarde.');
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      alert('Erro de comunicação. Verifique sua conexão e tente novamente.');
+    } finally {
+      isLoading.value = false;
     }
-  } catch (error) {
-    console.error('Erro ao tentar se comunicar com a controller:', error);
-    alert('Erro de comunicação. Verifique sua conexão e tente novamente.');
-  } finally {
-    // Esconde o indicador de carregamento ao final da operação
+  } else {
+    console.error('URL de redirecionamento não encontrada');
     isLoading.value = false;
   }
 };
