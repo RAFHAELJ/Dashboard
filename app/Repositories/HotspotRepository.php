@@ -272,12 +272,16 @@ class HotspotRepository
                 $redirectUrl = "http://$ga_srvr:880/cgi-bin/hotspot_login.cgi";
             } elseif ($uamip) {
                 $redirectUrl = "http://$uamip:$uamport/logon";
+            }else if ($emac) {
+                $redirectUrl = "$linklogin/logon?";
+
             }
     
             // Concatenar todos os atributos na URL
             $redirectUrl .= "?code=Access-Accept" .
                             "&Reply-Message=" . urlencode('Autenticação bem-sucedida') .
                             "&Session-Timeout=" . $sessionTimeout .
+                            "&success=" . "true" .
                             "&User-Name=" . urlencode($data['username']) .
                             "&ga_user=" . urlencode($data['username']) .
                             "&ga_pass=" . urlencode($pappassword) .

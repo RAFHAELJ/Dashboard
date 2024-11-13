@@ -1,29 +1,46 @@
 import sys
 import logging
-import radius
 import json
+from pyrad.client import Client
+from pyrad.packet import AccessRequest, AccessAccept, AccessReject
+from pyrad.dictionary import Dictionary
 
-# Configurando o logging para debug
+# Configuração do logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("radius_auth")
+
+# Defina o caminho do arquivo de dicionário
+dictionary_path = "/var/www/Dashboard/app/radius/dictionary"
 
 def authenticate(username, password, secret, server, port=1812):
     try:
         logger.debug(f"Conectando ao servidor RADIUS {server} na porta {port} com secret '{secret}'")
 
-        # Criando o cliente RADIUS usando py-radius
-        client = radius.Radius(secret=secret, host=server, port=port, retries=3, timeout=6)
+        # Configuração do cliente RADIUS com pyrad, usando o arquivo de dicionário
+        client = Client(server=server, secret=secret.encode(), dict=Dictionary(dictionary_path))
+        client.auth_port = port
 
-        # Enviando o pacote de autenticação
-        success = client.authenticate(username, password)
+        # Criação do pacote de requisição de autenticação
+        req = client.CreateAuthPacket(code=AccessRequest)
+        req["User-Name"] = username
+        req["User-Password"] = req.PwCrypt(password)
+        req["NAS-IP-Address"] = "127.0.0.1"  # Ajuste conforme necessário
 
-        if success:
+        # Envio do pacote e recebimento da resposta
+        reply = client.SendPacket(req)
+
+        if reply is None:
+            raise ValueError("Nenhuma resposta recebida do servidor RADIUS")
+
+        if reply.code == AccessAccept:
             logger.info("Autenticado com sucesso!")
             return {"success": True, "message": "Autenticado com sucesso"}
-        else:
+        elif reply.code == AccessReject:
             logger.info("Falha na autenticação.")
             return {"success": False, "message": "Falha na autenticação"}
-    
+        else:
+            logger.error("Resposta inesperada do servidor RADIUS.")
+            return {"success": False, "message": "Resposta inesperada do servidor RADIUS"}
     except Exception as e:
         logger.error(f"Erro inesperado durante a autenticação: {e}")
         return {"success": False, "message": f"Erro inesperado: {e}"}
