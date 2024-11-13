@@ -226,17 +226,18 @@ export default {
       remainingTime.value = 0;
     };
 
-
-    const openFormInNewTab = async () => {
+    const openFormInNewTab = () => {
   if (campanha?.urlForms) {
-    
-    await handleContinue();
+    // Abre o formulário em uma nova aba imediatamente
+    window.open(campanha.urlForms, '_blank');
 
-   /* setTimeout(() => {
-      window.open(campanha.urlForms, '_blank');
-    }, 2000);*/
+    // Aguarda um curto período antes de iniciar o redirecionamento do login
+    setTimeout(async () => {
+      await handleContinue(); // Autentica e redireciona o usuário
+    }, 2000); // Ajuste o tempo conforme necessário
   }
 };
+
 
     const handleAdClick = () => {
       if (campanha?.url) {
@@ -244,40 +245,17 @@ export default {
       }
     };
 
-    const handleContinue = async () => {
-  isLoading.value = true;
-
-  if (redirectUrl.value) {
-    try {
-      // Envia a solicitação de autenticação
-      const response = await fetch(redirectUrl.value, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ /* Dados de autenticação, se necessários */ })
-      });
-
-      if (response.ok) {
-        // Autenticação bem-sucedida, redireciona para o Google Forms
-        console.log('Autenticação bem-sucedida');
-        setTimeout(() => {
-          window.location.href = campanha.urlForms;
-        }, 1000); // Aguarda 1 segundo para uma transição suave
-      } else {
-        console.error('Falha na autenticação:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Erro durante a autenticação:', error);
-    } finally {
-      isLoading.value = false;
-    }
-  } else {
-    console.error('URL de redirecionamento não encontrada');
-    isLoading.value = false;
-  }
-};
-
+    const handleContinue = () => {
+      isLoading.value = true;  
+      
+     
+        if (redirectUrl.value) {
+          window.location.href = redirectUrl.value;
+        } else {
+          console.error('URL de redirecionamento não encontrada');
+        }
+     
+    };
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
