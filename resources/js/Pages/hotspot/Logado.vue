@@ -245,17 +245,14 @@ export default {
     };
 
     const handleContinue = () => {
-      isLoading.value = true;  
-      
-     
-        if (redirectUrl.value) {
-          window.location.href = redirectUrl.value;
-          console.log('URL de redirecionamento:', redirectUrl.value);
-        } else {
-          console.error('URL de redirecionamento não encontrada');
-        }
-     
-    };
+  isLoading.value = true;
+
+  if (redirectUrl.value) {
+    window.open(redirectUrl.value, '_self'); // Redireciona diretamente para a controladora em nova aba
+  } else {
+    console.error('URL de redirecionamento não encontrada');
+  }
+};
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
