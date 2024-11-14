@@ -227,7 +227,16 @@ export default {
     };
 
 
+    const openFormInNewTab = async () => {
+  if (campanha?.urlForms) {
+    
+    await handleContinue();
 
+    setTimeout(() => {
+      window.open(campanha.urlForms, '_blank');
+    }, 2000);
+  }
+};
 
     const handleAdClick = () => {
       if (campanha?.url) {
@@ -235,31 +244,18 @@ export default {
       }
     };
 
-    const handleContinue = async () => {
-  isLoading.value = true;
-  try {
-    const response = await fetch(redirectUrl.value, { method: 'GET', credentials: 'include' });
-    if (response.ok) {
-      window.location.href = redirectUrl.value;
-    } else {
-      console.error('Erro de autenticação.');
-    }
-  } catch (error) {
-    console.error('Erro ao redirecionar:', error);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const openFormInNewTab = async () => {
-  if (campanha?.urlForms) {
-    await handleContinue();
-    setTimeout(() => {
-      window.location.href = campanha.urlForms;
-    }, 2000);
-  }
-};
-
+    const handleContinue = () => {
+      isLoading.value = true;  
+      
+     
+        if (redirectUrl.value) {
+          window.location.href = redirectUrl.value;
+          console.log('URL de redirecionamento:', redirectUrl.value);
+        } else {
+          console.error('URL de redirecionamento não encontrada');
+        }
+     
+    };
 
     const updateIsMobile = () => {
       isMobile.value = window.innerWidth <= 768;
